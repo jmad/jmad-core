@@ -2,6 +2,7 @@
 *.jar
 .settings
 .classpath
+.project
 bin
 cbng*
 fort.69

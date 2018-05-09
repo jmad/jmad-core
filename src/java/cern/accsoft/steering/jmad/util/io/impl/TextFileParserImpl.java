@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.tools.bzip2.CBZip2InputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 import cern.accsoft.steering.jmad.util.io.TextFileParser;
 import cern.accsoft.steering.jmad.util.io.TextFileParserException;
@@ -83,7 +83,7 @@ public class TextFileParserImpl implements TextFileParser {
                     throw new TextFileParserException("Error while reading from file stream.");
                 }
 
-                reader = new BufferedReader(new InputStreamReader(new CBZip2InputStream(tfsData)));
+                reader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(tfsData)));
 
             } else {
                 reader = new BufferedReader(new FileReader(file));

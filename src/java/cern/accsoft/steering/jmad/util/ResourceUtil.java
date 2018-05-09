@@ -38,6 +38,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
@@ -49,12 +50,8 @@ import org.apache.log4j.Logger;
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public final class ResourceUtil {
-
     /** the logger for the class */
     private static final Logger LOGGER = Logger.getLogger(ResourceUtil.class);
-
-    /** the file extension to detect a jar */
-    private static final String JAR_EXT = ".jar";
 
     private ResourceUtil() {
         /* only static methods */
@@ -97,64 +94,89 @@ public final class ResourceUtil {
         }
     }
 
+    /**
+     * Converts the given package name into a path like string (e.g. "a.java.pkg" is converted to "a/java/pkg"). Hereby
+     * always slashes ("/") are used and not the system file separator.
+     * 
+     * @param packageName the package name to convert
+     * @return the converted package name as path represention
+     */
+    public static String packageToPath(String packageName) {
+        return packageName.replaceAll("\\.", "/");
+    }
+
     /*
      * The following code was found on the net at http://forums.devx.com/showthread.php?t=153784
      */
 
     /**
-     * for all elements of java.class.path get a Collection of resources Pattern pattern = Pattern.compile(".*"); gets
-     * all resources
+     * for all elements of java.class.path get a Collection of resources. All ressources can be found with:
+     * <p>
+     * <code>
+     * Pattern pattern = Pattern.compile(".*"); 
+     * </code>
      * 
      * @param pattern the pattern to match
      * @return the resources in the order they are found
      */
     public static Collection<String> getResources(Pattern pattern) {
         ArrayList<String> retval = new ArrayList<String>();
-
-        /*
-         * first we check the classpath, only directories and ignore the jars
-         */
-        retval.addAll(getResourcesFromClassPath(pattern, true));
-
-        /*
-         * Then we go through all loaded jars to search the files. This is necessary especially when running from jnlp.
-         */
-        retval.addAll(getResourcesFromLoadedJars(ResourceUtil.class, pattern));
+        retval.addAll(getResourcesFromClassPath(pattern));
         return retval;
     }
 
     /**
      * @param pattern a regular expression pattern to search
-     * @param ignoreJars if <code>true</code> then all jars in the classpath are ignored, if <code>false</code> they are
-     *            included.
      * @return all names of the resources included in the class-path (jars and directories)
      */
-    private static Collection<String> getResourcesFromClassPath(Pattern pattern, boolean ignoreJars) {
+    private static Collection<String> getResourcesFromClassPath(Pattern pattern) {
         List<String> retval = new ArrayList<String>();
-        String classPath = System.getProperty("java.class.path", ".");
-        String[] classPathElements = classPath.split(File.pathSeparator);
+
+        Set<String> classPathElements = ClassPathUtil.getAllClassPathEntries();
         for (String element : classPathElements) {
             LOGGER.debug("Processing classpath entry '" + element + "'");
-            retval.addAll(getResources(element, pattern, ignoreJars));
+            retval.addAll(getResources(element, pattern));
         }
         return retval;
     }
 
-    private static Collection<String> getResources(String element, Pattern pattern, boolean ignoreJars) {
+    private static Collection<String> getResources(String element, Pattern pattern) {
         ArrayList<String> retval = new ArrayList<String>();
-        File file = new File(element);
-        if (file.isDirectory()) {
-            retval.addAll(getResourcesFromDirectory(file, pattern));
+        if (JarUtil.isJarName(element)) {
+            retval.addAll(getResourcesFromJarFile(element, pattern));
         } else {
-            if (!ignoreJars) {
-                retval.addAll(getResourcesFromJarFile(file, pattern));
+            File file = getFileFromUrlString(element);
+            if (file == null) {
+                LOGGER.warn("Could not correctly associate '" + element + "' to a file!?");
+            } else {
+                if (file.isDirectory()) {
+                    retval.addAll(getResourcesFromDirectory(file, pattern));
+                } else {
+                    LOGGER.warn("Do not know how to process classpath entry '" + element + "'");
+                }
             }
         }
         return retval;
     }
 
-    private static Collection<String> getResourcesFromJarFile(File file, Pattern pattern) {
-        return ZipUtil.getFileNames(file, pattern);
+    private static Collection<String> getResourcesFromJarFile(String fileName, Pattern pattern) {
+        Collection<String> retvals = new ArrayList<String>();
+        JarFile jarFile = null;
+        try {
+            jarFile = JarUtil.getJarFile(fileName);
+            retvals = ZipUtil.getFileNames(jarFile, pattern);
+        } catch (IOException e) {
+            LOGGER.warn("Unable to open jar '" + fileName + "'. Ignoring it.");
+        } finally {
+            if (jarFile != null) {
+                try {
+                    jarFile.close();
+                } catch (IOException e) {
+                    LOGGER.error("Erro while closing jar file.", e);
+                }
+            }
+        }
+        return retvals;
     }
 
     private static Collection<String> getResourcesFromDirectory(File directory, Pattern pattern) {
@@ -178,45 +200,15 @@ public final class ResourceUtil {
         return retval;
     }
 
-    private static List<String> getResourcesFromLoadedJars(Class<?> clazz, Pattern pattern) {
-        List<String> retval = new ArrayList<String>();
-        ClassLoader classLoader = clazz.getClassLoader();
-        while (classLoader != null) {
-            if (classLoader instanceof URLClassLoader) {
-                URL[] urls = ((URLClassLoader) classLoader).getURLs();
-                for (int i = 0; i < urls.length; i++) {
-                    if (urls[i] != null && urls[i].toString().endsWith(JAR_EXT)) {
-                        JarFile jarFile = null;
-                        try {
-                            /*
-                             * Create a URL that refers to a jar file in the file system
-                             */
-                            URL url = new URL("jar:" + urls[i].toExternalForm() + "!/");
-
-                            /* Get the jar file */
-                            JarURLConnection conn = (JarURLConnection) url.openConnection();
-                            jarFile = conn.getJarFile();
-
-                            Collection<String> jarResources = ZipUtil.getFileNames(jarFile, pattern);
-                            retval.addAll(jarResources);
-                        } catch (MalformedURLException e) {
-                            LOGGER.error("Could not open jar file.", e);
-                        } catch (IOException e) {
-                            LOGGER.error("Could not open jar file.", e);
-                        } finally {
-                            if (jarFile != null) {
-                                try {
-                                    jarFile.close();
-                                } catch (IOException e) {
-                                    LOGGER.error("Erro while closing jar file.", e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            classLoader = classLoader.getParent();
+    private static final File getFileFromUrlString(String urlString) {
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e1) {
+            return null;
         }
-        return retval;
+        File f = null;
+        f = new File(url.getPath());
+        return f;
     }
 }

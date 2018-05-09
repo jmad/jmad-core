@@ -25,7 +25,9 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
-import static cern.accmodel.commons.util.ResourceUtil.prependPathOffset;
+
+
+import static cern.accsoft.steering.jmad.util.ResourceUtil.prependPathOffset;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,6 +48,7 @@ import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
+import cern.accsoft.steering.jmad.util.ResourceUtil;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
 

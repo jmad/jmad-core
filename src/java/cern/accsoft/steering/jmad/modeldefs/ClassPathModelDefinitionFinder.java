@@ -25,7 +25,6 @@
  */
 package cern.accsoft.steering.jmad.modeldefs;
 
-import static cern.accmodel.commons.util.ResourceUtil.packageToPath;
 import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil.BASE_CLASS;
 import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil.PACKAGE_OFFSET;
 
@@ -36,13 +35,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import cern.accmodel.commons.util.ResourceUtil;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformationImpl;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
 import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
+import cern.accsoft.steering.jmad.util.ResourceUtil;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
 
 /**
@@ -68,7 +67,7 @@ public class ClassPathModelDefinitionFinder implements ModelDefinitionFinder {
         for (String resourceName : definitionFileNames) {
             String resourcePath = PACKAGE_OFFSET + "/" + resourceName;
             InputStream inputStream = BASE_CLASS.getResourceAsStream(resourcePath);
-            String parentPath = packageToPath(BASE_CLASS.getPackage().getName()) + "/" + PACKAGE_OFFSET;
+            String parentPath = ResourceUtil.packageToPath(BASE_CLASS.getPackage().getName()) + "/" + PACKAGE_OFFSET;
 
             JMadModelDefinition modelDefinition = null;
             try {

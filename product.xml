@@ -4,8 +4,6 @@
 		<jar>jmad-core.jar</jar>
 		<!-- Please keep pom.xml in sync with product.xml (Maven migration) -->
 		<dependencies>
-			<dep product="accmodel-commons-util" version="CTX" />
-			
 			<dep product="commons-beanutils" version="PRO" />
 			<dep product="accsoft-steering-commons" version="PRO" />
 

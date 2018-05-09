@@ -46,7 +46,6 @@ import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformationImpl;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
-import cern.accsoft.steering.jmad.util.PathUtil;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
 
 /**

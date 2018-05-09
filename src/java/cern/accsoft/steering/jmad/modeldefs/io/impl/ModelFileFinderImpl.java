@@ -48,7 +48,6 @@ import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
-import cern.accsoft.steering.jmad.util.ResourceUtil;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
 

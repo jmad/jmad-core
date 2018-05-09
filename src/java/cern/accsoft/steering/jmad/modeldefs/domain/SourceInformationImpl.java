@@ -28,7 +28,6 @@ package cern.accsoft.steering.jmad.modeldefs.domain;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
-import java.util.Objects;
 
 /**
  * The default implementation for the {@link SourceInformation} interface.

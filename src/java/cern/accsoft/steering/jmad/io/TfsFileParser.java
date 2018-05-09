@@ -31,9 +31,9 @@ import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultImpl;
 import cern.accsoft.steering.jmad.domain.result.tfs.TfsSummaryImpl;
 import cern.accsoft.steering.jmad.util.MadxVarType;
 import cern.accsoft.steering.jmad.util.StringUtil;
-import cern.accsoft.steering.util.io.TextFileParser;
-import cern.accsoft.steering.util.io.TextFileParserException;
-import cern.accsoft.steering.util.io.impl.TextFileParserImpl;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 
 /**
  * This class provides an interface to read MadX-output files. The read data is returned in a Result - Object.

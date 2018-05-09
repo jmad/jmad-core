@@ -5,13 +5,12 @@
 		<!-- Please keep pom.xml in sync with product.xml (Maven migration) -->
 		<dependencies>
 			<dep product="commons-beanutils" version="PRO" />
-			<dep product="accsoft-steering-commons" version="PRO" />
+		<!-- 	<dep product="accsoft-steering-commons" version="PRO" />  -->
 
 			<dep product="log4j" version="PRO" local="true" />
 			<dep product="slf4j-api" version="PRO" />
 			<dep product="bzip2" version="PRO" />
 			<dep product="xstream" version="PRO" />
-			<!-- <dep product="xpp3_min" version="1.1.4c" /> -->
 
 			<!-- for the response matrix stuff. Should go to separate package at some time. -->
 			<dep product="jama" version="PRO" />
@@ -20,9 +19,6 @@
 			<!-- for all the bean handling -->
 			<dep product="spring-core" version="PRO" />
 			<dep product="spring-context" version="PRO" />
-
-			<!-- For the custom ant parts -->
-			<dep product="ant" version="PRO" local="true" />
 
 			<!-- for testing -->
 			<dep product="easymock" version="PRO" local="true" />

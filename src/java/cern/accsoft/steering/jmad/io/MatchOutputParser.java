@@ -30,9 +30,9 @@ import cern.accsoft.steering.jmad.domain.result.match.output.MadxVaryResultImpl;
 import cern.accsoft.steering.jmad.domain.result.match.output.MatchConstraintResultGlobal;
 import cern.accsoft.steering.jmad.domain.result.match.output.MatchConstraintResultLocal;
 import cern.accsoft.steering.jmad.kernel.task.RunMatch;
-import cern.accsoft.steering.util.io.TextFileParser;
-import cern.accsoft.steering.util.io.TextFileParserException;
-import cern.accsoft.steering.util.io.impl.TextFileParserImpl;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 
 /**
  * This class provides an interface to read MadX Matching-Output. The read data is returned in a Result - Object.

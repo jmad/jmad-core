@@ -33,9 +33,9 @@ import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
 import cern.accsoft.steering.jmad.domain.result.StrengthResult;
 import cern.accsoft.steering.jmad.domain.var.custom.CustomVariable;
 import cern.accsoft.steering.jmad.domain.var.custom.CustomVariableImpl;
-import cern.accsoft.steering.util.io.TextFileParser;
-import cern.accsoft.steering.util.io.TextFileParserException;
-import cern.accsoft.steering.util.io.impl.TextFileParserImpl;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 
 public class StrengthFileParser {
     private static final Logger LOGGER = Logger.getLogger(StrengthFileParser.class);

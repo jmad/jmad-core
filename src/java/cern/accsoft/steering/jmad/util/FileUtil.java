@@ -34,9 +34,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import cern.accsoft.steering.util.io.TextFileParser;
-import cern.accsoft.steering.util.io.TextFileParserException;
-import cern.accsoft.steering.util.io.impl.TextFileParserImpl;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 
 /**
  * This class contains some useful static methods for handling files

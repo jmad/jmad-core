@@ -28,9 +28,9 @@ import java.util.List;
 import cern.accsoft.steering.jmad.domain.result.track.DynapResult;
 import cern.accsoft.steering.jmad.domain.result.track.DynapResultImpl;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxDynapVariable;
-import cern.accsoft.steering.util.io.TextFileParser;
-import cern.accsoft.steering.util.io.TextFileParserException;
-import cern.accsoft.steering.util.io.impl.TextFileParserImpl;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 
 /**
  * This class provide methods to parse a dynap output. Information in the summary part are discarded.

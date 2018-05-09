@@ -29,9 +29,9 @@ import java.util.List;
 import cern.accsoft.steering.jmad.domain.result.track.TrackResult;
 import cern.accsoft.steering.jmad.domain.result.track.TrackResultImpl;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTrackVariable;
-import cern.accsoft.steering.util.io.TextFileParser;
-import cern.accsoft.steering.util.io.TextFileParserException;
-import cern.accsoft.steering.util.io.impl.TextFileParserImpl;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 
 /**
  * This class provide methods to parse a track output.

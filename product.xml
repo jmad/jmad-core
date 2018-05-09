@@ -4,16 +4,14 @@
 		<jar>jmad-core.jar</jar>
 		<!-- Please keep pom.xml in sync with product.xml (Maven migration) -->
 		<dependencies>
-			<dep product="commons-beanutils" version="PRO" />
-		<!-- 	<dep product="accsoft-steering-commons" version="PRO" />  -->
+		 	<dep product="commons-beanutils" version="PRO" />  
 
 			<dep product="log4j" version="PRO" local="true" />
 			<dep product="slf4j-api" version="PRO" />
-			<dep product="bzip2" version="PRO" />
 			<dep product="xstream" version="PRO" />
 
 			<!-- for the response matrix stuff. Should go to separate package at some time. -->
-			<dep product="jama" version="PRO" />
+ 			<dep product="jama" version="PRO" />  
 			<dep product="guava" version="PRO" />
 
 			<!-- for all the bean handling -->

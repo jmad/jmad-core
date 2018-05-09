@@ -2,4 +2,9 @@
 *.jar
 .settings
 .classpath
+bin
+cbng*
+fort.69
+lyapunov.data
+.gradle
 build

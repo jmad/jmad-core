@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class StrengthFileParserTestNotForBamboo {
-    private static final String TEST_FILE_2_NAME_FOR_PARSER = "testFileForParser/testFile.str";
+    private static final String TEST_FILE_2_NAME_FOR_PARSER = "src/test/cern/accsoft/steering/jmad/io/testFile.str";
     private static final File DENSE_FILE_TO_PARSE = new File(TEST_FILE_2_NAME_FOR_PARSER);
     private StrengthFileParser parser;
 

@@ -1,11 +1,11 @@
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
+import com.thoughtworks.xstream.XStream;
+
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsJsonConverter;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.util.xml.GenericXStreamService;
 import cern.accsoft.steering.jmad.util.xml.JsonXStreamService;
-
-import com.thoughtworks.xstream.XStream;
 
 public class JsonModelDefinitionPersistenceService extends AbstractModelDefinitionPersistenceService {
 

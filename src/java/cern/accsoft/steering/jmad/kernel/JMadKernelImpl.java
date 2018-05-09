@@ -47,7 +47,8 @@ import cern.accsoft.steering.jmad.util.TempFileUtil;
  */
 public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
-    private static final int MAX_ERROR_LINES = 10;
+    private static final int MAX_REPORTED_OUTPUT_LINES = 10;
+    private static final int MAX_REPORTED_ERROR_LINES = 10;
 
     /** the logger for the class */
     private static final Logger LOGGER = Logger.getLogger(JMadKernelImpl.class);
@@ -241,26 +242,31 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
             // result = parser.getResult();
             // ???
 
-            if (ResultType.TFS_RESULT == executable.getResultType()) {
-                TfsFileParser parser = new TfsFileParser(resultFile);
-                parser.parse();
-                result = parser.getResult();
-            } else if (ResultType.VALUES_RESULT == executable.getResultType()) {
-                StrengthFileParser parser = new StrengthFileParser(resultFile);
-                parser.parse();
-                result = parser.getResult();
-            } else if (ResultType.MATCH_RESULT == executable.getResultType()) {
-                MatchOutputParser parser = new MatchOutputParser(executable.getOutputFile());
-                parser.parse();
-                result = parser.getResult();
-            } else if (ResultType.TRACK_RESULT == executable.getResultType()) {
-                TrackOutputParser parser = new TrackOutputParser(executable.getOutputFile());
-                parser.parse();
-                result = parser.getResult();
-            } else if (ResultType.DYNAP_RESULT == executable.getResultType()) {
-                DynapOutputParser parser = new DynapOutputParser(executable.getOutputFile());
-                parser.parse();
-                result = parser.getResult();
+            try {
+                if (ResultType.TFS_RESULT == executable.getResultType()) {
+                    TfsFileParser parser = new TfsFileParser(resultFile);
+                    parser.parse();
+                    result = parser.getResult();
+                } else if (ResultType.VALUES_RESULT == executable.getResultType()) {
+                    StrengthFileParser parser = new StrengthFileParser(resultFile);
+                    parser.parse();
+                    result = parser.getResult();
+                } else if (ResultType.MATCH_RESULT == executable.getResultType()) {
+                    MatchOutputParser parser = new MatchOutputParser(executable.getOutputFile());
+                    parser.parse();
+                    result = parser.getResult();
+                } else if (ResultType.TRACK_RESULT == executable.getResultType()) {
+                    TrackOutputParser parser = new TrackOutputParser(executable.getOutputFile());
+                    parser.parse();
+                    result = parser.getResult();
+                } else if (ResultType.DYNAP_RESULT == executable.getResultType()) {
+                    DynapOutputParser parser = new DynapOutputParser(executable.getOutputFile());
+                    parser.parse();
+                    result = parser.getResult();
+                }
+            } catch (Exception e) {
+                throw new JMadException("File '" + resultFile.getAbsolutePath() + "' could not be parsed."
+                        + "\nProbably madx did not produce it?" + "\n\n" + madxOutputMessage());
             }
 
             if (!this.keepOutputFile) {
@@ -340,12 +346,21 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
     }
 
     private void throwTerminatedException(ProcessTerminatedUnexpectedlyException e) throws MadxTerminatedException {
-        List<String> lastMadxErrorLines = FileUtil.tail(madxErrorLogFile, MAX_ERROR_LINES);
-        throw new MadxTerminatedException("Madx terminated unexpectedly.\n\n" + "MadX error output (Max last "
-                + MAX_ERROR_LINES + " lines):\n---\n'" + StringUtil.join(lastMadxErrorLines, "\n") + "'.\n---\n"
-                + "\nFull MadX Input Log: '" + madxInputLogFile.getAbsolutePath() + "'" + "\nFull MadX Output Log: '"
-                + madxOutputLogFile.getAbsolutePath() + "'" + "\nFull MadX Error Log: '"
-                + madxErrorLogFile.getAbsolutePath() + "'\n", e);
+        throw new MadxTerminatedException("Madx terminated unexpectedly.\n\n" + madxOutputMessage(), e);
+    }
+
+    private String madxOutputMessage() {
+        return fileSnippet("output", madxOutputLogFile, MAX_REPORTED_OUTPUT_LINES) //
+                + fileSnippet("error output", madxErrorLogFile, MAX_REPORTED_ERROR_LINES) //
+                + "\nFull MadX Input Log: '" + madxInputLogFile.getAbsolutePath() + "'" //
+                + "\nFull MadX Output Log: '" + madxOutputLogFile.getAbsolutePath() + "'" //
+                + "\nFull MadX Error Log: '" + madxErrorLogFile.getAbsolutePath() + "'\n";
+    }
+
+    private String fileSnippet(String fileQualifier, File file, int maxLines) {
+        List<String> lastMadxErrorLines = FileUtil.tail(file, maxLines);
+        return "MadX " + fileQualifier + "(Max last " + maxLines + " lines):\n---\n'"
+                + StringUtil.join(lastMadxErrorLines, "\n") + "'.\n---\n";
     }
 
     private void deleteReadyFileWithRetries() throws JMadException {

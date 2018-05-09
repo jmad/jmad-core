@@ -22,10 +22,10 @@
 
 package cern.accsoft.steering.jmad.domain.beam; // NOPMD by kaifox on 6/25/10 5:26 PM
 
-import cern.accsoft.steering.jmad.domain.types.MadxValue;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+import cern.accsoft.steering.jmad.domain.types.MadxValue;
 
 /**
  * Represents all the attributes a particle beam in MadX can have. Detailed information can be found <a

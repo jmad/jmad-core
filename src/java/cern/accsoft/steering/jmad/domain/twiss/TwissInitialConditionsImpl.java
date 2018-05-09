@@ -25,13 +25,13 @@ package cern.accsoft.steering.jmad.domain.twiss;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import cern.accsoft.steering.jmad.domain.optics.EditableOpticPointImpl;
 import cern.accsoft.steering.jmad.domain.optics.OpticPointImpl;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
 import cern.accsoft.steering.jmad.util.xml.CloneUtil;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("twiss-initial-conditions")
 public final class TwissInitialConditionsImpl extends EditableOpticPointImpl implements NamedBean,

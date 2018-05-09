@@ -27,16 +27,17 @@ import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 
 public class JMadModelStartupConfiguration {
 
-    private boolean loadDefaultOptics = true;
     private boolean loadDefaultRange = true;
     private OpticsDefinition initialOpticsDefinition = null;
     private RangeDefinition initialRangeDefinition = null;
 
     /**
      * @return true, if the default optics shall be loaded on startup
+     * @deprecated Cannot be set separately anymore
      */
+    @Deprecated
     public boolean isLoadDefaultOptics() {
-        return this.loadDefaultOptics;
+        return (this.initialOpticsDefinition == null);
     }
 
     /**
@@ -72,10 +73,6 @@ public class JMadModelStartupConfiguration {
      * setters
      */
 
-    public void setLoadDefaultOptics(boolean loadDefaultOptics) {
-        this.loadDefaultOptics = loadDefaultOptics;
-    }
-
     public void setLoadDefaultRange(boolean loadDefaultRange) {
         this.loadDefaultRange = loadDefaultRange;
     }
@@ -86,5 +83,13 @@ public class JMadModelStartupConfiguration {
 
     public void setInitialRangeDefinition(RangeDefinition initialRangeDefinition) {
         this.initialRangeDefinition = initialRangeDefinition;
+    }
+
+    /**
+     * @deprecated does nothing!!!!
+     */
+    @Deprecated
+    public void setLoadDefaultOptics(boolean b) {
+        /* does nothing */
     }
 }

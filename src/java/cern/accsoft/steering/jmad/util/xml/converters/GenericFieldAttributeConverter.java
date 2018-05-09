@@ -177,15 +177,8 @@ public class GenericFieldAttributeConverter<T> implements Converter {
          * 
          * @XStreamAsAttribute annotation.
          */
-
-        /*
-         * TODO: To work for xstream version 1.3.1 this has to be changed to:
-         * 
-         * SingleValueConverter singleValueConverter = mapper.getConverterFromAttribute(this.clazz, fieldName,
-         * fieldType);
-         */
-        SingleValueConverter singleValueConverter = mapper.getConverterFromAttribute(this.clazz, fieldName);
-
+        SingleValueConverter singleValueConverter = mapper.getConverterFromItemType(fieldName, fieldType, this.clazz);
+        
         /*
          * if this did not succeed then we try to lookup the converter from the ConverterLookup ... but this is then not
          * necessarily a SingleValueConverter ...

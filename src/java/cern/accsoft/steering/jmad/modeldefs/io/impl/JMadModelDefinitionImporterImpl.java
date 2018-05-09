@@ -25,6 +25,8 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
+import static cern.accsoft.steering.jmad.util.PathUtil.parentPath;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +46,7 @@ import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformationImpl;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
+import cern.accsoft.steering.jmad.util.PathUtil;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
 
 /**
@@ -119,7 +122,7 @@ public class JMadModelDefinitionImporterImpl implements JMadModelDefinitionImpor
         }
         if (modelDefinition instanceof JMadModelDefinitionImpl) {
             ((JMadModelDefinitionImpl) modelDefinition).setSourceInformation(new SourceInformationImpl(SourceType.FILE,
-                    xmlFile.getAbsoluteFile().getParentFile(), xmlFile.getName()));
+                    xmlFile.getAbsoluteFile().getParentFile(), xmlFile.getName(), ""));
         }
         if (modelDefinition != null) {
             modelDefinitions.add(modelDefinition);
@@ -162,13 +165,12 @@ public class JMadModelDefinitionImporterImpl implements JMadModelDefinitionImpor
                 try {
                     modelDefinition = getPersistenceService().load(inputStream);
                 } catch (PersistenceServiceException e) {
-                    LOGGER.error(
-                            "could not load model definition '" + entry.getName() + "' from zip file '"
-                                    + file.getAbsolutePath() + "'.", e);
+                    LOGGER.error("could not load model definition '" + entry.getName() + "' from zip file '"
+                            + file.getAbsolutePath() + "'.", e);
                 }
                 if (modelDefinition instanceof JMadModelDefinitionImpl) {
                     ((JMadModelDefinitionImpl) modelDefinition).setSourceInformation(new SourceInformationImpl(
-                            SourceType.ZIP, file, entry.getName()));
+                            SourceType.ZIP, file, entry.getName(), parentPath(entry.getName())));
                 }
                 if (modelDefinition != null) {
                     modelDefinitions.add(modelDefinition);

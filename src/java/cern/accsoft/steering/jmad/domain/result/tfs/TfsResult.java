@@ -30,6 +30,7 @@ import cern.accsoft.steering.jmad.util.MadxVarType;
 
 public interface TfsResult extends Result {
 
+    
     /**
      * @return the amount of data-columns (amount of variables)
      */

@@ -97,4 +97,10 @@ public class CallableModelFileImpl extends AbstractModelFile implements Callable
         }
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "CallableModelFileImpl [parseType=" + parseType + ", getLocation()=" + getLocation() + ", getName()="
+                + getName() + "]";
+    }
 }

@@ -28,13 +28,13 @@ package cern.accsoft.steering.jmad.domain.machine;
 import java.util.ArrayList;
 import java.util.List;
 
-import cern.accsoft.steering.jmad.domain.beam.Beam;
-import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
+import cern.accsoft.steering.jmad.domain.beam.Beam;
+import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
 
 /**
  * The default implementation for a sequence-definition. A Sequence definition represents a set of files that define a

@@ -7,12 +7,11 @@
  */
 package cern.accsoft.steering.jmad.util.xml;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsXmlConverter;
+import junit.framework.Assert;
 
 /**
  * @author ${user}

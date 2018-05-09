@@ -46,6 +46,7 @@ import cern.accsoft.steering.jmad.domain.track.TrackInitialCondition;
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
 import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSet;
 import cern.accsoft.steering.jmad.kernel.JMadKernel;
+import cern.accsoft.steering.jmad.model.manage.StrengthVarManager;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
@@ -438,4 +439,6 @@ public interface JMadModel {
      *         addMisalignments(), addMisalignment())
      */
     List<MisalignmentConfiguration> getMisalignments();
+    
+    StrengthVarManager getStrengthVarManager();
 }

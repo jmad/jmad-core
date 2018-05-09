@@ -25,7 +25,10 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.domain;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
+import java.util.Objects;
 
 /**
  * The default implementation for the {@link SourceInformation} interface.
@@ -44,16 +47,27 @@ public class SourceInformationImpl implements SourceInformation {
     private final String xmlFileName;
 
     /**
+     * The path offset inside the archive, relative to which the files can be fond. This is usually the parent of the
+     * xmlFileName
+     */
+    private final String pathOffsetWithinArchive;
+
+    /**
      * The constructor which requires both the {@link SourceInformation.SourceType} and the rootPath
      * 
      * @param sourceType defines the method how the model-file paths will be treated.
      * @param rootPath the path to the zip or base dir for the model definitions
-     * @param xmlFileName the name of the file from which the modelDefinition was loaded
+     * @param xmlFileName the name of the file from which the modelDefinition was loaded (usually fully qualified)
+     * @param pathOffsetWithinArchive the path offset within an archive to use, when querying files. This is usually the
+     *            parent path (within the offset) of the xml file.
      */
-    public SourceInformationImpl(SourceType sourceType, File rootPath, String xmlFileName) {
+    public SourceInformationImpl(SourceType sourceType, File rootPath, String xmlFileName,
+            String pathOffsetWithinArchive) {
         this.sourceType = sourceType;
         this.rootPath = rootPath;
         this.xmlFileName = xmlFileName;
+        this.pathOffsetWithinArchive = requireNonNull(pathOffsetWithinArchive,
+                "pathWithinArchive must not be null");
     }
 
     @Override
@@ -69,6 +83,11 @@ public class SourceInformationImpl implements SourceInformation {
     @Override
     public String getFileName() {
         return this.xmlFileName;
+    }
+
+    @Override
+    public String getPathOffsetWithinArchive() {
+        return this.pathOffsetWithinArchive;
     }
 
 }

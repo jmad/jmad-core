@@ -26,12 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import cern.accsoft.steering.jmad.domain.orbit.OrbitImpl;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+import junit.framework.Assert;
 
 public class OrbitTest {
 

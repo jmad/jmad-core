@@ -14,7 +14,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="jmadModelDefinitionManager" class="cern.accsoft.steering.jmad.modeldefs.JMadModelDefinitionManagerImpl">
 		<property name="finders">
 			<list>
-				<ref local="classPathModelDefinitionFinder" />
+				<ref bean="classPathModelDefinitionFinder" />
 			</list>
 		</property>
 		<lookup-method name="createModelFileFinder" bean="modelFileFinder" />
@@ -71,7 +71,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="jmadModel" class="cern.accsoft.steering.jmad.model.JMadModelImpl" scope="prototype">
 		<property name="modelFileFinderManager" ref="jmadModelDefinitionManager" />
 		<property name="kernel" ref="jmadKernel" />
+		<property name="strengthVarManager" ref="strengthVarManager" />
 	</bean>
+	<bean id="strengthVarManager" class="cern.accsoft.steering.jmad.model.manage.StrengthVarManagerImpl" scope="prototype" />
 
 
 	<bean id="modelComparator" class="cern.accsoft.steering.jmad.service.JMadModelSeqElementOnNameComparator">

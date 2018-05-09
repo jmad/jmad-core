@@ -29,10 +29,10 @@
  */
 package cern.accsoft.steering.jmad.domain.machine.filter;
 
-import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 
 /**
  * basic implementation of {@link NameFilter} using regexpressions.

@@ -48,27 +48,12 @@ public class MadxBinImpl implements MadxBin {
     /** the logger */
     private static final Logger LOGGER = Logger.getLogger(MadxBinImpl.class);
 
-    /**
-     * default values
-     */
     private static final String BIN_NAME_DEFAULT = "madx";
+    private static final String BIN_NAME_INTEL_32 = "madx";
+    private static final String BIN_NAME_INTEL_64 = "madx64";
 
-    /*
-     * values used for windows
-     */
-    private static final String BIN_NAME_WIN = "madx.exe";
     private static final String RESOURCE_PREFIX_WIN = "win/";
-
-    /*
-     * values used for linux
-     */
-    private static final String BIN_NAME_LINUX = "madx";
     private static final String RESOURCE_PREFIX_LINUX = "linux/";
-
-    /*
-     * values used for mac osx
-     */
-    private static final String BIN_NAME_OSX = "madx";
     private static final String RESOURCE_PREFIX_OSX = "osx/";
 
     /** The file util to use (injected by spring) */
@@ -81,6 +66,8 @@ public class MadxBinImpl implements MadxBin {
      * init-method called by spring
      */
     public void init() {
+        LOGGER.info("Perparing MAD-X binary for OS " + OsUtil.getOsName() + " and architecture "
+                + OsUtil.getCpuArchitecture());
         extractExecutable();
     }
 
@@ -100,13 +87,14 @@ public class MadxBinImpl implements MadxBin {
      * @return the name of the executable
      */
     private static final String getExecutableName() {
-        if (OsUtil.isWindows()) {
-            return BIN_NAME_WIN;
-        } else if (OsUtil.isLinux()) {
-            return BIN_NAME_LINUX;
-        } else if (OsUtil.isOsX()) {
-            return BIN_NAME_OSX;
+        if (OsUtil.isIntel32BitArchitecture()) {
+            return BIN_NAME_INTEL_32;
+        } else if (OsUtil.isIntel64BitArchitecture()) {
+            return BIN_NAME_INTEL_64;
         } else {
+            LOGGER.warn("No madx binary available in jar for your architecture  '" + OsUtil.getCpuArchitecture()
+                    + "'.\n If you have no executable (named '" + BIN_NAME_DEFAULT + "') in the path,\n"
+                    + "you will not be able to perform any calculations!");
             return BIN_NAME_DEFAULT;
         }
     }
@@ -116,11 +104,11 @@ public class MadxBinImpl implements MadxBin {
      */
     private static final String getResourceName() {
         if (OsUtil.isWindows()) {
-            return RESOURCE_PREFIX_WIN + BIN_NAME_WIN;
+            return RESOURCE_PREFIX_WIN + getExecutableName();
         } else if (OsUtil.isLinux()) {
-            return RESOURCE_PREFIX_LINUX + BIN_NAME_LINUX;
+            return RESOURCE_PREFIX_LINUX + getExecutableName();
         } else if (OsUtil.isOsX()) {
-            return RESOURCE_PREFIX_OSX + BIN_NAME_OSX;
+            return RESOURCE_PREFIX_OSX + getExecutableName();
         } else {
             LOGGER.warn("No madx binary available in jar for operating system '" + OsUtil.getOsName()
                     + "'.\n If you have no executable in the path,\n"

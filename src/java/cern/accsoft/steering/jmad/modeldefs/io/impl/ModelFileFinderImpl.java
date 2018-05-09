@@ -123,7 +123,9 @@ public class ModelFileFinderImpl implements ModelFileFinder {
             String path = prependPathOffset(archivePath, ModelDefinitionUtil.PACKAGE_OFFSET);
             return ModelDefinitionUtil.BASE_CLASS.getResourceAsStream(path);
         } else if (SourceType.ZIP == sourceType) {
-            return getZipInputStream(getSourceInformation().getRootPath(), archivePath);
+            /* 4) if there is an offset with in the archive, then also prepend this one */
+            String withinZipPath = prependPathOffset(archivePath, sourceInformation.getPathOffsetWithinArchive());
+            return getZipInputStream(getSourceInformation().getRootPath(), withinZipPath);
         } else if (SourceType.FILE == sourceType) {
             return getFileInputStream(getSourceInformation().getRootPath(), archivePath);
         } else {
@@ -157,6 +159,10 @@ public class ModelFileFinderImpl implements ModelFileFinder {
             return null;
         }
         ZipEntry entry = zipFile.getEntry(entryName);
+        if (entry == null) {
+            LOGGER.error("Could not get entry '" + entryName + "' from zip file '" + zipFile + "'.");
+            return null;
+        }
         try {
             return zipFile.getInputStream(entry);
         } catch (IOException e) {
@@ -227,7 +233,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getPathOffset(this.modelPathOffsets));
         /* 3) the offset depending on the type (Resource or repo file) */
         resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getResourcePrefix());
-
+        
         return resourcePath;
     }
 
@@ -241,9 +247,10 @@ public class ModelFileFinderImpl implements ModelFileFinder {
 
     private String getRepositoryBasePath() {
         String basePath = getPreferences().getModelRepositoryBasePath();
-        if ((basePath == null) && (sourceInformation != null) && (SourceType.FILE.equals(sourceInformation.getSourceType()))) {
+        if ((basePath == null) && (sourceInformation != null)
+                && (SourceType.FILE.equals(sourceInformation.getSourceType()))) {
             basePath = sourceInformation.getRootPath().getAbsolutePath();
-        } 
+        }
         if (basePath == null) {
             basePath = DEFAULT_REPOSITORY_BASEPATH;
         }

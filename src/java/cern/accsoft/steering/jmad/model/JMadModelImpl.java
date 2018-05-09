@@ -77,16 +77,14 @@ import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
 import cern.accsoft.steering.jmad.domain.twiss.TwissListener;
 import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSet;
-import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSetImpl;
 import cern.accsoft.steering.jmad.domain.var.enums.EalignVariables;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.io.ApertureReader;
 import cern.accsoft.steering.jmad.io.ApertureReaderImpl;
-import cern.accsoft.steering.jmad.io.StrengthFileParser;
-import cern.accsoft.steering.jmad.io.StrengthFileParserException;
 import cern.accsoft.steering.jmad.kernel.JMadKernel;
 import cern.accsoft.steering.jmad.kernel.JMadKernelImpl;
+import cern.accsoft.steering.jmad.kernel.MadxTerminatedException;
 import cern.accsoft.steering.jmad.kernel.cmd.CallCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
 import cern.accsoft.steering.jmad.kernel.cmd.EOptionCommand;
@@ -109,6 +107,7 @@ import cern.accsoft.steering.jmad.kernel.task.ptc.InitPtcTask;
 import cern.accsoft.steering.jmad.kernel.task.ptc.RunPtcTwiss;
 import cern.accsoft.steering.jmad.kernel.task.track.DynapTask;
 import cern.accsoft.steering.jmad.kernel.task.track.TrackTask;
+import cern.accsoft.steering.jmad.model.manage.StrengthVarManager;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
@@ -153,8 +152,8 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
     /** The listeners */
     private final List<JMadModelListener> listeners = new ArrayList<JMadModelListener>();
 
-    /** contains all the strengths and variables for the model */
-    private final StrengthVarSet strengthVarSet = new StrengthVarSetImpl();
+    /** Keeps track of all the strengths and variables */
+    private StrengthVarManager strengthVarManager;
 
     /** true, if some strengthes have been set since last recalc of optics */
     protected boolean dirtyModel = false;
@@ -281,12 +280,15 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
          */
 
         OpticsDefinition opticsDefinition = getStartupConfiguration().getInitialOpticsDefinition();
-        if ((opticsDefinition == null) && getStartupConfiguration().isLoadDefaultOptics()) {
+        if (opticsDefinition == null) {
             opticsDefinition = getModelDefinition().getDefaultOpticsDefinition();
         }
-        if (opticsDefinition != null) {
-            setActiveOpticsDefinition(opticsDefinition);
+        if (opticsDefinition == null) {
+            throw new JMadModelException(
+                    "Neither a initial optic (in the startup configuration), nor a default optics is defined."
+                            + "Cannot correctly initialize the model.");
         }
+        setActiveOpticsDefinition(opticsDefinition);
 
         RangeDefinition rangeDefinition = getStartupConfiguration().getInitialRangeDefinition();
         if ((rangeDefinition == null) && getStartupConfiguration().isLoadDefaultRange()) {
@@ -295,7 +297,6 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         if (rangeDefinition != null) {
             setActiveRangeDefinition(rangeDefinition);
         }
-
         calcOptics();
     }
 
@@ -310,7 +311,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         }
 
         if (containsStrengthFile) {
-            for (Strength strength : this.strengthVarSet.getStrengths()) {
+            for (Strength strength : strengthVarManager.getStrengthVarSet().getStrengths()) {
                 strength.removeListener(this.strengthListener);
             }
         }
@@ -320,7 +321,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
             if (modelFile instanceof CallableModelFile) {
                 this.call(file);
                 if (ParseType.STRENGTHS == ((CallableModelFile) modelFile).getParseType()) {
-                    parseStrengths(file);
+                    strengthVarManager.load(file);
                 }
             } else if (modelFile instanceof TableModelFile) {
                 this.readTable(file, ((TableModelFile) modelFile).getTableName());
@@ -329,7 +330,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
             }
         }
         if (containsStrengthFile) {
-            for (Strength strength : this.strengthVarSet.getStrengths()) {
+            for (Strength strength : this.strengthVarManager.getStrengthVarSet().getStrengths()) {
                 strength.addListener(this.strengthListener);
             }
         }
@@ -786,6 +787,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
         Range range = new Range(rangeDefinition);
 
+        System.out.println(getActiveOpticsDefinition());
         if (getKernel().isMadxRunning()) {
             Beam beam = rangeDefinition.getSequenceDefinition().getBeam();
 
@@ -797,22 +799,38 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
                     beam.setSequence(rangeDefinition.getSequenceDefinition().getName());
                     getKernel().execute(new SetBeam(beam));
                 }
+            } catch (JMadException e) {
+                throw new JMadModelException("could not set Beam to '" + beam + "' in model '" + this + "'.", e);
+            }
 
+            try {
                 if (rangeDefinition.getStartElementName() != null) {
                     getKernel().execute(new CycleSequence(rangeDefinition));
                 }
 
+            } catch (JMadException e) {
+                throw new JMadModelException("could not cycle the sequence '" + beam + "' in model '" + this + "'.", e);
+            }
+
+            try {
                 getKernel().execute(new UseCommand(rangeDefinition.getSequenceDefinition().getName(),
                         rangeDefinition.getMadxRange()));
+            } catch (JMadException e) {
+                throw new JMadModelException("error in excuting use command '" + beam + "' in model '" + this + "'.",
+                        e);
+            }
+
+            try {
                 /* ensure, that the ealigns are not added together */
                 getKernel().execute(new EOptionCommand(null, false));
 
-                processModelFiles(rangeDefinition.getPostUseFiles());
-
             } catch (JMadException e) {
                 throw new JMadModelException(
-                        "could not set active Range to '" + range.getName() + "' in model '" + this + "'.", e);
+                        "could not exececute EOption command '" + range.getName() + "' in model '" + this + "'.", e);
             }
+
+            processModelFiles(rangeDefinition.getPostUseFiles());
+
         }
 
         /**
@@ -913,31 +931,23 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         textCmd.setText(cmd);
         try {
             getKernel().execute(textCmd);
+        } catch (MadxTerminatedException e) {
+            throw new RuntimeException("Madx Terminated while executing command '" + textCmd + "'.", e);
         } catch (JMadException e) {
             LOGGER.error("error while executing command + '" + cmd + "' in madx.", e);
         }
+
     }
 
     @Override
     public void call(File file) {
         try {
             getKernel().execute(new CallCommand(file));
+        } catch (MadxTerminatedException e) {
+            throw new RuntimeException("Madx Terminated while calling file '" + file.getAbsolutePath() + "'.", e);
         } catch (JMadException e) {
             LOGGER.error("Error while calling file '" + file.getAbsolutePath() + "'.", e);
         }
-    }
-
-    private void parseStrengths(File file) {
-        StrengthFileParser parser = new StrengthFileParser(file);
-        try {
-            parser.parse();
-        } catch (StrengthFileParserException e) {
-            LOGGER.warn("Could not parse Strength file '" + file.getAbsolutePath() + "'.", e);
-            return;
-        }
-
-        strengthVarSet.addAllStrengths(parser.getStrengths());
-        strengthVarSet.addAllVariables(parser.getVariables());
     }
 
     /**
@@ -1151,7 +1161,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     @Override
     public StrengthVarSet getStrengthsAndVars() {
-        return this.strengthVarSet;
+        return this.strengthVarManager.getStrengthVarSet();
     }
 
     public void setKernel(JMadKernel kernel) {
@@ -1284,5 +1294,14 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
      */
     protected Double getVariableValue(TfsResult misalignmentsRaw, Integer elementIndex, EalignVariables variable) {
         return misalignmentsRaw.getDoubleData(variable).get(elementIndex);
+    }
+
+    public void setStrengthVarManager(StrengthVarManager strengthVarManager) {
+        this.strengthVarManager = strengthVarManager;
+    }
+
+    @Override
+    public StrengthVarManager getStrengthVarManager() {
+        return this.strengthVarManager;
     }
 }

@@ -170,7 +170,7 @@ public class JMadModelDefinitionExporterImpl implements
 			return xmlFile;
 		} catch (PersistenceServiceException e) {
 			LOGGER.error("Could not save model definition to file '"
-					+ xmlFile.getAbsolutePath() + "'.");
+					+ xmlFile.getAbsolutePath() + "'.", e);
 		}
 		return null;
 	}

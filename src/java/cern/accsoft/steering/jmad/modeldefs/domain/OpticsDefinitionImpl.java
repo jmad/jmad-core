@@ -31,11 +31,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cern.accsoft.steering.jmad.domain.file.ModelFile;
-import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 
 /**
  * The default implementation of the Optics definition. to operate correctly it needs a {@link ModelFileFinder} and some

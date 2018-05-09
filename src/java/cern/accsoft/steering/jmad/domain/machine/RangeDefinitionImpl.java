@@ -26,13 +26,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import cern.accsoft.steering.jmad.domain.file.ModelFile;
-import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
-import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
 
 /**
  * this class defines a range in a sequence, by defining the first and the last element.

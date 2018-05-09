@@ -43,23 +43,38 @@
 	</target>
 	<target name="fetch-madx-bin-win">
 		<antcall target="fetch-madx-bin">
-			<param name="srcurl" value="${url.madx.bin.win}" />
+			<param name="srcurl" value="${url.madx.bin.win_32}" />
 			<param name="dstoffset" value="win" />
-			<param name="binname" value="madx.exe" />
+			<param name="binname" value="madx" />
+		</antcall>
+		<antcall target="fetch-madx-bin">
+			<param name="srcurl" value="${url.madx.bin.win_64}" />
+			<param name="dstoffset" value="win" />
+			<param name="binname" value="madx64" />
 		</antcall>
 	</target>
 	<target name="fetch-madx-bin-linux">
 		<antcall target="fetch-madx-bin">
-			<param name="srcurl" value="${url.madx.bin.linux}" />
+			<param name="srcurl" value="${url.madx.bin.linux_32}" />
 			<param name="dstoffset" value="linux" />
 			<param name="binname" value="madx" />
+		</antcall>
+		<antcall target="fetch-madx-bin">
+			<param name="srcurl" value="${url.madx.bin.linux_64}" />
+			<param name="dstoffset" value="linux" />
+			<param name="binname" value="madx64" />
 		</antcall>
 	</target>
 	<target name="fetch-madx-bin-osx">
 		<antcall target="fetch-madx-bin">
-			<param name="srcurl" value="${url.madx.bin.osx}" />
+			<param name="srcurl" value="${url.madx.bin.osx_32}" />
 			<param name="dstoffset" value="osx" />
 			<param name="binname" value="madx" />
+		</antcall>
+		<antcall target="fetch-madx-bin">
+			<param name="srcurl" value="${url.madx.bin.osx_64}" />
+			<param name="dstoffset" value="osx" />
+			<param name="binname" value="madx64" />
 		</antcall>
 	</target>
 

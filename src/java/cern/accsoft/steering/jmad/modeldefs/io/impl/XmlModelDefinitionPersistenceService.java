@@ -14,6 +14,8 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
+import com.thoughtworks.xstream.XStream;
+
 import cern.accsoft.steering.jmad.domain.beam.Beam;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsXmlConverter;
@@ -21,8 +23,6 @@ import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.util.xml.GenericXStreamService;
 import cern.accsoft.steering.jmad.util.xml.XmlXStreamService;
 import cern.accsoft.steering.jmad.util.xml.converters.GenericFieldAttributeConverter;
-
-import com.thoughtworks.xstream.XStream;
 
 /**
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
@@ -51,8 +51,8 @@ public class XmlModelDefinitionPersistenceService extends AbstractModelDefinitio
         /* first the converter */
         xStream.registerConverter(new TwissInitialConditionsXmlConverter());
         xStream.registerConverter(new GenericFieldAttributeConverter<Beam>(xStream, Beam.class));
-        xStream.registerConverter(new GenericFieldAttributeConverter<ModelPathOffsetsImpl>(xStream,
-                ModelPathOffsetsImpl.class));
+        xStream.registerConverter(
+                new GenericFieldAttributeConverter<ModelPathOffsetsImpl>(xStream, ModelPathOffsetsImpl.class));
 
         /* then the super class initialization */
         super.configureXStream(xStream);

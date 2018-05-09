@@ -88,7 +88,7 @@ public class InterpolationTfsResult implements TfsResult {
             }
         }
     }
-
+    
     @Override
     public ResultType getResultType() {
         return ResultType.TFS_RESULT;

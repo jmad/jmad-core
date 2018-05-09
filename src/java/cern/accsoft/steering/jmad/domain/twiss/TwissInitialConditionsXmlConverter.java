@@ -11,13 +11,13 @@
 
 package cern.accsoft.steering.jmad.domain.twiss;
 
-import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
-
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 
 public class TwissInitialConditionsXmlConverter implements Converter {
 

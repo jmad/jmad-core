@@ -62,7 +62,7 @@ public abstract class AbstractModelDefinition implements JMadModelDefinition {
         return sequenceDefinition;
     }
 
-    private SequenceDefinition findSequenceDefinition(String name) {
+    protected SequenceDefinition findSequenceDefinition(String name) {
         if (name == null) {
             LOGGER.error("name of SequenceDefinition was null. Aborting search.");
             return null;
@@ -117,6 +117,7 @@ public abstract class AbstractModelDefinition implements JMadModelDefinition {
         return null;
     }
 
+    
     protected boolean containsSequenceDefinition(String name) {
         return (findSequenceDefinition(name) != null);
     }

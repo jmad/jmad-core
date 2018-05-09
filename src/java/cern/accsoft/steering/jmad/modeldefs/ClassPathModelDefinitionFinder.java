@@ -25,6 +25,10 @@
  */
 package cern.accsoft.steering.jmad.modeldefs;
 
+import static cern.accmodel.commons.util.ResourceUtil.packageToPath;
+import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil.BASE_CLASS;
+import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil.PACKAGE_OFFSET;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,8 +66,10 @@ public class ClassPathModelDefinitionFinder implements ModelDefinitionFinder {
         List<JMadModelDefinition> modelDefinitions = new ArrayList<JMadModelDefinition>();
 
         for (String resourceName : definitionFileNames) {
-            String resourcePath = ModelDefinitionUtil.PACKAGE_OFFSET + "/" + resourceName;
-            InputStream inputStream = ModelDefinitionUtil.BASE_CLASS.getResourceAsStream(resourcePath);
+            String resourcePath = PACKAGE_OFFSET + "/" + resourceName;
+            InputStream inputStream = BASE_CLASS.getResourceAsStream(resourcePath);
+            String parentPath = packageToPath(BASE_CLASS.getPackage().getName()) + "/" + PACKAGE_OFFSET;
+
             JMadModelDefinition modelDefinition = null;
             try {
                 modelDefinition = getPersistenceService().load(inputStream);
@@ -72,8 +78,8 @@ public class ClassPathModelDefinitionFinder implements ModelDefinitionFinder {
                         + ModelDefinitionUtil.BASE_CLASS.getCanonicalName(), e);
             }
             if (modelDefinition instanceof JMadModelDefinitionImpl) {
-                ((JMadModelDefinitionImpl) modelDefinition).setSourceInformation(new SourceInformationImpl(
-                        SourceType.JAR, null, resourceName));
+                ((JMadModelDefinitionImpl) modelDefinition)
+                        .setSourceInformation(new SourceInformationImpl(SourceType.JAR, null, resourceName, parentPath));
             }
             if (modelDefinition != null) {
                 modelDefinitions.add(modelDefinition);

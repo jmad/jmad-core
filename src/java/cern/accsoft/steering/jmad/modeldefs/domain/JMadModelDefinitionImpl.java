@@ -24,19 +24,20 @@ package cern.accsoft.steering.jmad.modeldefs.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.log4j.Logger;
+
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
 import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("jmad-model-definition")
 public class JMadModelDefinitionImpl extends AbstractModelDefinition {
@@ -120,25 +121,11 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
         this.sequenceDefinitions.add(sequenceDefinition);
     }
 
-    public void removeSequenceDefinition(SequenceDefinition sequenceDefinition) {
-        if (sequenceDefinition == null) {
-            return;
+    public void removeSequenceDefinition(String name) {
+        SequenceDefinition seqDefinition = findSequenceDefinition(name);
+        if (seqDefinition != null) {
+            this.sequenceDefinitions.remove(seqDefinition);
         }
-
-        this.sequenceDefinitions.remove(sequenceDefinition);
-        if (sequenceDefinition.equals(this.defaultSequenceDefinition)) {
-            if (this.sequenceDefinitions.size() > 0) {
-                this.defaultSequenceDefinition = this.sequenceDefinitions.get(0);
-            } else {
-                /* PMD: Has to be set to null if the default sequenceDefinition was removed */
-                this.defaultSequenceDefinition = null; // NOPMD by kaifox on 10/6/10 8:20 PM
-            }
-        }
-    }
-
-    public void removeSequenceDefinition(String sName) {
-        SequenceDefinition sequenceDefinition = this.getSequenceDefinition(sName);
-        removeSequenceDefinition(sequenceDefinition);
     }
 
     // ***********************************************
@@ -156,16 +143,11 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     }
 
     public void setDefaultOpticsDefinition(OpticsDefinition opticsDefinition) {
-        if (opticsDefinition == null) {
-            this.defaultOpticsDefinition = null;
-            this.defaultOpticsDefinitionName = null;
-            return;
-        }
+        Objects.requireNonNull(opticsDefinition, "opticsDefinition must not be null");
         if (!this.opticsDefinitions.contains(opticsDefinition)) {
             addOpticsDefinition(opticsDefinition);
         }
 
-        /* if the addition worked */
         if (this.opticsDefinitions.contains(opticsDefinition)) {
             this.defaultOpticsDefinition = opticsDefinition;
             this.defaultOpticsDefinitionName = opticsDefinition.getName();
@@ -175,36 +157,11 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     public void addOpticsDefinition(OpticsDefinition opticsDefinition) {
         String opticsName = opticsDefinition.getName();
         if (containsOpticsDefinition(opticsName)) {
-            LOGGER.error("ModelDefinition [" + this.name + "] already contains an Optics Definition called ["
+            LOGGER.warn("ModelDefinition [" + this.name + "] already contains an Optics Definition called ["
                     + opticsName + "]\n--> rename the Optics Definition to add!!");
             return;
         }
         this.opticsDefinitions.add(opticsDefinition);
-    }
-
-    public void removeOpticsDefinition(OpticsDefinition opticsDefinition) {
-        if (opticsDefinition == null) {
-            return;
-        }
-
-        this.opticsDefinitions.remove(opticsDefinition);
-
-        /*
-         * if we just removed the defaultOptic then set first OpticDef in List as default...
-         */
-        if (this.defaultOpticsDefinition.equals(opticsDefinition)) {
-            if (this.opticsDefinitions.size() > 0) {
-                this.defaultOpticsDefinition = this.opticsDefinitions.get(0);
-            } else {
-                this.defaultOpticsDefinition = null;
-            }
-        }
-
-    }
-
-    public void removeOpticsDefinition(String opticName) {
-        OpticsDefinition opticsDefinition = this.getOpticsDefinition(opticName);
-        removeOpticsDefinition(opticsDefinition);
     }
 
     /**

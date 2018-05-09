@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <products>
-	<product name="accmodel-jmad-core" version="0.2.25" directory="accmodel/jmad/accmodel-jmad-core">
-		<jar>accmodel-jmad-core.jar</jar> 
+	<product name="accmodel-jmad-core" version="0.3.6" directory="accmodel/jmad/accmodel-jmad-core">
+		<jar>accmodel-jmad-core.jar</jar>
 		<!-- Please keep pom.xml in sync with product.xml (Maven migration) -->
 		<dependencies>
-			<dep product="commons-beanutils"/>
-			<dep product="accsoft-steering-commons"/>
-			<dep product="accmodel-commons-util"/>
+			<dep product="accmodel-commons-util" version="CTX" />
+			
+			<dep product="commons-beanutils" version="PRO" />
+			<dep product="accsoft-steering-commons" version="PRO" />
 
-			<dep product="log4j"/>
-			<dep product="bzip2"/>
-			<dep product="xstream" version="PRO"/>
-			<dep product="xstream-xpp-3min" version="PRO"/>
+			<dep product="log4j" version="PRO" local="true" />
+			<dep product="slf4j-api" version="PRO" />
+			<dep product="bzip2" version="PRO" />
+			<dep product="xstream" version="PRO" />
+			<!-- <dep product="xpp3_min" version="1.1.4c" /> -->
 
-			<!-- for the response matrix stuff. Should go to separate package at some 
-				time. -->
-			<dep product="jama"/>
-			<dep product="guava" />
+			<!-- for the response matrix stuff. Should go to separate package at some time. -->
+			<dep product="jama" version="PRO" />
+			<dep product="guava" version="PRO" />
 
 			<!-- for all the bean handling -->
-			<dep product="spring-core"/>
-			<dep product="spring-context"/>
+			<dep product="spring-core" version="PRO" />
+			<dep product="spring-context" version="PRO" />
 
 			<!-- For the custom ant parts -->
-			<dep product="ant" local="true"/>
+			<dep product="ant" version="PRO" local="true" />
 
 			<!-- for testing -->
-			<dep product="easymock" local="true"/>
-			<dep product="junit" local="true"/>
+			<dep product="easymock" version="PRO" local="true" />
+			<dep product="junit" version="PRO" local="true" />
+			<dep product="assertj-core" version="3.2.0" local="true" />
 		</dependencies>
 	</product>
 </products>

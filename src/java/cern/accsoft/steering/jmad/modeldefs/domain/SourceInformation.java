@@ -25,75 +25,68 @@ package cern.accsoft.steering.jmad.modeldefs.domain;
 import java.io.File;
 
 /**
- * This interface describes the source of a model definition. This can be e.g.
- * JAR, ZIP or LOCAL
+ * This interface describes the source of a model definition. This can be e.g. JAR, ZIP or LOCAL
  * 
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public interface SourceInformation {
 
-	/**
-	 * depending on {@link #getSourceType()} this either represents the name of
-	 * zip archive or the base directory if local (i.e. the path where the
-	 * .jmd.xml file resides.)
-	 * 
-	 * @return the path
-	 */
-	public File getRootPath();
+    /**
+     * depending on {@link #getSourceType()} this either represents the name of zip archive or the base directory if
+     * local (i.e. the path where the .jmd.xml file resides.)
+     * 
+     * @return the path
+     */
+    public File getRootPath();
 
-	/**
-	 * if the model definition was loaded from an xml/json file (or a zip
-	 * archive) then this returns the name of the xml/json file (or the name of
-	 * the zip entry)
-	 * 
-	 * @return the name of the xml/json file from which the model definition was
-	 *         loaded.
-	 */
-	public String getFileName();
+    /**
+     * if the model definition was loaded from an xml/json file (or a zip archive) then this returns the name of the
+     * xml/json file (or the name of the zip entry)
+     * 
+     * @return the name of the xml/json file from which the model definition was loaded.
+     */
+    public String getFileName();
 
-	/**
-	 * @return The {@link SourceType} which indicates from where the model
-	 *         definition was loaded.
-	 */
-	public SourceType getSourceType();
+    /**
+     * @return The {@link SourceType} which indicates from where the model definition was loaded.
+     */
+    public SourceType getSourceType();
 
-	/**
-	 * this enum describes the type of the source of the model definition.
-	 * Depending on this value the other data in the {@link SourceInformation}
-	 * is interpreted differently. This also influences the search behaviour of
-	 * a {@link cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder}.
-	 * 
-	 * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
-	 */
-	public static enum SourceType {
-		/**
-		 * JAR means that the model definition was loaded from a jar archive or
-		 * the source tree if run from the development environment. All
-		 * {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be
-		 * searched relative to the
-		 * {@link cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil#BASE_CLASS}
-		 * with the path offset
-		 * {@link cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil#PACKAGE_OFFSET}
-		 * .
-		 */
-		JAR,
+    /**
+     * @return the path offset within the archive (if the model definition was loaded from an archive). Usually, this is
+     *         the parent path entry of {@link #getFileName()}
+     */
+    public String getPathOffsetWithinArchive();
 
-		/**
-		 * ZIP indicates that the model definition was loaded from a zip
-		 * archive. In this case the {@link SourceInformation#getRootPath()}
-		 * returns the zip archive. All
-		 * {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be
-		 * searched within this zip archive.
-		 */
-		ZIP,
+    /**
+     * this enum describes the type of the source of the model definition. Depending on this value the other data in the
+     * {@link SourceInformation} is interpreted differently. This also influences the search behaviour of a
+     * {@link cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder}.
+     * 
+     * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+     */
+    public static enum SourceType {
+        /**
+         * JAR means that the model definition was loaded from a jar archive or the source tree if run from the
+         * development environment. All {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be searched
+         * relative to the {@link cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil#BASE_CLASS} with the
+         * path offset {@link cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil#PACKAGE_OFFSET} .
+         */
+        JAR,
 
-		/**
-		 * FILE means that the model definition was loaded from a simple file.
-		 * In this case {@link SourceInformation#getRootPath()} returns the
-		 * directory where the xml-file is located. All
-		 * {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be
-		 * searched relative to this path.
-		 */
-		FILE;
-	}
+        /**
+         * ZIP indicates that the model definition was loaded from a zip archive. In this case the
+         * {@link SourceInformation#getRootPath()} returns the zip archive. All
+         * {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be searched within this zip archive.
+         */
+        ZIP,
+
+        /**
+         * FILE means that the model definition was loaded from a simple file. In this case
+         * {@link SourceInformation#getRootPath()} returns the directory where the xml-file is located. All
+         * {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be searched relative to this path.
+         */
+        FILE;
+    }
+
 }

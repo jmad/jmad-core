@@ -26,6 +26,7 @@
 package cern.accsoft.steering.jmad.domain.var.custom;
 
 import java.util.Collection;
+import java.util.List;
 
 import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
 
@@ -46,12 +47,12 @@ public interface StrengthVarSet {
     /**
      * @return all the available variables (e.g. read from a strength-file)
      */
-    public Collection<CustomVariable> getVariables();
+    public List<CustomVariable> getVariables();
 
     /**
      * @return all the available strengths (e.g. read from a strength-file)
      */
-    public Collection<Strength> getStrengths();
+    public List<Strength> getStrengths();
 
     /**
      * adds all the variables and replaces variables and strengths of the same name.

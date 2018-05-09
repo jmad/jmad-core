@@ -25,8 +25,10 @@
  */
 package cern.accsoft.steering.jmad.domain.var.custom;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
@@ -83,13 +85,13 @@ public class StrengthVarSetImpl implements StrengthVarSet {
     }
 
     @Override
-    public Collection<Strength> getStrengths() {
-        return strengths.values();
+    public List<Strength> getStrengths() {
+        return new ArrayList<>(strengths.values());
     }
 
     @Override
-    public Collection<CustomVariable> getVariables() {
-        return variables.values();
+    public List<CustomVariable> getVariables() {
+        return new ArrayList<>(variables.values());
     }
 
     @Override

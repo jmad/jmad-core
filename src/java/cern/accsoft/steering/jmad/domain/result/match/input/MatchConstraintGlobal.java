@@ -31,16 +31,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author muellerg
  */
 public class MatchConstraintGlobal implements MatchConstraint {
 
-    private static final Logger LOGGER = Logger.getLogger(MatchConstraintGlobal.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatchConstraintGlobal.class);
 
     private static final List<MadxGlobalVariable> MADX_VARIABLES = Arrays.asList(new MadxGlobalVariable[] { //
             MadxGlobalVariable.Q1, MadxGlobalVariable.Q2, //

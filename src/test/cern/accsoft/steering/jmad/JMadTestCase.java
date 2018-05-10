@@ -27,14 +27,13 @@ import cern.accsoft.steering.jmad.modeldefs.JMadModelDefinitionManager;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.service.JMadService;
 import cern.accsoft.steering.jmad.service.JMadServiceFactory;
-import cern.accsoft.steering.jmad.util.LoggedTestCase;
 
 /***
  * this is a general testcase for jmad-stuff. It provides a convenience-method to fetch the example model.
  * 
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
-public abstract class JMadTestCase extends LoggedTestCase {
+public abstract class JMadTestCase {
 
     private static JMadService jmadService = JMadServiceFactory.createJMadService();
 

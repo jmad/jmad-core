@@ -32,11 +32,12 @@ package cern.accsoft.steering.jmad.bin;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.util.OsUtil;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * Determines the correct version of the madx-executable and provides methods to start its execution. Depending on the
@@ -46,7 +47,7 @@ import cern.accsoft.steering.jmad.util.TempFileUtil;
  */
 public class MadxBinImpl implements MadxBin {
     /** the logger */
-    private static final Logger LOGGER = Logger.getLogger(MadxBinImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MadxBinImpl.class);
 
     private static final String BIN_NAME_DEFAULT = "madx";
     private static final String BIN_NAME_INTEL_32 = "madx";

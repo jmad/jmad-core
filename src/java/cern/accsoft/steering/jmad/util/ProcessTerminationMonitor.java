@@ -22,10 +22,11 @@
 
 package cern.accsoft.steering.jmad.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProcessTerminationMonitor extends Thread {
-    private static final Logger LOGGER = Logger.getLogger(ProcessTerminationMonitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessTerminationMonitor.class);
     private static final long POLL_INTERVALL = 10;
 
     private final Process process;

@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import Jama.Matrix;
 import cern.accsoft.steering.jmad.domain.elem.Element;
@@ -27,6 +27,7 @@ import cern.accsoft.steering.jmad.domain.orbit.Orbit;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.domain.var.enums.JMadTwissVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class does the actual interpolation of the orbit in one plane for one segment defined by two adjacent monitors.
@@ -34,7 +35,7 @@ import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
  * @author muellerg
  */
 public class SimpleOrbitSegmentCalculator implements OrbitSegmentCalculator {
-    private static final Logger LOGGER = Logger.getLogger(SimpleOrbitSegmentCalculator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOrbitSegmentCalculator.class);
 
     /** the plane this orbit segment calculator works on */
     private JMadPlane plane;

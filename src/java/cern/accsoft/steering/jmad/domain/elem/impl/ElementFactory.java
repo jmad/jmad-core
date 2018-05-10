@@ -25,14 +25,14 @@ package cern.accsoft.steering.jmad.domain.elem.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
 
 public final class ElementFactory {
     /** The logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(ElementFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementFactory.class);
 
     private ElementFactory() {
         /* only static methods */

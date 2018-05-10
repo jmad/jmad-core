@@ -30,10 +30,11 @@
 package cern.accsoft.steering.jmad.domain.knob.bean;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.knob.AbstractKnob;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
+import org.slf4j.LoggerFactory;
 
 /**
  * this class provides a knob, which just needs a bean and a property of it.
@@ -48,7 +49,7 @@ import cern.accsoft.steering.jmad.util.bean.NamedBean;
 public abstract class BeanPropertyKnob extends AbstractKnob {
 
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(BeanPropertyKnob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BeanPropertyKnob.class);
 
     /** the separator between bean-name and property-name, which is used when creating keys */
     public static final String NAME_PROPETY_SEPARATOR = ".";

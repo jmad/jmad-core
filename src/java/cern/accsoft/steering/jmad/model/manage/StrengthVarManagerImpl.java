@@ -26,12 +26,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSet;
 import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSetImpl;
 import cern.accsoft.steering.jmad.io.StrengthFileParser;
 import cern.accsoft.steering.jmad.io.StrengthFileParserException;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the default implementation of a {@link StrengthVarManager}
@@ -41,7 +42,7 @@ import cern.accsoft.steering.jmad.io.StrengthFileParserException;
 public class StrengthVarManagerImpl implements StrengthVarManager {
 
     /** The logger for this class */
-    private final static Logger logger = Logger.getLogger(StrengthVarManagerImpl.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(StrengthVarManagerImpl.class);
 
     /** the variables are kept in a strengthVarSet */
     private StrengthVarSet strengthVarSet = new StrengthVarSetImpl();
@@ -60,7 +61,7 @@ public class StrengthVarManagerImpl implements StrengthVarManager {
     @Override
     public void load(File file) {
         if (file == null) {
-            logger.error("File is null! Nothing to parse.");
+            LOGGER.error("File is null! Nothing to parse.");
             return;
         }
 
@@ -68,7 +69,7 @@ public class StrengthVarManagerImpl implements StrengthVarManager {
         try {
             parser.parse();
         } catch (StrengthFileParserException e) {
-            logger.error("Could not parse file '" + file.getAbsolutePath() + "'.", e);
+            LOGGER.error("Could not parse file '" + file.getAbsolutePath() + "'.", e);
             return;
         }
         this.strengthVarSet.addAllStrengths(parser.getStrengths());

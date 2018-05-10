@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.JMadException;
 import cern.accsoft.steering.jmad.domain.aperture.Aperture;
@@ -113,11 +113,12 @@ import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
 import cern.accsoft.steering.jmad.util.FileUtil;
+import org.slf4j.LoggerFactory;
 
 public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     /** The logger for the class */
-    protected static final Logger LOGGER = Logger.getLogger(JMadModelImpl.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(JMadModelImpl.class);
 
     /** The definition of the model */
     private JMadModelDefinition modelDefinition = null;

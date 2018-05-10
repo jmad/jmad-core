@@ -32,13 +32,14 @@ package cern.accsoft.steering.jmad.model.manage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.model.JMadModel;
 import cern.accsoft.steering.jmad.service.JMadModelComparator;
 import cern.accsoft.steering.jmad.service.SequenceElementFilter;
+import org.slf4j.LoggerFactory;
 
 /**
  * simplest possible implementation of a {@link JMadModelManager}.
@@ -48,7 +49,7 @@ import cern.accsoft.steering.jmad.service.SequenceElementFilter;
 public class JMadModelManagerImpl implements JMadModelManager {
 
     /** The logger for the class */
-    private final static Logger LOGGER = Logger.getLogger(JMadModelManagerImpl.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JMadModelManagerImpl.class);
 
     /** the active model */
     private JMadModel activeModel = null;

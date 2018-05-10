@@ -36,7 +36,7 @@ import cern.accsoft.steering.jmad.util.JMadPreferences;
 import cern.accsoft.steering.jmad.util.JMadPreferencesImpl;
 import cern.accsoft.steering.jmad.util.TempFileUtilImpl;
 
-public class JMadKernelTest extends cern.accsoft.steering.jmad.util.LoggedTestCase {
+public class JMadKernelTest {
 
     File file = new File("madx-test.out");
     JMadKernelImpl kernel = new JMadKernelImpl();

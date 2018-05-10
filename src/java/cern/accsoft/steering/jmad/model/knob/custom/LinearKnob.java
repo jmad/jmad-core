@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.domain.knob.KnobType;
@@ -43,6 +43,7 @@ import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
 import cern.accsoft.steering.jmad.model.JMadModel;
 import cern.accsoft.steering.jmad.model.knob.AbstractMultiModelKnob;
 import cern.accsoft.steering.jmad.model.knob.StatefulKnob;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ${user}
@@ -51,7 +52,7 @@ import cern.accsoft.steering.jmad.model.knob.StatefulKnob;
 public class LinearKnob extends AbstractMultiModelKnob implements StatefulKnob {
 
     /** the logger of the class */
-    private static final Logger LOGGER = Logger.getLogger(LinearKnob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearKnob.class);
 
     /** defines one factor for each strength */
     private Map<String, Double> strengthFactors = new HashMap<String, Double>();

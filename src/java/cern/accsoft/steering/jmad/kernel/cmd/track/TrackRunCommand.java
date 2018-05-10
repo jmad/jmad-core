@@ -25,12 +25,13 @@ package cern.accsoft.steering.jmad.kernel.cmd.track;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.result.track.TrackResultRequest;
 import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+import org.slf4j.LoggerFactory;
 
 /**
  * command RUN, maxaper= double array, turns= integer, ffile= integer;
@@ -40,7 +41,7 @@ import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
 
 public class TrackRunCommand extends AbstractCommand {
 
-    private static final Logger LOGGER = Logger.getLogger(TrackRunCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrackRunCommand.class);
 
     private static final String CMD_NAME = "run";
 

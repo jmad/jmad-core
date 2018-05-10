@@ -30,10 +30,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StreamLogger extends Thread {
-    private static final Logger LOGGER = Logger.getLogger(StreamLogger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamLogger.class);
 
     private final InputStream inputStream;
     private final File file;

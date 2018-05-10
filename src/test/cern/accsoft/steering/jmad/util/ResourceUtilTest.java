@@ -36,7 +36,7 @@ import org.junit.Test;
  * 
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
-public class ResourceUtilTest extends LoggedTestCase {
+public class ResourceUtilTest {
 
     @Test
     public void testListPackageContent() {

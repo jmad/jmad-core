@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import cern.accsoft.steering.jmad.JMadException;
 
-public class FileMonitorTest extends LoggedTestCase {
+public class FileMonitorTest {
     private FileMonitor fileMonitor = null;
     private TestFile testFile = null;
 

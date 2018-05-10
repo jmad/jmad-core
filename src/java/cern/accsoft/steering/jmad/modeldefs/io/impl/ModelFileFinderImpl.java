@@ -38,7 +38,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation;
@@ -50,6 +50,7 @@ import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation of a class that finds model-files.
@@ -61,7 +62,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
     private static final String DEFAULT_REPOSITORY_BASEPATH = ".";
 
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(ModelFileFinderImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModelFileFinderImpl.class);
 
     /** The offsets for a specific model */
     private ModelPathOffsets modelPathOffsets = new ModelPathOffsetsImpl();

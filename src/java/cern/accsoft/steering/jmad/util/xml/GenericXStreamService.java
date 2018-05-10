@@ -31,14 +31,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import com.thoughtworks.xstream.XStream;
+import org.slf4j.LoggerFactory;
 
 public abstract class GenericXStreamService<T> implements PersistenceService<T> {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(GenericXStreamService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenericXStreamService.class);
 
 	/** the original xstream xml-converter (singleton) */
 	private final XStream xStream;

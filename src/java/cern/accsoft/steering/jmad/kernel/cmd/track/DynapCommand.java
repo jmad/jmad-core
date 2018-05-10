@@ -25,12 +25,13 @@ package cern.accsoft.steering.jmad.kernel.cmd.track;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.result.track.DynapResultRequest;
 import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command DYNAP,TURNS=real, FASTUNE=logical,LYAPUNOV=real,MAXAPER:={..,..,..,..,..,..},ORBIT=logical;
@@ -42,7 +43,7 @@ public class DynapCommand extends AbstractCommand {
 
     private static final String CMD_NAME = "dynap";
 
-    private static final Logger LOGGER = Logger.getLogger(DynapCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynapCommand.class);
 
     private final DynapResultRequest dynapResultRequest;
 

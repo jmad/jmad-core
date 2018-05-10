@@ -27,7 +27,8 @@ import com.thoughtworks.xstream.converters.*;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
@@ -39,7 +40,7 @@ import java.lang.reflect.Field;
  */
 public class GenericFieldAttributeConverter<T> implements Converter {
 
-    private static final Logger LOGGER = Logger.getLogger(GenericFieldAttributeConverter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenericFieldAttributeConverter.class);
 
     /** the xstream mapper to lookup field-names and converters */
     private final Mapper mapper;

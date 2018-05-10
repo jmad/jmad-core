@@ -33,7 +33,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
@@ -41,7 +42,7 @@ import org.apache.log4j.Logger;
 public final class StreamUtil {
 
     /** The logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(StreamUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     /**
      * private constructor to prevent instantiation

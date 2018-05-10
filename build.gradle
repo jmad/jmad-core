@@ -20,12 +20,18 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.9.1'
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.7'
+}
+
 sourceSets {
     main {
         java { srcDirs = ['src/java'] }
+        resources { srcDirs = ['src/java'] }
     }
 
     test {
         java { srcDirs = ['src/test'] }
+        resources { srcDirs = ['src/test'] }
     }
 }

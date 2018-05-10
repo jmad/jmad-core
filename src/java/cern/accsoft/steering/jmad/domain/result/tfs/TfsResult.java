@@ -66,7 +66,7 @@ public interface TfsResult extends Result {
     public abstract List<String> getStringData(MadxVariable resultVariable);
 
     /**
-     * returns the Data-Column for the given Key as ArrayList<Double>
+     * returns the Data-Column for the given Key as {@link java.util.ArrayList}
      * 
      * @param key the key for which to get the data.
      * @return the Double values

@@ -71,8 +71,8 @@ public class Bend extends AbstractElement {
     public static final String ATTR_FINT = "fint";
 
     /**
-     * Allows (FINTX > 0)to set FINT at the element exit different from its entry value. In particular useful to switch
-     * it off (FINTX=0).
+     * Allows ({@literal FINTX > 0})to set FINT at the element exit different from its entry value.
+     * In particular useful to switch it off (FINTX=0).
      */
     public static final String ATTR_FINTX = "fintx";
 

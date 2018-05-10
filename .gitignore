@@ -1,12 +1,10 @@
-*.class
-*.jar
 .settings
 .classpath
 .project
+.gradle
 bin
 out
-cbng*
-fort.69
-lyapunov.data
-.gradle
 build
+cbng*
+fort*
+lyapunov.data

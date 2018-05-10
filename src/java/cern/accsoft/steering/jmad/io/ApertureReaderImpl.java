@@ -84,7 +84,7 @@ public class ApertureReaderImpl implements ApertureReader {
      * which also contains APERTYPE and the ON_AP/ON_ELEM flags... such that we initialize the Sequence of
      * ApertureElements with the right positions according to the machine we are using...
      * <p>
-     * All VacuumMarkers are skipped --> ElementNames starts with V
+     * All VacuumMarkers are skipped {@literal -->} ElementNames starts with V
      * 
      * @param indexFile The file from which to read the aperture-index
      * @return an object containing all the aperture information

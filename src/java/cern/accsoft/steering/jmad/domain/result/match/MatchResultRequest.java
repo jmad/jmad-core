@@ -84,7 +84,7 @@ public interface MatchResultRequest {
     public abstract TwissInitialConditions getInitialOpticsValues();
 
     /**
-     * @return the name of the previously saved optical functions values --> SAVEBETA
+     * @return the name of the previously saved optical functions values {@literal -->} SAVEBETA
      */
     public abstract String getSaveBetaName();
 }

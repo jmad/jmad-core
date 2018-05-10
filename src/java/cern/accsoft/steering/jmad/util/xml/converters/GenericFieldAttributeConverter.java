@@ -22,24 +22,19 @@
 
 package cern.accsoft.steering.jmad.util.xml.converters;
 
-import java.lang.reflect.Field;
-
-import org.apache.log4j.Logger;
-
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.ConverterLookup;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.SingleValueConverter;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.*;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
+import org.apache.log4j.Logger;
+
+import java.lang.reflect.Field;
 
 /**
- * This is a generic converter that can be used by xstream to convert each field of a class into a <arrbname value="..."
- * /> node.
- * 
+ * This is a generic converter that can be used by xstream to convert each field of a class into a
+ * {@literal <arrbname value="..." />} node.
+ *
  * @param <T> the type of object to convert
  */
 public class GenericFieldAttributeConverter<T> implements Converter {

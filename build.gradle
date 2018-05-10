@@ -1,4 +1,7 @@
-plugins { id 'java' }
+plugins {
+    id 'java'
+    id 'jacoco'
+}
 
 repositories { mavenCentral() }
 
@@ -33,5 +36,14 @@ sourceSets {
     test {
         java { srcDirs = ['src/test'] }
         resources { srcDirs = ['src/test'] }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        xml.destination file("$buildDir/reports/jacoco/report.xml")
+        html.enabled true
+        csv.enabled false
     }
 }

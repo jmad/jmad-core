@@ -7,7 +7,7 @@ package cern.accsoft.steering.jmad.kernel.cmd.param;
 /**
  * Gives the possibility to assign a function (by function name) with given function value like tgauss(1.2) or ranf(); <br>
  * <br>
- * NOTE: function value of null results into no values such that: tgauss(null) -> tgauss();
+ * NOTE: function value of null results into no values such that: {@literal tgauss(null) -> tgauss();}
  * 
  * @author agorzaws
  */

@@ -38,9 +38,11 @@ package cern.accsoft.steering.jmad.domain.result.match.methods;
  * STRATEGY=1 the routine resets the values of the variables which exceeds the limits. If STRATEGY=2 the routine print
  * the Jacobian and exit without matching. If STRATEGY=3 the routine disables the variables which exceeds the limits
  * keeping however the number of variables greater or equal to the number of the constraints. COOL, BALANCE: The factors
- * which specify the following transformation: if "balance" >=0 newval=(1-cool)*oldval+cool*(
- * (1-balance)*maxval+balance*minval ) else newval=(1-cool)*oldval+cool* optval where newval is the new value after the
- * transformation, oldval is the previous value, maxval, minval, optval are the maximum value, minimum value, optimal
+ * which specify the following transformation:
+ * {@literal if "balance" >=0 newval=(1-cool)*oldval+cool*((1-balance)*maxval+balance*minval )
+ * else newval=(1-cool)*oldval+cool* optval }
+ * where newval is the new value after the transformation, oldval is the previous value, maxval, minval,
+ * optval are the maximum value, minimum value, optimal
  * value of the variable specified in the VARY command. RANDOM: The factors which specify the following transformation:
  * newval= (1+ random * rand() ) * oldval where newval is the new value after the transformation, oldval is the previous
  * value, rand() is a stochastic variable with a uniform (-0.5,0.5) distribution. Example:

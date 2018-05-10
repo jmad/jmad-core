@@ -33,7 +33,7 @@ public interface MadxVaryParameter {
 
     /**
      * returns the name of the parameter. This can be e.g. a name of a strength or the attribute of an element (e.g.
-     * MCIAH->kick)
+     * {@literal MCIAH->kick})
      * 
      * @return the (madx) name of the parameter to vary
      */

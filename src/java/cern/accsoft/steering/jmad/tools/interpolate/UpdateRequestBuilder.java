@@ -48,19 +48,19 @@ import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
  * Usage example (for a circular machine):
  * 
  * <pre>
- * UpdateRequestBuilder builder = new UpdateRequestBuilder(true);</b>
- * UpdateRequest request = builder.setOptic(YOUR_OPTIC)</b>
- *                              .setElements(YOUR_ELEMENTS)</b>
- *                              .setActiveMonitors(H, YOUR_H_MONITORS)</b>
- *                              .setActiveMonitors(V, YOUR_V_MONITORS)</b>
+ * UpdateRequestBuilder builder = new UpdateRequestBuilder(true);
+ * UpdateRequest request = builder.setOptic(YOUR_OPTIC)
+ *                              .setElements(YOUR_ELEMENTS)
+ *                              .setActiveMonitors(H, YOUR_H_MONITORS)
+ *                              .setActiveMonitors(V, YOUR_V_MONITORS)
  *                              .build();
  * </pre>
  * 
  * and later on, when only your active monitors have changed:
  * 
  * <pre>
- * UpdateRequest request = builder.setActiveMonitors(H, YOUR_H_MONITORS)</b>
- *                              .setActiveMonitors(V, YOUR_V_MONITORS)</b>
+ * UpdateRequest request = builder.setActiveMonitors(H, YOUR_H_MONITORS)
+ *                              .setActiveMonitors(V, YOUR_V_MONITORS)
  *                              .build();
  * </pre>
  * 

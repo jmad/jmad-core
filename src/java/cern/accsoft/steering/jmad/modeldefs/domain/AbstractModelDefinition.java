@@ -26,12 +26,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Model definition consists of a (arbitrary) number of initialization - files (madx files) and contains an arbitrary
@@ -45,7 +46,7 @@ import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
 public abstract class AbstractModelDefinition implements JMadModelDefinition {
 
     /** The logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(AbstractModelDefinition.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractModelDefinition.class);
 
     @Override
     public final String toString() {

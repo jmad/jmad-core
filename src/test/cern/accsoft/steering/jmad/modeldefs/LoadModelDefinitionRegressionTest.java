@@ -10,10 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cern.accsoft.steering.jmad.domain.beam.Beam;
@@ -35,11 +33,6 @@ public class LoadModelDefinitionRegressionTest {
     private static final String LHC_B2_SEQUENCE_NAME = "ti2";
 
     private JMadService jmadService;
-
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        BasicConfigurator.configure();
-    }
 
     @Before
     public void setUp() {

@@ -30,9 +30,8 @@ import org.junit.Test;
 
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.impl.XmlModelDefinitionPersistenceService;
-import cern.accsoft.steering.jmad.util.LoggedTestCase;
 
-public class ClassPathModelDefinitionFinderTest extends LoggedTestCase {
+public class ClassPathModelDefinitionFinderTest {
 
     @Test
     public void testFindAllModelDefinitions() {

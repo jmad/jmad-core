@@ -19,7 +19,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.JMadException;
 import cern.accsoft.steering.jmad.bin.MadxBin;
@@ -39,6 +39,7 @@ import cern.accsoft.steering.jmad.util.ProcessTerminationMonitor;
 import cern.accsoft.steering.jmad.util.StreamLogger;
 import cern.accsoft.steering.jmad.util.StringUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * this is the implementation of the {@link JMadKernel} which controls one MadX-Process.
@@ -51,7 +52,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
     private static final int MAX_REPORTED_ERROR_LINES = 10;
 
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(JMadKernelImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMadKernelImpl.class);
 
     /**
      * This value is returned by the waitUntilReady - method. It is only used internally.

@@ -37,7 +37,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class connects two streams: an input-stream and an output-stream.
@@ -48,7 +49,7 @@ import org.apache.log4j.Logger;
  * TODO Is there a standard method for doing such things?
  */
 public class StreamConnector extends Thread {
-    private static final Logger LOGGER = Logger.getLogger(StreamConnector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamConnector.class);
 
     private final InputStream inputStream;
     private final OutputStream outputStream;

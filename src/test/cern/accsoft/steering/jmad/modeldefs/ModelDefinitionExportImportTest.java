@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +51,8 @@ import cern.accsoft.steering.jmad.util.FileUtil;
 
 public class ModelDefinitionExportImportTest extends JMadTestCase {
 
-	private JMadModelDefinitionExporter exporter;
+    public static final String TEST_FILE_NAME = "test.jmd.zip";
+    private JMadModelDefinitionExporter exporter;
 	private JMadModelDefinitionImporter importer;
 
 	private File testZipFile;
@@ -61,21 +63,18 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 		exporter = getJMadService().getModelDefinitionExporter();
 		importer = getJMadService().getModelDefinitionImporter();
 		testDir = Files.createTempDirectory(ModelDefinitionExportImportTest.class.getSimpleName()).toFile();
-		testZipFile = new File("test.jmd.zip");
+		testZipFile = new File(testDir, TEST_FILE_NAME);
 	}
 
 	@After
-	public void tearDown() throws IOException {
-		Files.deleteIfExists(testZipFile.toPath());
-		FileUtil.deleteDir(testDir);
+	public void tearDown() throws IOException{
+        Files.deleteIfExists(testZipFile.toPath());
+        FileUtil.deleteDir(testDir);
 	}
 
 	@Test
 	public void testExportAsZip() {
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-		if (!testZipFile.delete()) {
-			; /* Ignore, may not exist */
-		}
 		assertTrue("No test file must be available.", !testZipFile.exists());
 		File file = exporter.exportAsZip(modelDefinition, testZipFile);
 		assertNotNull("File must not be null if the export was successful.",
@@ -89,11 +88,6 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 	@Test
 	public void testExportAsFilesWithExistingDir() {
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-		if (!FileUtil.deleteDir(testDir)) {
-			; /* Ignore, may not exist */
-		}
-		assertTrue("No test dir must be available.", !testDir.exists());
-		FileUtil.createDir(testDir, false);
 		File file = exporter.exportAsFiles(modelDefinition, testDir);
 		assertNotNull("returned file must not be null", file);
 		assertTrue("Test dir should exist", testDir.exists());
@@ -106,18 +100,8 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 	@Test
 	public void testExportAsFilesWithFile() {
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-
-		/*
-		 * and once more with a file as call
-		 */
-		if (!FileUtil.deleteDir(testDir)) {
-			; /* Ignore, may not exist */
-		}
-		assertTrue("No test dir must be available.", !testDir.exists());
-		String exportFilePath = testDir.getAbsolutePath() + File.separator
-				+ "test";
-		File file = exporter.exportAsFiles(modelDefinition, new File(
-				exportFilePath));
+		String exportFilePath = testDir.getAbsolutePath() + File.separator + "test";
+		File file = exporter.exportAsFiles(modelDefinition, new File(exportFilePath));
 		assertNotNull("returned file must not be null", file);
 		assertTrue("Test dir should exist", testDir.exists());
 		assertTrue("export file should exist", file.exists());
@@ -130,18 +114,8 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 	@Test
 	public void testExportAsFilesWithJsonFile() {
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-
-		/*
-		 * and once more with a file as call
-		 */
-		if (!FileUtil.deleteDir(testDir)) {
-			; /* Ignore, may not exist */
-		}
-		assertTrue("No test dir must be available.", !testDir.exists());
-		String exportFilePath = testDir.getAbsolutePath() + File.separator
-				+ "test.jmd.json";
-		File file = exporter.exportAsFiles(modelDefinition, new File(
-				exportFilePath));
+		String exportFilePath = testDir.getAbsolutePath() + File.separator + "test.jmd.json";
+		File file = exporter.exportAsFiles(modelDefinition, new File(exportFilePath));
 		assertNotNull("returned file must not be null", file);
 		assertTrue("Test dir should exist", testDir.exists());
 		assertTrue("export file should exist", file.exists());
@@ -153,50 +127,31 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 	@Test
 	public void testImportFromJsonFile() {
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-		/*
-		 * and once more with a file as call
-		 */
-		if (!FileUtil.deleteDir(testDir)) {
-			; /* Ignore, may not exist */
-		}
-		assertTrue("No test dir must be available.", !testDir.exists());
-		String exportFilePath = testDir.getAbsolutePath() + File.separator
-				+ "test.jmd.json";
-		File file = exporter.exportAsFiles(modelDefinition, new File(
-				exportFilePath));
+		String exportFilePath = testDir.getAbsolutePath() + File.separator + "test.jmd.json";
+		File file = exporter.exportAsFiles(modelDefinition, new File(exportFilePath));
 
-		JMadModelDefinition importedModelDefinition = importer
-				.importModelDefinition(file);
-		assertNull("Json import is not implemented at the moment!",
-				importedModelDefinition);
+		JMadModelDefinition importedModelDefinition = importer.importModelDefinition(file);
+		assertNull("Json import is not implemented at the moment!", importedModelDefinition);
 	}
 
 	@Test
-	public void testImportFromZip() throws JMadModelException {
-
+	public void testImportFromZip() throws JMadModelException, InterruptedException {
 		/* To test this we first have to export the model definition as zip */
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-		if (!testZipFile.delete()) {
-			; /* Ignore, may not exist */
-		}
 		exporter.exportAsZip(modelDefinition, testZipFile);
 
 		/* and then reimport the model definitions from the zip file */
-		Collection<JMadModelDefinition> modelDefinitions = importer
-				.importModelDefinitions(testZipFile);
+		Collection<JMadModelDefinition> modelDefinitions = importer.importModelDefinitions(testZipFile);
 		assertEquals("Zip file should contain exactly one model definition.",
 				1, modelDefinitions.size());
 
-		JMadModelDefinition importedDefinition = importer
-				.importModelDefinition(testZipFile);
+		JMadModelDefinition importedDefinition = importer.importModelDefinition(testZipFile);
 		assertNotNull("Model definition must not be null.", importedDefinition);
 		assertEquals(modelDefinition.getName(), importedDefinition.getName());
 
 		/* The new definition should contain the new source information */
-		SourceInformation sourceInformation = importedDefinition
-				.getSourceInformation();
-		assertEquals(testZipFile.getAbsolutePath(), sourceInformation
-				.getRootPath().getAbsolutePath());
+		SourceInformation sourceInformation = importedDefinition.getSourceInformation();
+		assertEquals(testZipFile.getAbsolutePath(), sourceInformation.getRootPath().getAbsolutePath());
 		assertEquals(SourceType.ZIP, sourceInformation.getSourceType());
 		assertEquals(
 				ModelDefinitionUtil.getProposedXmlFileName(modelDefinition),
@@ -209,5 +164,6 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 		model.init();
 		model.twiss(new TfsResultRequestImpl());
 		model.cleanup();
+        TimeUnit.SECONDS.sleep(5);
 	}
 }

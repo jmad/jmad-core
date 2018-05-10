@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.elem.ElementAttributeReader;
@@ -35,11 +35,12 @@ import cern.accsoft.steering.jmad.domain.elem.ElementListener;
 import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
 import cern.accsoft.steering.jmad.domain.elem.Position;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractElement implements Element {
 
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(AbstractElement.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractElement.class);
 
     /** the length of the element [m] */
     public static final String ATTR_LENGTH = "l";

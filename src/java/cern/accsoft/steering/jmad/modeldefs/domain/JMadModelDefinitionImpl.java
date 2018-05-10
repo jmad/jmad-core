@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -38,12 +38,13 @@ import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
 import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
+import org.slf4j.LoggerFactory;
 
 @XStreamAlias("jmad-model-definition")
 public class JMadModelDefinitionImpl extends AbstractModelDefinition {
 
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(JMadModelDefinitionImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMadModelDefinitionImpl.class);
 
     @XStreamAlias("name")
     @XStreamAsAttribute

@@ -32,18 +32,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.machine.MadxRange;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author muellerg
  */
 public class MatchConstraintLocal implements MatchConstraint {
 
-    private static final Logger LOGGER = Logger.getLogger(MatchConstraintLocal.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatchConstraintLocal.class);
 
     private static final List<MadxTwissVariable> MADX_VARIABLES = Arrays.asList(new MadxTwissVariable[] { //
             MadxTwissVariable.BETX, MadxTwissVariable.BETY, //

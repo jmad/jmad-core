@@ -31,7 +31,8 @@ package cern.accsoft.steering.jmad.util;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This Class provides some methods to simply access output-files
@@ -44,7 +45,7 @@ public class TempFileUtilImpl implements TempFileUtil {
     public static final String TMPDIR_NAME = "jmad-tmp";
 
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(TempFileUtilImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtilImpl.class);
 
     /** the output-path including username and host */
     private String outputPath = null;

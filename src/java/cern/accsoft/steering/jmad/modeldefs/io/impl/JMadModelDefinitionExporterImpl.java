@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
@@ -48,6 +48,7 @@ import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
 import cern.accsoft.steering.jmad.util.FileUtil;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the default implementation of the {@link JMadModelDefinitionExporter}
@@ -68,8 +69,7 @@ public class JMadModelDefinitionExporterImpl implements
 	private ModelFileFinderManager fileFinderManager;
 
 	/** The logger for the class */
-	private static final Logger LOGGER = Logger
-			.getLogger(JMadModelDefinitionExporterImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JMadModelDefinitionExporterImpl.class);
 
 	@Override
 	public File export(JMadModelDefinition modelDefinition, File exportPath) {

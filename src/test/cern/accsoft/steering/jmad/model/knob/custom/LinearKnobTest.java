@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -65,8 +64,6 @@ public class LinearKnobTest {
 
     @BeforeClass
     public static void setUp() {
-        BasicConfigurator.configure();
-
         MODEL_MOCK = createMock(JMadModel.class);
         MODEL_STRENGTHS = new StrengthVarSetImpl();
         KNOB_STRENGTHS = new StrengthVarSetImpl();

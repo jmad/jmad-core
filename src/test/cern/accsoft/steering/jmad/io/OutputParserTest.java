@@ -38,11 +38,10 @@ import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultImpl;
 import cern.accsoft.steering.jmad.domain.result.tfs.TfsSummary;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
-import cern.accsoft.steering.jmad.util.LoggedTestCase;
 import cern.accsoft.steering.jmad.util.MadxVarType;
 import cern.accsoft.steering.jmad.util.TestFile;
 
-public class OutputParserTest extends LoggedTestCase {
+public class OutputParserTest {
     private final static String TESTFILE_NAME = "testfile.txt";
 
     private TestFile testFile = new TestFile(TESTFILE_NAME);

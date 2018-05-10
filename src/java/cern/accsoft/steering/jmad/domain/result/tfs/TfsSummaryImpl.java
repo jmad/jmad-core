@@ -26,16 +26,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.JMadConstants;
 import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
+import org.slf4j.LoggerFactory;
 
 public class TfsSummaryImpl implements TfsSummary {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(TfsSummaryImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TfsSummaryImpl.class);
 
     /** All the values in their String representation */
     private final Map<String, String> stringValues = new HashMap<String, String>();

@@ -9,7 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * utility to collect the effective classpath. This is not that trivial since the classpath is combine of the entries
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
 public class ClassPathUtil {
 
     /** the logger for the class */
-    private final static Logger LOGGER = Logger.getLogger(ClassPathUtil.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClassPathUtil.class);
 
    
     /**

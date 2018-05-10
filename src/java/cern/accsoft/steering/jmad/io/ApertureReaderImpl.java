@@ -28,7 +28,8 @@ package cern.accsoft.steering.jmad.io;
 import java.io.File;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.aperture.AperType;
 import cern.accsoft.steering.jmad.domain.aperture.Aperture;
@@ -54,7 +55,7 @@ import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 public class ApertureReaderImpl implements ApertureReader {
 
     /** The logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(ApertureImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApertureImpl.class);
 
     private static final double MARKER_VALUE = 9.0;
 

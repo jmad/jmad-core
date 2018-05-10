@@ -40,7 +40,8 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides methods to handle resource files
@@ -49,7 +50,7 @@ import org.apache.log4j.Logger;
  */
 public final class ResourceUtil {
     /** the logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(ResourceUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUtil.class);
 
     private ResourceUtil() {
         /* only static methods */

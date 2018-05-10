@@ -32,11 +32,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.util.io.TextFileParser;
 import cern.accsoft.steering.jmad.util.io.TextFileParserException;
 import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class contains some useful static methods for handling files
@@ -46,7 +47,7 @@ import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
 public final class FileUtil {
 
     /** The logger for the class */
-    private static final Logger LOGGER = Logger.getLogger(FileUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     /**
      * private constructor to prevent instantiation

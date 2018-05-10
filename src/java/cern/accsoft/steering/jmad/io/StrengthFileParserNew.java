@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.knob.strength.SimpleStrength;
 import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
@@ -36,7 +37,7 @@ import cern.accsoft.steering.jmad.domain.var.custom.CustomVariable;
 import cern.accsoft.steering.jmad.domain.var.custom.CustomVariableImpl;
 
 public class StrengthFileParserNew {
-    private static final Logger LOGGER = Logger.getLogger(StrengthFileParserNew.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StrengthFileParserNew.class);
 
     /** The strength-file to parse */
     private final File file;

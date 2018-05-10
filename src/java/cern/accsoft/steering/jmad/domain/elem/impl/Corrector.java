@@ -29,10 +29,11 @@
  */
 package cern.accsoft.steering.jmad.domain.elem.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents an orbit corrector in JMad. This represents all the element of the types <a
@@ -42,7 +43,7 @@ import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
  */
 public class Corrector extends AbstractElement {
     /** the logger */
-    private static final Logger LOGGER = Logger.getLogger(Corrector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Corrector.class);
 
     /** The kick angle for either horizontal or vertical correctors. [rad] */
     public static final String ATTR_KICK = "kick";

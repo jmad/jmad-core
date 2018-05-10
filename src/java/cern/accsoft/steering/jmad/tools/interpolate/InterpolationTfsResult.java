@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.result.ResultType;
@@ -29,9 +29,10 @@ import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.domain.var.MadxVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
+import org.slf4j.LoggerFactory;
 
 public class InterpolationTfsResult implements TfsResult {
-    private static final Logger LOGGER = Logger.getLogger(InterpolationTfsResult.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InterpolationTfsResult.class);
     /** the twiss variables available from this interpolation result */
     private Set<MadxTwissVariable> twissVariables = new HashSet<MadxTwissVariable>();
 

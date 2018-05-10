@@ -7,15 +7,16 @@ package cern.accsoft.steering.jmad.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.machine.Range;
 import cern.accsoft.steering.jmad.model.JMadModel;
+import org.slf4j.LoggerFactory;
 
 public class JMadModelSeqElementOnNameComparator implements JMadModelComparator {
     /** The logger for the class */
-    protected static final Logger LOGGER = Logger.getLogger(JMadModelSeqElementOnNameComparator.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(JMadModelSeqElementOnNameComparator.class);
 
     @Override
     public List<Element> getCommonSequenceElements(JMadModel model1, JMadModel model2, SequenceElementFilter filter) {

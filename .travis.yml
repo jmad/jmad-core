@@ -9,5 +9,12 @@ before_install:
 script:
   - ./gradlew check
   - ./gradlew jacocoTestReport
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: ./gradlew bintrayUpload -Ddeployment=true
+  on:
+    tags: true
+    jdk: oraclejdk9
 after_success:
   - bash <(curl -s https://codecov.io/bash)

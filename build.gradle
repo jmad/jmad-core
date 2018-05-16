@@ -40,7 +40,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.7.3'
 }
 
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 if (DEPLOYMENT) {
     println 'Applying deployment scripts'

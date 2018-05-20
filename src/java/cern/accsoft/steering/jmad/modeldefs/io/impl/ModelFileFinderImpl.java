@@ -25,8 +25,6 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
-
-
 import static cern.accsoft.steering.jmad.util.ResourceUtil.prependPathOffset;
 
 import java.io.File;
@@ -34,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -106,6 +105,15 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         return source.getStream(this, modelFile);
     }
 
+    @Override
+    public Optional<File> getLocalSourceFile(ModelFile modelFile) {
+        SourceType sourceType = getSource();
+        if (SourceType.FILE == sourceType) {
+            return Optional.of(getInputFile(getSourceInformation().getRootPath(), getArchivePath(modelFile)));
+        }
+        return Optional.empty();
+    }
+
     /**
      * get the stream for a file from the archive (JAR or ZIP)
      * 
@@ -113,13 +121,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
      * @return the stream
      */
     private InputStream getArchiveStream(ModelFile modelFile) {
-        SourceInformation sourceInfo = getSourceInformation();
-        SourceType sourceType;
-        if (sourceInfo == null) {
-            sourceType = SourceType.JAR;
-        } else {
-            sourceType = sourceInfo.getSourceType();
-        }
+        SourceType sourceType = getSource();
 
         String archivePath = getArchivePath(modelFile);
         if (SourceType.JAR == sourceType) {
@@ -138,8 +140,17 @@ public class ModelFileFinderImpl implements ModelFileFinder {
 
     }
 
+    private SourceType getSource() {
+        SourceInformation sourceInfo = getSourceInformation();
+        if (sourceInfo == null) {
+            return SourceType.JAR;
+        } else {
+            return sourceInfo.getSourceType();
+        }
+    }
+
     private InputStream getFileInputStream(File baseDir, String relativePath) {
-        File file = new File(baseDir.getAbsolutePath() + File.separator + relativePath);
+        File file = getInputFile(baseDir, relativePath);
         LOGGER.debug("Fetching file '" + file.getAbsolutePath() + "'");
         try {
             return new FileInputStream(file);
@@ -147,6 +158,10 @@ public class ModelFileFinderImpl implements ModelFileFinder {
             LOGGER.error("Could not open file '" + file.getAbsolutePath() + "'", e);
             return null;
         }
+    }
+
+    private File getInputFile(File baseDir, String relativePath) {
+        return new File(baseDir.getAbsolutePath() + File.separator + relativePath);
     }
 
     private InputStream getZipInputStream(File file, String entryName) {
@@ -236,7 +251,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getPathOffset(this.modelPathOffsets));
         /* 3) the offset depending on the type (Resource or repo file) */
         resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getResourcePrefix());
-        
+
         return resourcePath;
     }
 
@@ -409,4 +424,5 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         public abstract InputStream getStream(ModelFileFinderImpl fileFinder, ModelFile modelFile);
 
     }
+
 }

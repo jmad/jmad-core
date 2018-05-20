@@ -24,6 +24,7 @@ package cern.accsoft.steering.jmad.modeldefs.io;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Optional;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
@@ -46,6 +47,17 @@ public interface ModelFileFinder {
      * @return the input stream
      */
     public abstract InputStream getStream(ModelFile modelFile);
+    
+    /**
+     * Returns an optional file that is the source of the given model file. This will return an empty optional in case
+     * the source of this model file is not a plain file, but is supposed to be extracted from an archive. In other
+     * words, the model definition for which this file finder is responsible is not coming from a file.
+     * 
+     * @param modelFile the model file for which to retrieve the source file
+     * @return an optional of the source file for the given model file, or {@link Optional#empty()} if the source of the
+     *         model definition does not come from a file
+     */
+    public abstract Optional<File> getLocalSourceFile(ModelFile modelFile);
 
     /**
      * puts together the path within the repository

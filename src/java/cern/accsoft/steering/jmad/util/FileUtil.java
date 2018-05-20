@@ -25,12 +25,19 @@
  */
 package cern.accsoft.steering.jmad.util;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 
@@ -136,6 +143,20 @@ public final class FileUtil {
             return new ArrayList<String>(lines.subList(numberOfLines - requestedNumberOfLines, numberOfLines));
         } else {
             return new ArrayList<String>(lines);
+        }
+    }
+
+    public static Set<File> searchInFor(Path root, Predicate<? super Path> filterPredicate) {
+        try (Stream<Path> stream = Files.walk(root)) {
+            // @formatter:off
+            return stream
+                    .filter(Files::isRegularFile)
+                    .filter(filterPredicate)
+                    .map(Path::toFile)
+                    .collect(toSet());
+            // @formatter:on
+        } catch (IOException e) {
+            throw new RuntimeException("Directory " + root + " cannot be searched.", e);
         }
     }
 }

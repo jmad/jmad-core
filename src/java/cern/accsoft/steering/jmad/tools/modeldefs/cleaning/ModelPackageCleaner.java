@@ -31,6 +31,7 @@ public final class ModelPackageCleaner {
     }
 
     public static void cleanUnusedBelow(Path rootPath) {
+        @SuppressWarnings("resource")
         ApplicationContext ctx = new AnnotationConfigApplicationContext(ModelFileCleaningConfiguration.class);
         UnusedLocalFileDetector detector = ctx.getBean(UnusedLocalFileDetector.class);
         Set<File> unusedFiles = detector.detectUnusedFiles(rootPath);

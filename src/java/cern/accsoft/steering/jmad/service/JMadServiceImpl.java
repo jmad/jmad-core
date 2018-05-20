@@ -26,6 +26,7 @@
 package cern.accsoft.steering.jmad.service;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.factory.JMadModelFactory;
 import cern.accsoft.steering.jmad.model.JMadModel;
@@ -35,7 +36,6 @@ import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExporter;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
-import org.slf4j.LoggerFactory;
 
 /**
  * The default implementation of the jmad-service. This class is configured by spring.

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.JMadException;
 import cern.accsoft.steering.jmad.bin.MadxBin;
@@ -39,7 +40,6 @@ import cern.accsoft.steering.jmad.util.ProcessTerminationMonitor;
 import cern.accsoft.steering.jmad.util.StreamLogger;
 import cern.accsoft.steering.jmad.util.StringUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
-import org.slf4j.LoggerFactory;
 
 /**
  * this is the implementation of the {@link JMadKernel} which controls one MadX-Process.

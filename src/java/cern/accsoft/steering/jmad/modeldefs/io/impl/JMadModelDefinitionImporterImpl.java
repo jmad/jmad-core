@@ -39,6 +39,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
@@ -47,7 +48,6 @@ import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformationImpl;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
-import org.slf4j.LoggerFactory;
 
 /**
  * The default implementation of a {@link JMadModelDefinitionImporter}

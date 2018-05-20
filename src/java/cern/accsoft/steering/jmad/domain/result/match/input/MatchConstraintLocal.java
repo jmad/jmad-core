@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.machine.MadxRange;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author muellerg

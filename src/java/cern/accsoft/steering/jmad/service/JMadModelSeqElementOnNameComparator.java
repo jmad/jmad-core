@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.machine.Range;
 import cern.accsoft.steering.jmad.model.JMadModel;
-import org.slf4j.LoggerFactory;
 
 public class JMadModelSeqElementOnNameComparator implements JMadModelComparator {
     /** The logger for the class */

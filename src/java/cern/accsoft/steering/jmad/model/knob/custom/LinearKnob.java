@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.domain.knob.KnobType;
@@ -43,7 +44,6 @@ import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
 import cern.accsoft.steering.jmad.model.JMadModel;
 import cern.accsoft.steering.jmad.model.knob.AbstractMultiModelKnob;
 import cern.accsoft.steering.jmad.model.knob.StatefulKnob;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author ${user}

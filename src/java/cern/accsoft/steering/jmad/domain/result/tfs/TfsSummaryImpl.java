@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.JMadConstants;
 import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
-import org.slf4j.LoggerFactory;
 
 public class TfsSummaryImpl implements TfsSummary {
 

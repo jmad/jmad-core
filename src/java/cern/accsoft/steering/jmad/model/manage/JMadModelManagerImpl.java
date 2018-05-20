@@ -33,13 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.model.JMadModel;
 import cern.accsoft.steering.jmad.service.JMadModelComparator;
 import cern.accsoft.steering.jmad.service.SequenceElementFilter;
-import org.slf4j.LoggerFactory;
 
 /**
  * simplest possible implementation of a {@link JMadModelManager}.

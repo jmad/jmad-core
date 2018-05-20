@@ -8,7 +8,6 @@ import static java.util.stream.Collectors.toSet;
 
 import java.nio.file.Paths;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

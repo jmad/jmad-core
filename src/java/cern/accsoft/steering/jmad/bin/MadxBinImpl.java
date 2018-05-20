@@ -33,11 +33,11 @@ import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.util.OsUtil;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
-import org.slf4j.LoggerFactory;
 
 /**
  * Determines the correct version of the madx-executable and provides methods to start its execution. Depending on the

@@ -32,9 +32,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
-import org.slf4j.LoggerFactory;
 
 public abstract class GenericXStreamService<T> implements PersistenceService<T> {
 

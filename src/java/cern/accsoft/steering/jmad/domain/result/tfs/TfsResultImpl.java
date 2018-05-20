@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.JMadConstants;
 import cern.accsoft.steering.jmad.domain.result.ResultType;
 import cern.accsoft.steering.jmad.domain.var.MadxVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
-import org.slf4j.LoggerFactory;
 
 public class TfsResultImpl implements TfsResult {
 

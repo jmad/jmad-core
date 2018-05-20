@@ -31,10 +31,10 @@ package cern.accsoft.steering.jmad.domain.knob.bean;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.knob.AbstractKnob;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
-import org.slf4j.LoggerFactory;
 
 /**
  * this class provides a knob, which just needs a bean and a property of it.

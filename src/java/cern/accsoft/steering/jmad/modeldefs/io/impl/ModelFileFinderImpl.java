@@ -38,6 +38,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation;
@@ -49,7 +50,6 @@ import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation of a class that finds model-files.

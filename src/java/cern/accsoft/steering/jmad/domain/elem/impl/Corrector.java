@@ -30,10 +30,10 @@
 package cern.accsoft.steering.jmad.domain.elem.impl;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents an orbit corrector in JMad. This represents all the element of the types <a

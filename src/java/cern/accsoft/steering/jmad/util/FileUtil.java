@@ -40,11 +40,11 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.util.io.TextFileParser;
 import cern.accsoft.steering.jmad.util.io.TextFileParserException;
 import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class contains some useful static methods for handling files

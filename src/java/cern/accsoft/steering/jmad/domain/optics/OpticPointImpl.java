@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.domain.var.enums.JMadTwissVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
-import org.slf4j.LoggerFactory;
 
 public class OpticPointImpl implements NamedBean, OpticPoint {
 

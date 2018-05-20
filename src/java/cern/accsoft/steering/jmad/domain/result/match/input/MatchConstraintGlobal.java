@@ -32,9 +32,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author muellerg

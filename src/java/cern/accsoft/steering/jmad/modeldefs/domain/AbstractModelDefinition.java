@@ -27,12 +27,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Model definition consists of a (arbitrary) number of initialization - files (madx files) and contains an arbitrary

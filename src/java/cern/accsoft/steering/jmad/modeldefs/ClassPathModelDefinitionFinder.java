@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
@@ -43,7 +44,6 @@ import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService
 import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
 import cern.accsoft.steering.jmad.util.ResourceUtil;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is an implementation of a {@link ModelDefinitionFinder} which searches in the classpath for all available

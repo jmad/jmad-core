@@ -1,0 +1,37 @@
+<jmad-model-definition name="Example LEIREXTR">
+  <optics>
+    <optic name="leir_extraction_2018" overlay="false">
+      <init-files>
+        <call-file location="RESOURCE" path="leir_extraction_2018.str" parse="STRENGTHS"/>
+      </init-files>
+    </optic>
+  </optics>
+  <default-optic ref-name="leir_extraction_2018"/>
+  <sequences>
+    <sequence name="eeetl">
+      <ranges>
+        <range name="ALL">
+          <madx-range first="#s" last="#e"/>
+          <twiss-initial-conditions name="eeetl-ALL-twiss">
+            <chrom value="true"/>
+            <closed-orbit value="false"/>
+            <centre value="true"/>
+            <betx value="4.99920392"/>
+            <bety value="5.0003808"/>
+            <dx value="0.00159546"/>
+          </twiss-initial-conditions>
+        </range>
+      </ranges>
+      <default-range ref-name="ALL"/>
+    </sequence>
+  </sequences>
+  <default-sequence ref-name="eeetl"/>
+  <init-files>
+    <call-file location="RESOURCE" path="lead.madx"/>
+    <call-file location="RESOURCE" path="leir_extraction_fringe_field_2018.seq"/>
+  </init-files>
+  <path-offsets>
+    <resource-offset value="exampleleir"/>
+  </path-offsets>
+  <svn-revision>$Revision$</svn-revision>
+</jmad-model-definition>

@@ -77,4 +77,12 @@ public class MadxRange {
     public boolean isElement() {
         return this.lastElementName == null;
     }
+
+    public String getFirstElementName() {
+        return this.firstElementName;
+    }
+
+    public String getLastElementName() {
+        return this.lastElementName;
+    }
 }

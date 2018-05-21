@@ -54,7 +54,7 @@ public class SequenceDefinitionImpl implements SequenceDefinition {
 
     /** The beam to use for the sequence */
     @XStreamAlias("beam")
-    private final Beam beam;
+    private Beam beam;
 
     /** The predefined Ranges for this sequence */
     @XStreamAlias("ranges")
@@ -83,6 +83,14 @@ public class SequenceDefinitionImpl implements SequenceDefinition {
      */
     public SequenceDefinitionImpl(String name, Beam beam) {
         this.name = name;
+        this.beam = beam;
+    }
+
+    public SequenceDefinitionImpl(String name) {
+        this.name = name;
+    }
+
+    public void setBeam(Beam beam) {
         this.beam = beam;
     }
 

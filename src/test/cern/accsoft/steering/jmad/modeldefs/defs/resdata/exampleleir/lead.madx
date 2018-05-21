@@ -1,0 +1,2 @@
+A      = 208;    ! sum of protons and neutrons
+Beam, particle=lead,pc=0.3733*A,ex=1.75E-6*4.0,ey=1.75E-6*4.0, charge=54, mass=A*0.9315, BUNCHED;

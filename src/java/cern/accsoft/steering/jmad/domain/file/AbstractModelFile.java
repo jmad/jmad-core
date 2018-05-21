@@ -28,7 +28,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 public class AbstractModelFile implements ModelFile {
 
     /** The model file location we use when the location is null after reading. */
-    private static final ModelFileLocation DEFAULT_MODEL_FILE_LOCATION = ModelFileLocation.REPOSITORY;
+    public static final ModelFileLocation DEFAULT_MODEL_FILE_LOCATION = ModelFileLocation.REPOSITORY;
 
     /** The location of the file, which is the repository by default. */
     @XStreamAlias("location")

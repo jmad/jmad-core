@@ -42,18 +42,15 @@ plugins {
     id 'eclipse'
 }
 
-if (DEPLOYMENT) {
-    plugins {
-        id 'maven-publish'
-        id 'com.jfrog.bintray' version '1.7.3'
-    }
-}
-
 group = 'jmad'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 if (DEPLOYMENT) {
+    plugins {
+        id 'maven-publish'
+        id 'com.jfrog.bintray' version '1.7.3'
+    }
     println 'Applying deployment scripts'
     apply from: './scripts/bintray-deploy.gradle'
 }

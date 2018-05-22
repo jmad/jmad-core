@@ -27,18 +27,22 @@ import java.io.InputStream;
 import java.util.Optional;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.kernel.JMadKernel;
 import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
 
 public interface ModelFileFinder {
 
     /**
-     * returns an accessible file that is searched according to the given {@link ModelFile}.
+     * returns an accessible file that is searched according to the given {@link ModelFile}, but (in case coming from an
+     * archive) extracted in a way that it is unique for the given kerne. This avoids potential name conflicts between
+     * files coming from different model packages used in kernels that are concurrently running.
      * 
      * @param modelFile the instance of {@link ModelFile} which describes where to find the file
+     * @param kernel the jmad kernel relative to whose temp path files should be placed.
      * @return the file
      */
-    public abstract File getFile(ModelFile modelFile);
-
+    public abstract File getFile(ModelFile modelFile, JMadKernel kernel);
+    
     /**
      * returns the content of the model file as input stream. This is useful e.g. for copying the file or for packing it
      * into a zip archive.

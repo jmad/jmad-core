@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -44,6 +45,7 @@ import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
+import cern.accsoft.steering.jmad.kernel.JMadKernel;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation;
 import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
@@ -90,15 +92,20 @@ public class ModelFileFinderImpl implements ModelFileFinder {
     }
 
     @Override
-    public File getFile(ModelFile modelFile) {
+    public File getFile(ModelFile modelFile, JMadKernel kernel) {
+        return getFile(modelFile, path -> this.fileUtil.getOutputFile(kernel, path));
+    }
+
+    public File getFile(ModelFile modelFile, Function<String, File> tmpFileFunction) {
         FileSource source = getFileSource(modelFile);
-        File file = source.getFile(this, modelFile);
+        File file = source.getFile(this, modelFile, tmpFileFunction);
         if (file == null) {
             LOGGER.warn("Could not get model file '" + modelFile.getName() + "' from source '" + source + "'");
         }
         return file;
     }
-
+    
+    
     @Override
     public InputStream getStream(ModelFile modelFile) {
         FileSource source = getFileSource(modelFile);
@@ -189,6 +196,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         }
     }
 
+    
     /**
      * returns an accessible file with the given name relative to the model - basepath from the resources in the
      * classpath or zip file.
@@ -196,9 +204,9 @@ public class ModelFileFinderImpl implements ModelFileFinder {
      * @param modelFile the {@link ModelFile} for which to get the rel file.
      * @return the file
      */
-    private File getArchiveFile(ModelFile modelFile) {
+    private File getArchiveFile(ModelFile modelFile, Function<String, File> tmpFileFunction) {
         String filename = getArchivePath(modelFile);
-        File file = getFileUtil().getOutputFile(filename);
+        File file = tmpFileFunction.apply(filename);
 
         /*
          * For the moment all 'Archive types' (ZIP, JAR, and FILE) are treated the same. Maybe change this at some point
@@ -211,7 +219,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
             return null;
         }
     }
-
+    
     /**
      * get the stream for a real file. (This only returns a valid stream if the file is a repository file)
      * 
@@ -389,6 +397,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         return sourceInformation;
     }
 
+    
     /**
      * this enum indicates from where the repository-file is taken. It is the result of a combination of
      * {@link ModelFileFinder.RepositoryFilePriority} and the availability.
@@ -398,8 +407,9 @@ public class ModelFileFinderImpl implements ModelFileFinder {
     private static enum FileSource {
         ARCHIVE {
             @Override
-            public File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile) {
-                return fileFinder.getArchiveFile(modelFile);
+            public File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile,
+                    Function<String, File> tmpFileFunction) {
+                return fileFinder.getArchiveFile(modelFile, tmpFileFunction);
             }
 
             @Override
@@ -409,7 +419,8 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         },
         REPOSITORY {
             @Override
-            public File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile) {
+            public File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile,
+                    Function<String, File> tmpFileFunction) {
                 return fileFinder.getRepositoryFile(modelFile);
             }
 
@@ -419,7 +430,8 @@ public class ModelFileFinderImpl implements ModelFileFinder {
             }
         };
 
-        public abstract File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile);
+        public abstract File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile,
+                Function<String, File> tmpFileFunction);
 
         public abstract InputStream getStream(ModelFileFinderImpl fileFinder, ModelFile modelFile);
 

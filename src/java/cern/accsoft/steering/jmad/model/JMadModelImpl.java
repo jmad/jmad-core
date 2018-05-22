@@ -318,7 +318,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         }
 
         for (ModelFile modelFile : modelFiles) {
-            File file = getModelFileFinder().getFile(modelFile);
+            File file = getModelFileFinder().getFile(modelFile, getKernel());
             if (modelFile instanceof CallableModelFile) {
                 this.call(file);
                 if (ParseType.STRENGTHS == ((CallableModelFile) modelFile).getParseType()) {
@@ -1142,10 +1142,10 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         ApertureReader reader = new ApertureReaderImpl();
 
         ModelFileFinder finder = getModelFileFinder();
-        Aperture newAperture = reader.readIndex(finder.getFile(definition.getIndexFile()));
+        Aperture newAperture = reader.readIndex(finder.getFile(definition.getIndexFile(), getKernel()));
 
         for (ModelFile modelFile : definition.getPartFiles()) {
-            reader.readValues(finder.getFile(modelFile), newAperture);
+            reader.readValues(finder.getFile(modelFile, getKernel()), newAperture);
         }
         this.aperture = newAperture;
     }

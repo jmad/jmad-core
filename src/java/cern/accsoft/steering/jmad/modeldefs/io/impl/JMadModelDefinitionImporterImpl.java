@@ -139,48 +139,41 @@ public class JMadModelDefinitionImporterImpl implements JMadModelDefinitionImpor
     private Collection<JMadModelDefinition> importFromZip(File file) {
         List<JMadModelDefinition> modelDefinitions = new ArrayList<JMadModelDefinition>();
 
-        ZipFile zipFile;
-        try {
-            zipFile = new ZipFile(file);
-        } catch (ZipException e) {
-            LOGGER.error("Could not open ZipFile '" + file.getAbsolutePath() + "'", e);
+        try(ZipFile zipFile = new ZipFile(file)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (ModelDefinitionUtil.isXmlFileName(entry.getName())) {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)){
+                        JMadModelDefinition modelDefinition = null;
+                        try {
+                            modelDefinition = getPersistenceService().load(inputStream);
+                        } catch (PersistenceServiceException e) {
+                            LOGGER.error("could not load model definition '" + entry.getName() + "' from zip file '"
+                                    + file.getAbsolutePath() + "'.", e);
+                        }
+                        if (modelDefinition instanceof JMadModelDefinitionImpl) {
+                            ((JMadModelDefinitionImpl) modelDefinition).setSourceInformation(new SourceInformationImpl(
+                                    SourceType.ZIP, file, entry.getName(), parentPath(entry.getName())));
+                        }
+                        if (modelDefinition != null) {
+                            modelDefinitions.add(modelDefinition);
+                            LOGGER.info("Imported model definition '" + modelDefinition.getName() + "' from zip file '"
+                                    + file.getAbsolutePath() + "'.");
+                        }
+                    } catch (IOException e1) {
+                        LOGGER.error("Could not get inputstream for entry '" + entry.getName() + "'");
+                        break;
+                    }
+                }
+            }
+
             return modelDefinitions;
         } catch (IOException e) {
             LOGGER.error("Could not open ZipFile '" + file.getAbsolutePath() + "'", e);
             return modelDefinitions;
         }
 
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            if (ModelDefinitionUtil.isXmlFileName(entry.getName())) {
-                InputStream inputStream;
-                try {
-                    inputStream = zipFile.getInputStream(entry);
-                } catch (IOException e1) {
-                    LOGGER.error("Could not get inputstream for entry '" + entry.getName() + "'");
-                    break;
-                }
-                JMadModelDefinition modelDefinition = null;
-                try {
-                    modelDefinition = getPersistenceService().load(inputStream);
-                } catch (PersistenceServiceException e) {
-                    LOGGER.error("could not load model definition '" + entry.getName() + "' from zip file '"
-                            + file.getAbsolutePath() + "'.", e);
-                }
-                if (modelDefinition instanceof JMadModelDefinitionImpl) {
-                    ((JMadModelDefinitionImpl) modelDefinition).setSourceInformation(new SourceInformationImpl(
-                            SourceType.ZIP, file, entry.getName(), parentPath(entry.getName())));
-                }
-                if (modelDefinition != null) {
-                    modelDefinitions.add(modelDefinition);
-                    LOGGER.info("Imported model definition '" + modelDefinition.getName() + "' from zip file '"
-                            + file.getAbsolutePath() + "'.");
-                }
-            }
-        }
-
-        return modelDefinitions;
     }
 
     public void setPersistenceService(ModelDefinitionPersistenceService persistenceService) {

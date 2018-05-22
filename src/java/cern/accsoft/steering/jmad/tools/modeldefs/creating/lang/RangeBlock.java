@@ -55,11 +55,11 @@ public class RangeBlock {
         postUseSpecified = true;
     }
 
-    public OngoingInitialConditions twiss() {
+    public void twiss(Consumer<InitialConditionsBlock> block) {
         AssertUtil.requireFalse(initialConditionsSpecified,
                 "twiss initial conditions already set. Cannot define twice.");
         initialConditionsSpecified = true;
-        return new OngoingInitialConditions(builder.getTwissInitialConditions());
+        block.accept(new InitialConditionsBlock(builder.getTwissInitialConditions()));
     }
 
 }

@@ -32,11 +32,12 @@ public class ExampleLeirExtractionLineModelDefinitionFactory extends JMadModelDe
 
         sequence("eeetl").isDefault().isDefinedAs(s -> {
             s.range("ALL").isDefault().isDefinedAs(r -> {
-                r.twiss() //
-                        .betx(4.99920392) //
-                        .dx(0.00159546) //
-                        .bety(5.00038080) //
-                        .calcAtCenter();
+                r.twiss(t -> {
+                    t.betx(4.99920392);
+                    t.dx(0.00159546);
+                    t.bety(5.00038080);
+                    t.calcAtCenter();
+                });
             });
         });
     }

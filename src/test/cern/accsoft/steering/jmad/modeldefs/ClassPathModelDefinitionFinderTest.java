@@ -22,9 +22,11 @@
 
 package cern.accsoft.steering.jmad.modeldefs;
 
-import static junit.framework.Assert.assertTrue;
+import static java.util.stream.Collectors.toSet;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -41,11 +43,12 @@ public class ClassPathModelDefinitionFinderTest {
 
         List<JMadModelDefinition> modelDefinitions = finder.findAllModelDefinitions();
 
-        assertTrue("We should find at least one modelDefinition.", modelDefinitions.size() > 0);
-        assertTrue("The model definition should be on of the example model definitions", modelDefinitions.get(0)
-                .getName().equals("example_THIN")
-                || modelDefinitions.get(0).getName().equals("example"));
+        assertThat(modelDefinitions.size()).describedAs("We should find at least one modelDefinition.")
+                .isGreaterThan(0);
 
+        Set<String> modelNames = modelDefinitions.stream().map(JMadModelDefinition::getName).collect(toSet());
+        assertThat(modelNames).describedAs("The model definition should be on of the example model definitions")
+                .contains("example_THIN", "example", "Example LEIREXTR");
     }
 
 }

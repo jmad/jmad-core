@@ -15,7 +15,7 @@ public class ModelDefinitionUtilTest {
 
     @Test
     public void findModelExampleDefinitionsInTestPath() {
-        assertThat(modelDefinitionFilesBelow(Paths.get("./src/test"))).hasSize(2);
+        assertThat(modelDefinitionFilesBelow(Paths.get("./src/test"))).hasSize(3);
     }
 
     @Test

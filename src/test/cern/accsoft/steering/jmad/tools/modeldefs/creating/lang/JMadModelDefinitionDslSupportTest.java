@@ -5,11 +5,8 @@
 package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
 
 import static cern.accsoft.steering.jmad.tools.modeldefs.creating.ModelDefinitionCreator.scanDefault;
-import static org.junit.Assert.*;
 
 import org.junit.Test;
-
-import cern.accsoft.steering.jmad.tools.modeldefs.creating.ModelDefinitionCreator;
 
 public class JMadModelDefinitionDslSupportTest {
 

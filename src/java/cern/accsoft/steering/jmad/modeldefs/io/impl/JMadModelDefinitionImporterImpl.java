@@ -35,7 +35,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.slf4j.Logger;

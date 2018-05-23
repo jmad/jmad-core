@@ -66,6 +66,11 @@ public class TempFileUtilImpl implements TempFileUtil {
     }
 
     @Override
+    public File getOutputDir(String relativePath) {
+        return createDir(outputPath + File.separator + relativePath);
+    }
+
+    @Override
     public final File getOutputFile(Object object, String relativePath) {
         return createFile(getObjectPath(object) + File.separator + relativePath);
     }
@@ -100,6 +105,18 @@ public class TempFileUtilImpl implements TempFileUtil {
         FileUtil.createDir(parentDir, false);
 
         return file;
+    }
+
+    /**
+     * Creates a file objecte representing the directory of the given path and creates it if it does not exist.
+     * 
+     * @param fullPath the full path of the directory
+     * @return a file representing the directory
+     */
+    private static final File createDir(String fullPath) {
+        File dir = new File(fullPath);
+        FileUtil.createDir(dir, false);
+        return dir;
     }
 
     /**

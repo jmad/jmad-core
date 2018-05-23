@@ -33,7 +33,18 @@ public interface TempFileUtil {
      * @param relativePath the file-path in the current output-dir
      * @return the File
      */
-    public abstract File getOutputFile(String relativePath);
+    File getOutputFile(String relativePath);
+
+    /**
+     * returns a directory created from the current output-path and the given relative path. This method ensures that
+     * the directory exists, by creating it if non existing. The main difference to {@link #getOutputFile(String)} is
+     * that {@link #getOutputFile(String)} creates only the parent dir of the returned file, while this methods creates
+     * the directory itself.
+     * 
+     * @param relativePath the file-path relativ to the current output-dir
+     * @return the directory
+     */
+    File getOutputDir(String relativePath);
 
     /**
      * returns a file created from the current output-path, a sub directory for the given object and the relative path.
@@ -43,13 +54,13 @@ public interface TempFileUtil {
      * @param relativePath the relative path
      * @return the file
      */
-    public abstract File getOutputFile(Object object, String relativePath);
+    File getOutputFile(Object object, String relativePath);
 
     /**
      * recursively removes the dir related to the given object.
      * 
      * @param object the object for which to delete the dir
      */
-    public abstract void cleanup(Object object);
+    void cleanup(Object object);
 
 }

@@ -3,25 +3,25 @@ buildscript {
     project.ext.DEPLOYMENT = System.getProperty('deployment') ?: false
     project.ext.VCS_TAG = System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG')
     project.ext.POM = [
-        groupId    : 'jmad',
-        artifactId : 'jmad-core',
-        description: 'JMad is a Java API for the MadX software, which is used at CERN and in many other accelerator labs to simulate particle accelerators.'
+            groupId    : 'jmad',
+            artifactId : 'jmad-core',
+            description: 'JMad is a Java API for the MadX software, which is used at CERN and in many other accelerator labs to simulate particle accelerators.'
     ]
     project.ext.INFO = [
-        repo            : 'https://github.com/jmad/jmad-core.git',
-        url             : 'https://jmad.github.io/',
-        github          : 'https://github.com/jmad/jmad-core',
-        githubIssues    : 'https://github.com/jmad/jmad-core/issues',
-        licenseNameShort: 'Apache-2.0',
-        licenseName     : 'The Apache License, Version 2.0',
-        licenseUrl      : 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            repo            : 'https://github.com/jmad/jmad-core.git',
+            url             : 'https://jmad.github.io/',
+            github          : 'https://github.com/jmad/jmad-core',
+            githubIssues    : 'https://github.com/jmad/jmad-core/issues',
+            licenseNameShort: 'Apache-2.0',
+            licenseName     : 'The Apache License, Version 2.0',
+            licenseUrl      : 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     ]
     project.ext.BINTRAY = [
-        repo        : 'jmad-repo',
-        name        : 'jmad-core',
-        organization: 'jmad',
-        userName    : System.getProperty('BINTRAY_USER') ?: System.getenv('BINTRAY_USER'),
-        apiToken    : System.getProperty('BINTRAY_API_TOKEN') ?: System.getenv('BINTRAY_API_TOKEN')
+            repo        : 'jmad-repo',
+            name        : 'jmad-core',
+            organization: 'jmad',
+            userName    : System.getProperty('BINTRAY_USER') ?: System.getenv('BINTRAY_USER'),
+            apiToken    : System.getProperty('BINTRAY_API_TOKEN') ?: System.getenv('BINTRAY_API_TOKEN')
     ]
 
     repositories {
@@ -35,28 +35,23 @@ buildscript {
     dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3' }
 }
 
-plugins {
-    id 'java'
-    id 'jacoco'
-    id 'idea'
-    id 'eclipse'
-}
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 group = 'jmad'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 if (DEPLOYMENT) {
-    plugins {
-        id 'maven-publish'
-        id 'com.jfrog.bintray' version '1.7.3'
-    }
     println 'Applying deployment scripts'
     apply from: './scripts/bintray-deploy.gradle'
 }
 
 repositories {
-    println CERN_VM
     if (CERN_VM) {
         maven { url 'http://artifactory.cern.ch/ds-jcenter' }
         maven { url 'http://artifactory.cern.ch/development' }
@@ -86,13 +81,13 @@ task wrapper(type: Wrapper) { gradleVersion = '4.7' }
 
 sourceSets {
     main {
-        java { srcDirs = ['src/java']}
-        resources { srcDirs = ['src/java']}
+        java { srcDirs = ['src/java'] }
+        resources { srcDirs = ['src/java'] }
     }
 
     test {
-        java { srcDirs = ['src/test']}
-        resources { srcDirs = ['src/test']}
+        java { srcDirs = ['src/test'] }
+        resources { srcDirs = ['src/test'] }
     }
 }
 

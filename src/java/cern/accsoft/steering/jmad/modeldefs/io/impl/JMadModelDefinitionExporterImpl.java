@@ -43,7 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinitionImpl;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExportRequest;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExporter;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
@@ -231,10 +234,46 @@ public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExpor
 
 	private JMadModelDefinition tailorModelDefinition(JMadModelDefinitionExportRequest request) {
 		JMadModelDefinition modelDefinitionForExport = cloneModel(request.getModelDefinition());
+
+		/* remove optics/sequences/ranges not selected */
 		modelDefinitionForExport.getOpticsDefinitions().removeIf(not(request.getOpticsToExport()::contains));
 		modelDefinitionForExport.getSequenceDefinitions().removeIf(not(request.getSequencesToExport()::contains));
 		modelDefinitionForExport.getSequenceDefinitions().forEach(//
 				seq -> seq.getRangeDefinitions().removeIf(not(request.getRangesToExport()::contains)));
+
+		/* remove empty sequences (no ranges) */
+		modelDefinitionForExport.getSequenceDefinitions().removeIf(s -> s.getRangeDefinitions().isEmpty());
+
+		/* if we end up with an empty model, throw */
+		if (modelDefinitionForExport.getOpticsDefinitions().isEmpty()) {
+			throw new IllegalArgumentException("no optics definitions have been selected for export!");
+		}
+		if (modelDefinitionForExport.getSequenceDefinitions().isEmpty()) {
+			throw new IllegalArgumentException("no sequence definitions have been selected for export!");
+		}
+		if (modelDefinitionForExport.getRangeDefinitions().isEmpty()) {
+			throw new IllegalArgumentException("no ranges have been selected for export!");
+		}
+
+		/* fix defaults */
+		if (!modelDefinitionForExport.getOpticsDefinitions()
+				.contains(modelDefinitionForExport.getDefaultOpticsDefinition())) {
+			((JMadModelDefinitionImpl) modelDefinitionForExport)
+					.setDefaultOpticsDefinition(modelDefinitionForExport.getOpticsDefinitions().get(0));
+		}
+
+		if (!modelDefinitionForExport.getSequenceDefinitions()
+				.contains(modelDefinitionForExport.getDefaultSequenceDefinition())) {
+			((JMadModelDefinitionImpl) modelDefinitionForExport)
+					.setDefaultSequenceDefinition(modelDefinitionForExport.getSequenceDefinitions().get(0));
+		}
+
+		for (SequenceDefinition sequence : modelDefinitionForExport.getSequenceDefinitions()) {
+			if (!sequence.getRangeDefinitions().contains(sequence.getDefaultRangeDefinition())) {
+				((SequenceDefinitionImpl) sequence).setDefaultRangeDefinition(sequence.getRangeDefinitions().get(0));
+			}
+		}
+
 		return modelDefinitionForExport;
 	}
 

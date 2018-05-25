@@ -1,5 +1,7 @@
 package cern.accsoft.steering.jmad.modeldefs.io;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Collection;
 
 import com.google.common.collect.ImmutableSet;
@@ -12,20 +14,17 @@ import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 public class JMadModelDefinitionExportRequest {
 	private final JMadModelDefinition modelDefinition;
 	private final Collection<OpticsDefinition> opticsToExport;
-	private final Collection<SequenceDefinition> sequencesToExport;
 	private final Collection<RangeDefinition> rangesToExport;
 
 	private JMadModelDefinitionExportRequest(JMadModelDefinition modelDefinition,
-			Collection<OpticsDefinition> opticsToExport, Collection<SequenceDefinition> sequencesToExport,
-			Collection<RangeDefinition> rangesToExport) {
+			Collection<OpticsDefinition> opticsToExport, Collection<RangeDefinition> rangesToExport) {
 		this.modelDefinition = modelDefinition;
 		this.opticsToExport = opticsToExport;
-		this.sequencesToExport = sequencesToExport;
 		this.rangesToExport = rangesToExport;
 	}
 
 	public static JMadModelDefinitionExportRequest allFrom(JMadModelDefinition modelDefinition) {
-		return from(modelDefinition).exportAllOptics().exportAllSequences().exportAllRanges().build();
+		return from(modelDefinition).exportAllOptics().exportAllRanges().build();
 	}
 
 	public static JMadModelDefinitionExportRequest.Builder from(JMadModelDefinition modelDefinition) {
@@ -35,7 +34,6 @@ public class JMadModelDefinitionExportRequest {
 	public static class Builder {
 		private final JMadModelDefinition modelDefinition;
 		private final ImmutableSet.Builder<OpticsDefinition> opticsToExport = ImmutableSet.builder();
-		private final ImmutableSet.Builder<SequenceDefinition> sequencesToExport = ImmutableSet.builder();
 		private final ImmutableSet.Builder<RangeDefinition> rangesToExport = ImmutableSet.builder();
 
 		Builder(JMadModelDefinition modelDefinition) {
@@ -44,11 +42,6 @@ public class JMadModelDefinitionExportRequest {
 
 		public Builder exportAllOptics() {
 			opticsToExport.addAll(modelDefinition.getOpticsDefinitions());
-			return this;
-		}
-
-		public Builder exportAllSequences() {
-			sequencesToExport.addAll(modelDefinition.getSequenceDefinitions());
 			return this;
 		}
 
@@ -62,8 +55,8 @@ public class JMadModelDefinitionExportRequest {
 			return this;
 		}
 
-		public Builder export(SequenceDefinition sequence) {
-			sequencesToExport.add(sequence);
+		public Builder exportAllRangesFrom(SequenceDefinition sequence) {
+			sequence.getRangeDefinitions().forEach(this::export);
 			return this;
 		}
 
@@ -76,7 +69,6 @@ public class JMadModelDefinitionExportRequest {
 			return new JMadModelDefinitionExportRequest(//
 					modelDefinition, //
 					opticsToExport.build(), //
-					sequencesToExport.build(), //
 					rangesToExport.build());
 		}
 	}
@@ -86,7 +78,7 @@ public class JMadModelDefinitionExportRequest {
 	}
 
 	public Collection<SequenceDefinition> getSequencesToExport() {
-		return sequencesToExport;
+		return rangesToExport.stream().map(RangeDefinition::getSequenceDefinition).collect(toSet());
 	}
 
 	public Collection<RangeDefinition> getRangesToExport() {

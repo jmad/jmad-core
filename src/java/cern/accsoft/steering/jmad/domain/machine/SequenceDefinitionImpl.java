@@ -34,7 +34,6 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import cern.accsoft.steering.jmad.domain.beam.Beam;
-import cern.accsoft.steering.jmad.modeldefs.io.impl.converter.RangeDefinitionListFilter;
 import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
 
 /**
@@ -59,7 +58,6 @@ public class SequenceDefinitionImpl implements SequenceDefinition {
 
     /** The predefined Ranges for this sequence */
     @XStreamAlias("ranges")
-    @XStreamConverter(RangeDefinitionListFilter.class)
     private final List<RangeDefinition> rangeDefinitions = new ArrayList<RangeDefinition>();
 
     /** the default range definition */
@@ -184,4 +182,43 @@ public class SequenceDefinitionImpl implements SequenceDefinition {
 
         return this;
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((rangeDefinitions == null) ? 0 : rangeDefinitions.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof SequenceDefinitionImpl)) {
+			return false;
+		}
+		SequenceDefinitionImpl other = (SequenceDefinitionImpl) obj;
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (rangeDefinitions == null) {
+			if (other.rangeDefinitions != null) {
+				return false;
+			}
+		} else if (!rangeDefinitions.equals(other.rangeDefinitions)) {
+			return false;
+		}
+		return true;
+	}
+
 }

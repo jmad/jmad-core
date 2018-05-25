@@ -91,7 +91,7 @@ public abstract class AbstractModelDefinitionPersistenceService implements Model
 		/*
 		 * To avoid using references
 		 */
-		xStream.addImmutableType(CallableModelFileImpl.class, true);
+		xStream.addImmutableType(CallableModelFileImpl.class);
 
 		/* The default implementations */
 		xStream.addDefaultImplementation(ModelPathOffsetsImpl.class, ModelPathOffsets.class);

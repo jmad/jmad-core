@@ -173,6 +173,11 @@ public class OpticsDefinitionImpl implements OpticsDefinition, Cloneable {
         return object;
     }
 
+    /* NOTE: to avoid issues with missing hashCode() and equals() on JMad objects,
+     * and to avoid circular references, the following implementations of hashCode()
+     * and equals() DELIBERATELY ONLY OPERATE ON NAMES (Strings) 
+     * 
+     * Be careful when changing this behaviour and/or re-generating! */
 	@Override
 	public int hashCode() {
 		final int prime = 31;

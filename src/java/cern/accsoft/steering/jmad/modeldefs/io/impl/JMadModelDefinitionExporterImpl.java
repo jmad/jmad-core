@@ -25,6 +25,8 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
+import static com.google.common.base.Predicates.not;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -102,7 +104,7 @@ public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExpor
 			LOGGER.error("No destination dir given. Cannot export model definition.");
 			return null;
 		}
-		JMadModelDefinition modelDefinition = exportRequest.getModelDefinition();
+		JMadModelDefinition modelDefinition = tailorModelDefinition(exportRequest);
 
 		File xmlFile;
 		File destDir;
@@ -182,7 +184,7 @@ public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExpor
 			LOGGER.error("No file given. Cannot export model definition.");
 			return null;
 		}
-		JMadModelDefinition modelDefinition = exportRequest.getModelDefinition();
+		JMadModelDefinition modelDefinition = tailorModelDefinition(exportRequest);
 
 		File zipFile = ModelDefinitionUtil.ensureZipFileExtension(file);
 
@@ -225,6 +227,26 @@ public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExpor
 			LOGGER.error("Could not save model definition to zip file '" + zipFile.getAbsolutePath() + "'", e);
 		}
 		return null;
+	}
+
+	private JMadModelDefinition tailorModelDefinition(JMadModelDefinitionExportRequest request) {
+		JMadModelDefinition modelDefinitionForExport = cloneModel(request.getModelDefinition());
+		modelDefinitionForExport.getOpticsDefinitions().removeIf(not(request.getOpticsToExport()::contains));
+		modelDefinitionForExport.getSequenceDefinitions().removeIf(not(request.getSequencesToExport()::contains));
+		modelDefinitionForExport.getSequenceDefinitions().forEach(//
+				seq -> seq.getRangeDefinitions().removeIf(not(request.getRangesToExport()::contains)));
+		return modelDefinitionForExport;
+	}
+
+	private JMadModelDefinition cloneModel(JMadModelDefinition model) {
+		for (ModelDefinitionPersistenceService cloneService : persistenceServices) {
+			try {
+				return cloneService.clone(model);
+			} catch (Exception e) {
+				/* try next service */
+			}
+		}
+		throw new IllegalStateException("no persistence service was able to clone the model definition");
 	}
 
 	private String getFileName(JMadModelDefinition modelDefinition) {

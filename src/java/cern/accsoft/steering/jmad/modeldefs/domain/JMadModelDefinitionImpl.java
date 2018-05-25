@@ -38,8 +38,6 @@ import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
-import cern.accsoft.steering.jmad.modeldefs.io.impl.converter.OpticsDefinitionListFilter;
-import cern.accsoft.steering.jmad.modeldefs.io.impl.converter.SequenceDefinitionListFilter;
 import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
 
 @XStreamAlias("jmad-model-definition")
@@ -53,7 +51,6 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     private String name;
 
     @XStreamAlias("optics")
-    @XStreamConverter(OpticsDefinitionListFilter.class)
     private final List<OpticsDefinition> opticsDefinitions = new ArrayList<OpticsDefinition>();
 
     @XStreamOmitField
@@ -64,7 +61,6 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     private String defaultOpticsDefinitionName = null;
 
     @XStreamAlias("sequences")
-    @XStreamConverter(SequenceDefinitionListFilter.class)
     private final List<SequenceDefinition> sequenceDefinitions = new ArrayList<SequenceDefinition>();
 
     @XStreamOmitField

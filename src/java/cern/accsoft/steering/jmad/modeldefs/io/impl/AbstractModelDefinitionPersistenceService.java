@@ -91,11 +91,7 @@ public abstract class AbstractModelDefinitionPersistenceService implements Model
 		/*
 		 * To avoid using references
 		 */
-<<<<<<< HEAD
 		xStream.addImmutableType(CallableModelFileImpl.class);
-=======
-		xStream.addImmutableType(CallableModelFileImpl.class, true);
->>>>>>> branch 'export-mad-script' of https://github.com/jmad/jmad-core.git
 
 		/* The default implementations */
 		xStream.addDefaultImplementation(ModelPathOffsetsImpl.class, ModelPathOffsets.class);

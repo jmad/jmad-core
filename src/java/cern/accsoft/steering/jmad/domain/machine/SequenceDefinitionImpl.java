@@ -34,6 +34,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import cern.accsoft.steering.jmad.domain.beam.Beam;
+import cern.accsoft.steering.jmad.modeldefs.io.impl.converter.RangeDefinitionListFilter;
 import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
 
 /**
@@ -58,6 +59,7 @@ public class SequenceDefinitionImpl implements SequenceDefinition {
 
     /** The predefined Ranges for this sequence */
     @XStreamAlias("ranges")
+    @XStreamConverter(RangeDefinitionListFilter.class)
     private final List<RangeDefinition> rangeDefinitions = new ArrayList<RangeDefinition>();
 
     /** the default range definition */

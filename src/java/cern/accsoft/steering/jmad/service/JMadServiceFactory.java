@@ -25,8 +25,8 @@
  */
 package cern.accsoft.steering.jmad.service;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import cern.accsoft.steering.jmad.conf.JMadServiceConfiguration;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * This is a static factory for a jmad service.
@@ -45,8 +45,6 @@ public final class JMadServiceFactory {
      * @return the new service
      */
     public static JMadService createJMadService() {
-        /* creating the application - context. */
-        ApplicationContext appCtx = new ClassPathXmlApplicationContext(new String[] { "app-ctx-jmad-service.xml" });
-        return (JMadService) appCtx.getBean("jmadService");
+        return new AnnotationConfigApplicationContext(JMadServiceConfiguration.class).getBean(JMadService.class);
     }
 }

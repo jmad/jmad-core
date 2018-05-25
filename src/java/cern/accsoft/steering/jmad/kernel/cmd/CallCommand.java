@@ -33,11 +33,15 @@ public class CallCommand extends AbstractCommand {
     private static final String CMD_NAME = "call";
 
     /* the only parameter: */
-    private File file;
+    private final String filePath;
 
     public CallCommand(File file) {
-        setFile(file);
+        this(file.getAbsolutePath());
     }
+    
+    public CallCommand(String path) {
+    	this.filePath = path;
+	}
 
     @Override
     public String getName() {
@@ -47,11 +51,7 @@ public class CallCommand extends AbstractCommand {
     @Override
     public List<Parameter> getParameters() {
         ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("file", file.getAbsolutePath(), true));
+        parameters.add(new GenericParameter<String>("file", filePath, true));
         return parameters;
-    }
-
-    public final void setFile(File file) {
-        this.file = file;
     }
 }

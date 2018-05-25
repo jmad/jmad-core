@@ -1,10 +1,14 @@
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
+import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionMetaData.EXPORT_REQUEST;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
 
 import cern.accsoft.steering.jmad.domain.beam.Beam;
 import cern.accsoft.steering.jmad.domain.file.AbstractModelFile;
@@ -19,6 +23,7 @@ import cern.accsoft.steering.jmad.domain.machine.filter.RegexNameFilter;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
 import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExportRequest;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
 import cern.accsoft.steering.jmad.util.xml.GenericXStreamService;
 import cern.accsoft.steering.jmad.util.xml.PersistenceService;
@@ -51,13 +56,13 @@ public abstract class AbstractModelDefinitionPersistenceService implements Model
     }
 
     @Override
-    public File save(JMadModelDefinition object, File file) throws PersistenceServiceException {
-        return this.getXStreamService().save(object, file);
+    public File save(JMadModelDefinitionExportRequest object, File file) throws PersistenceServiceException {    	
+        return this.getXStreamService().save(object.getModelDefinition(), file, ImmutableMap.of(EXPORT_REQUEST, object));
     }
 
     @Override
-    public void save(JMadModelDefinition object, OutputStream outStream) throws PersistenceServiceException {
-        this.getXStreamService().save(object, outStream);
+    public void save(JMadModelDefinitionExportRequest object, OutputStream outStream) throws PersistenceServiceException {
+        this.getXStreamService().save(object.getModelDefinition(), outStream);
     }
 
     /**

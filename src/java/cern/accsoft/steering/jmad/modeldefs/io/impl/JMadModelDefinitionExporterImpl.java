@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExportRequest;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExporter;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
@@ -55,11 +56,10 @@ import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
  * 
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
-public class JMadModelDefinitionExporterImpl implements
-		JMadModelDefinitionExporter {
+public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExporter {
 	/**
-	 * The persistence service to use to write model definition to xml.
-	 * (injected by spring)
+	 * The persistence service to use to write model definition to xml. (injected by
+	 * spring)
 	 */
 	private List<ModelDefinitionPersistenceService> persistenceServices = new ArrayList<ModelDefinitionPersistenceService>();
 
@@ -72,8 +72,8 @@ public class JMadModelDefinitionExporterImpl implements
 	private static final Logger LOGGER = LoggerFactory.getLogger(JMadModelDefinitionExporterImpl.class);
 
 	@Override
-	public File export(JMadModelDefinition modelDefinition, File exportPath) {
-		if (modelDefinition == null) {
+	public File export(JMadModelDefinitionExportRequest exportRequest, File exportPath) {
+		if (exportRequest == null) {
 			LOGGER.error("No model definition given to export.");
 			return null;
 		}
@@ -82,21 +82,19 @@ public class JMadModelDefinitionExporterImpl implements
 			return null;
 		}
 
-		ModelDefinitionPersistenceService persistenceService = findPersistenceService(exportPath
-				.getName());
+		ModelDefinitionPersistenceService persistenceService = findPersistenceService(exportPath.getName());
 
 		if (persistenceService != null || exportPath.isDirectory()) {
-			return exportAsFiles(modelDefinition, exportPath);
+			return exportAsFiles(exportRequest, exportPath);
 		} else {
 			/* per default we export as zip */
-			return exportAsZip(modelDefinition, exportPath);
+			return exportAsZip(exportRequest, exportPath);
 		}
 	}
 
 	@Override
-	public File exportAsFiles(JMadModelDefinition modelDefinition,
-			File exportPath) {
-		if (modelDefinition == null) {
+	public File exportAsFiles(JMadModelDefinitionExportRequest exportRequest, File exportPath) {
+		if (exportRequest == null) {
 			LOGGER.error("No model definition given to export.");
 			return null;
 		}
@@ -104,14 +102,14 @@ public class JMadModelDefinitionExporterImpl implements
 			LOGGER.error("No destination dir given. Cannot export model definition.");
 			return null;
 		}
+		JMadModelDefinition modelDefinition = exportRequest.getModelDefinition();
 
 		File xmlFile;
 		File destDir;
 		if (exportPath.isDirectory()) {
 			destDir = exportPath;
 			/* per default we save as xml */
-			xmlFile = new File(destDir.getAbsolutePath() + File.separator
-					+ getFileName(modelDefinition));
+			xmlFile = new File(destDir.getAbsolutePath() + File.separator + getFileName(modelDefinition));
 		} else {
 			destDir = exportPath.getAbsoluteFile().getParentFile();
 			xmlFile = exportPath;
@@ -119,21 +117,16 @@ public class JMadModelDefinitionExporterImpl implements
 		FileUtil.createDir(destDir, false);
 
 		/*
-		 * first we save the model-def file. If it matches one of the extensions
-		 * of the persisters, then we use that one, otherwise we use the
-		 * default.
+		 * first we save the model-def file. If it matches one of the extensions of the
+		 * persisters, then we use that one, otherwise we use the default.
 		 */
-		ModelDefinitionPersistenceService persistenceService = findPersistenceService(xmlFile
-				.getAbsolutePath());
+		ModelDefinitionPersistenceService persistenceService = findPersistenceService(xmlFile.getAbsolutePath());
 		if (persistenceService == null) {
-			xmlFile = new File(xmlFile.getAbsolutePath()
-					+ ModelDefinitionUtil.getDefaultFileExtension());
-			persistenceService = findPersistenceService(xmlFile
-					.getAbsolutePath());
+			xmlFile = new File(xmlFile.getAbsolutePath() + ModelDefinitionUtil.getDefaultFileExtension());
+			persistenceService = findPersistenceService(xmlFile.getAbsolutePath());
 		}
 		if (persistenceService == null) {
-			LOGGER.error("Cannot find appropriate persistence service for file '"
-					+ xmlFile.getAbsolutePath() + "'.");
+			LOGGER.error("Cannot find appropriate persistence service for file '" + xmlFile.getAbsolutePath() + "'.");
 		}
 
 		try {
@@ -143,40 +136,34 @@ public class JMadModelDefinitionExporterImpl implements
 			/*
 			 * then we loop through all model files and copy all the files.
 			 */
-			ModelFileFinder fileFinder = getFileFinderManager()
-					.getModelFileFinder(modelDefinition);
+			ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(modelDefinition);
 			for (ModelFile modelFile : getRequiredFiles(modelDefinition)) {
 				/*
-				 * We use the archive path here. So the file structure is the
-				 * same as inside the zip archive.
+				 * We use the archive path here. So the file structure is the same as inside the
+				 * zip archive.
 				 */
 				String archivePath = fileFinder.getArchivePath(modelFile);
-				File file = new File(destDir.getAbsolutePath() + File.separator
-						+ archivePath);
+				File file = new File(destDir.getAbsolutePath() + File.separator + archivePath);
 
 				/*
 				 * ensure that the parent dir exists
 				 */
-				FileUtil.createDir(file.getAbsoluteFile().getParentFile(),
-						false);
+				FileUtil.createDir(file.getAbsoluteFile().getParentFile(), false);
 
 				InputStream inStream = fileFinder.getStream(modelFile);
 				if (!StreamUtil.toFile(inStream, file)) {
-					LOGGER.error("Could not write file '"
-							+ file.getAbsolutePath() + "'");
+					LOGGER.error("Could not write file '" + file.getAbsolutePath() + "'");
 					return null;
 				}
 			}
 			return xmlFile;
 		} catch (PersistenceServiceException e) {
-			LOGGER.error("Could not save model definition to file '"
-					+ xmlFile.getAbsolutePath() + "'.", e);
+			LOGGER.error("Could not save model definition to file '" + xmlFile.getAbsolutePath() + "'.", e);
 		}
 		return null;
 	}
 
-	private ModelDefinitionPersistenceService findPersistenceService(
-			String fileName) {
+	private ModelDefinitionPersistenceService findPersistenceService(String fileName) {
 		for (ModelDefinitionPersistenceService persistenceService : getPersistenceServices()) {
 			if (persistenceService.isCorrectFileName(fileName)) {
 				return persistenceService;
@@ -186,8 +173,8 @@ public class JMadModelDefinitionExporterImpl implements
 	}
 
 	@Override
-	public File exportAsZip(JMadModelDefinition modelDefinition, File file) {
-		if (modelDefinition == null) {
+	public File exportAsZip(JMadModelDefinitionExportRequest exportRequest, File file) {
+		if (exportRequest == null) {
 			LOGGER.error("No model definition given to export.");
 			return null;
 		}
@@ -195,6 +182,7 @@ public class JMadModelDefinitionExporterImpl implements
 			LOGGER.error("No file given. Cannot export model definition.");
 			return null;
 		}
+		JMadModelDefinition modelDefinition = exportRequest.getModelDefinition();
 
 		File zipFile = ModelDefinitionUtil.ensureZipFileExtension(file);
 
@@ -203,30 +191,26 @@ public class JMadModelDefinitionExporterImpl implements
 			ZipOutputStream outStream;
 			outStream = new ZipOutputStream(new FileOutputStream(zipFile));
 
-			String baseName = ModelDefinitionUtil
-					.getProposedIdStringFromName(modelDefinition);
+			String baseName = ModelDefinitionUtil.getProposedIdStringFromName(modelDefinition);
 
 			/* Add a zip entry to the output stream each persister we have */
 			for (ModelDefinitionPersistenceService persistenceService : getPersistenceServices()) {
-				outStream.putNextEntry(new ZipEntry(baseName
-						+ persistenceService.getFileExtension()));
+				outStream.putNextEntry(new ZipEntry(baseName + persistenceService.getFileExtension()));
 				persistenceService.save(modelDefinition, outStream);
 				outStream.closeEntry();
 			}
 
 			/*
-			 * next we need the corresponding ModelFileFinder to find all the
-			 * required files and put them in the archive.
+			 * next we need the corresponding ModelFileFinder to find all the required files
+			 * and put them in the archive.
 			 */
-			ModelFileFinder fileFinder = getFileFinderManager()
-					.getModelFileFinder(modelDefinition);
+			ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(modelDefinition);
 
 			/*
 			 * now we are ready to copy all the files into the archive.
 			 */
 			for (ModelFile modelFile : getRequiredFiles(modelDefinition)) {
-				outStream.putNextEntry(new ZipEntry(fileFinder
-						.getArchivePath(modelFile)));
+				outStream.putNextEntry(new ZipEntry(fileFinder.getArchivePath(modelFile)));
 				InputStream inStream = fileFinder.getStream(modelFile);
 				StreamUtil.copy(inStream, outStream);
 				outStream.closeEntry();
@@ -236,11 +220,9 @@ public class JMadModelDefinitionExporterImpl implements
 			outStream.close();
 			return zipFile;
 		} catch (IOException e) {
-			LOGGER.error("Could not save model definition to zip file '"
-					+ zipFile.getAbsolutePath() + "'", e);
+			LOGGER.error("Could not save model definition to zip file '" + zipFile.getAbsolutePath() + "'", e);
 		} catch (PersistenceServiceException e) {
-			LOGGER.error("Could not save model definition to zip file '"
-					+ zipFile.getAbsolutePath() + "'", e);
+			LOGGER.error("Could not save model definition to zip file '" + zipFile.getAbsolutePath() + "'", e);
 		}
 		return null;
 	}
@@ -255,20 +237,17 @@ public class JMadModelDefinitionExporterImpl implements
 
 	/**
 	 * collects all the required files for a model definition. it returns a
-	 * collection which will contain all the model files with the same archive
-	 * path only once.
+	 * collection which will contain all the model files with the same archive path
+	 * only once.
 	 * 
 	 * @param modelDefinition
 	 *            the model definition for which to collect the files
 	 * @return all the files, with unique archive-path
 	 */
-	private Collection<ModelFile> getRequiredFiles(
-			JMadModelDefinition modelDefinition) {
-		ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(
-				modelDefinition);
+	private Collection<ModelFile> getRequiredFiles(JMadModelDefinition modelDefinition) {
+		ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(modelDefinition);
 		Map<String, ModelFile> modelFiles = new HashMap<String, ModelFile>();
-		for (ModelFile modelFile : ModelDefinitionUtil
-				.getRequiredModelFiles(modelDefinition)) {
+		for (ModelFile modelFile : ModelDefinitionUtil.getRequiredModelFiles(modelDefinition)) {
 			String archivePath = fileFinder.getArchivePath(modelFile);
 			modelFiles.put(archivePath, modelFile);
 		}
@@ -283,8 +262,7 @@ public class JMadModelDefinitionExporterImpl implements
 		return fileFinderManager;
 	}
 
-	public void setPersistenceServices(
-			List<ModelDefinitionPersistenceService> persistenceServices) {
+	public void setPersistenceServices(List<ModelDefinitionPersistenceService> persistenceServices) {
 		this.persistenceServices = persistenceServices;
 	}
 

@@ -25,8 +25,6 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
-import static com.google.common.base.Predicates.not;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -236,10 +234,10 @@ public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExpor
 		JMadModelDefinition modelDefinitionForExport = cloneModel(request.getModelDefinition());
 
 		/* remove optics/sequences/ranges not selected */
-		modelDefinitionForExport.getOpticsDefinitions().removeIf(not(request.getOpticsToExport()::contains));
-		modelDefinitionForExport.getSequenceDefinitions().removeIf(not(request.getSequencesToExport()::contains));
+		modelDefinitionForExport.getOpticsDefinitions().removeIf(o -> !(request.getOpticsToExport().contains(o)));
+		modelDefinitionForExport.getSequenceDefinitions().removeIf(s -> !(request.getSequencesToExport().contains(s)));
 		modelDefinitionForExport.getSequenceDefinitions().forEach(//
-				seq -> seq.getRangeDefinitions().removeIf(not(request.getRangesToExport()::contains)));
+				seq -> seq.getRangeDefinitions().removeIf(r -> !(request.getRangesToExport().contains(r))));
 
 		/* remove empty sequences (no ranges) */
 		modelDefinitionForExport.getSequenceDefinitions().removeIf(s -> s.getRangeDefinitions().isEmpty());

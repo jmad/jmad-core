@@ -4,7 +4,6 @@
 
 package cern.accsoft.steering.jmad.util;
 
-import static com.google.common.collect.Streams.stream;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
@@ -12,9 +11,12 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 public final class ClassUtil {
 
@@ -57,7 +59,7 @@ public final class ClassUtil {
 
     public static final Set<Class<?>> loadIfPossible(Iterable<String> classNames) {
         // @formatter:off
-        return stream(classNames)
+        return streamOf(classNames)
                 .map(ClassUtil::loadIfPossible)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -76,12 +78,16 @@ public final class ClassUtil {
 
     public static final <T> Set<T> instantiateIfPossible(Iterable<Class<T>> classesToInstantiate) {
         // @formatter:off
-        return stream(classesToInstantiate)
+        return streamOf(classesToInstantiate)
                 .map(ClassUtil::instantiateIfPossible)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(toSet());
         // @formatter:on
+    }
+
+    private static <T> Stream<T> streamOf(Iterable<T> classNames) {
+        return ImmutableList.copyOf(classNames).stream();
     }
 
 }

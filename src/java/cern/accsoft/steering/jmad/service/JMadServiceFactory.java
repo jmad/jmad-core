@@ -25,8 +25,9 @@
  */
 package cern.accsoft.steering.jmad.service;
 
-import cern.accsoft.steering.jmad.conf.JMadServiceConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import cern.accsoft.steering.jmad.conf.JMadServiceConfiguration;
 
 /**
  * This is a static factory for a jmad service.

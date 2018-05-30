@@ -1,5 +1,4 @@
 image:https://img.shields.io/github/release/jmad/jmad-core.svg?maxAge=1000["Latest release", link="https://github.com/jmad/jmad-core/releases"]
-image::https://api.bintray.com/packages/jmad/jmad-repo/jmad-core/images/download.svg?version=0.1.4[link="https://bintray.com/jmad/jmad-repo/jmad-core/0.1.4/link"]
 image:https://travis-ci.com/jmad/jmad-core.svg?branch=master["Build Status", link="https://travis-ci.com/jmad/jmad-core"]
 image:https://img.shields.io/github/license/jmad/jmad-core.svg[]
 image:https://codecov.io/gh/jmad/jmad-core/branch/master/graph/badge.svg["codecov", link="https://codecov.io/gh/jmad/jmad-core"]

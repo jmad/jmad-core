@@ -7,11 +7,17 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.time.Instant;
 
-import cern.accsoft.steering.jmad.domain.file.ModelFile;
-import cern.accsoft.steering.jmad.kernel.cmd.CallCommand;
+import cern.accsoft.steering.jmad.domain.beam.Beam;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
+import cern.accsoft.steering.jmad.kernel.AbstractJMadExecutable;
+import cern.accsoft.steering.jmad.kernel.cmd.BeamCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.kernel.cmd.TwissCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.UseCommand;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExportRequest;
@@ -35,46 +41,72 @@ public class MadxScriptModelDefinitionPersistenceService implements ModelDefinit
 
 	@Override
 	public void save(JMadModelDefinition model, OutputStream outStream) throws PersistenceServiceException {
-		PrintWriter script = new PrintWriter(outStream);
-		comment(script, " -------- initialization -------- ");
-		for (ModelFile file : model.getInitFiles()) {
-			command(script, new CallCommand(fileFinderManager.getModelFileFinder(model).getArchivePath(file)));
-		}
-		space(script);
+		MadxScriptCreationContext script = new MadxScriptCreationContext(fileFinderManager, model, outStream);
+		script.comment("JMad export of model " + model.getName());
+		script.comment("Generated: " + Instant.now().toString());
+		script.space();
+
+		script.comment(" -------- initialization -------- ");
+		model.getInitFiles().forEach(script::call);
+		script.space();
+
 		for (OpticsDefinition opticsDefinition : model.getOpticsDefinitions()) {
-			boolean writeCommented = !model.getDefaultOpticsDefinition().equals(opticsDefinition);
-			comment(script, format(" -------- optics %s -------- ", opticsDefinition.getName()));
-			for (ModelFile file : opticsDefinition.getInitFiles()) {
-				command(script, //
-						new CallCommand(fileFinderManager.getModelFileFinder(model).getArchivePath(file)), //
-						writeCommented);
-			}
-			// new CallCommand(opticsDefinition.getInitFiles().get(0).)
+			script.setCommented(!model.getDefaultOpticsDefinition().equals(opticsDefinition));
+			script.comment(format(" -------- optics: %s -------- ", opticsDefinition.getName()));
+			opticsDefinition.getInitFiles().forEach(script::call);
+			script.setCommented(false);
 		}
-		script.println("print, \"hello world\";");
-		script.println("stop;");
+		script.space();
+
+		for (SequenceDefinition sequenceDefinition : model.getSequenceDefinitions()) {
+			boolean isActiveSequence = model.getDefaultSequenceDefinition().equals(sequenceDefinition);
+			script.setCommented(!isActiveSequence);
+
+			script.comment(format(" -------- sequence: %s -------- ", sequenceDefinition.getName()));
+			Beam beam = sequenceDefinition.getBeam();
+			if (beam != null) {
+				script.command(new BeamCommand(beam));
+			}
+			for (RangeDefinition rangeDefinition : sequenceDefinition.getRangeDefinitions()) {
+				boolean isActiveRange = sequenceDefinition.getDefaultRangeDefinition().equals(rangeDefinition);
+				script.setCommented((!isActiveSequence) | (!isActiveRange));
+				script.comment(format(" range: %s ", rangeDefinition.getName()));
+				script.command(new UseCommand(sequenceDefinition.getName(), rangeDefinition.getMadxRange()));
+				rangeDefinition.getPostUseFiles().forEach(script::call);
+				TwissInitialConditionsImpl initialConditions = rangeDefinition.getTwiss();
+				if (initialConditions != null) {
+					TwissCommand twissCommand = new TwissCommand(initialConditions);
+					twissCommand.setOutputFile(mockFile("twiss.tfs"));
+					script.command(twissCommand);
+				}
+				script.setCommented(!isActiveSequence);
+			}
+			script.setCommented(false);
+		}
+		script.space();
+
 		script.flush();
 	}
 
-	private void space(PrintWriter script) {
-		script.println();
-		script.println();
-	}
+	/**
+	 * Creates a "fake" {@link File}, which points to a RELATIVE path when
+	 * getAbsolutePath() is called. This is meant to be passed to a {@link Command}
+	 * (an {@link AbstractJMadExecutable}) as an argument to write to a relative
+	 * path (instead of to an absolute one during JMad Kernel Execution)
+	 * 
+	 * @param fileName
+	 *            the relative path or file name
+	 * @return a "fake" {@link File} pointing to that path
+	 */
+	private static File mockFile(String fileName) {
+		return new File(fileName) {
+			private static final long serialVersionUID = 1L;
 
-	private void comment(PrintWriter script, String comment) {
-		script.println("! " + comment.replaceAll("\n", "\n ! "));
-	}
-
-	private void command(PrintWriter script, Command madxCommand) {
-		command(script, madxCommand, false);
-	}
-
-	private void command(PrintWriter script, Command madxCommand, boolean commented) {
-		if (commented) {
-			comment(script, madxCommand.compose());
-		} else {
-			script.println(madxCommand.compose());
-		}
+			@Override
+			public String getAbsolutePath() {
+				return this.getName();
+			}
+		};
 	}
 
 	@Override
@@ -105,10 +137,6 @@ public class MadxScriptModelDefinitionPersistenceService implements ModelDefinit
 		return fileName.endsWith(".mad") || fileName.endsWith(".madx");
 	}
 
-	public void setFileFinderManager(ModelFileFinderManager fileFinderManager) {
-		this.fileFinderManager = fileFinderManager;
-	}
-
 	@Override
 	public File save(JMadModelDefinitionExportRequest exportRequest, File file) throws PersistenceServiceException {
 		// TODO Auto-generated method stub
@@ -119,7 +147,10 @@ public class MadxScriptModelDefinitionPersistenceService implements ModelDefinit
 	public void save(JMadModelDefinitionExportRequest exportRequest, OutputStream outStream)
 			throws PersistenceServiceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
+	public void setFileFinderManager(ModelFileFinderManager fileFinderManager) {
+		this.fileFinderManager = fileFinderManager;
+	}
 }

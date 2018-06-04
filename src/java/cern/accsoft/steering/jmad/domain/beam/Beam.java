@@ -406,4 +406,187 @@ public class Beam { // NOPMD by kaifox on 6/25/10 5:26 PM
         this.sequence = sequence;
     }
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((bunchCurrent == null) ? 0 : bunchCurrent.hashCode());
+		result = prime * result + ((bunchLength == null) ? 0 : bunchLength.hashCode());
+		result = prime * result + ((bunchNumber == null) ? 0 : bunchNumber.hashCode());
+		result = prime * result + ((bunched == null) ? 0 : bunched.hashCode());
+		result = prime * result + ((charge == null) ? 0 : charge.hashCode());
+		result = prime * result + ((direction == null) ? 0 : direction.hashCode());
+		result = prime * result + ((energy == null) ? 0 : energy.hashCode());
+		result = prime * result + ((gamma == null) ? 0 : gamma.hashCode());
+		result = prime * result + ((horizontalEmittance == null) ? 0 : horizontalEmittance.hashCode());
+		result = prime * result + ((longitudinalEmittance == null) ? 0 : longitudinalEmittance.hashCode());
+		result = prime * result + ((mass == null) ? 0 : mass.hashCode());
+		result = prime * result + ((momentum == null) ? 0 : momentum.hashCode());
+		result = prime * result
+				+ ((normalisedHorizontalEmittance == null) ? 0 : normalisedHorizontalEmittance.hashCode());
+		result = prime * result + ((normalisedVerticalEmittance == null) ? 0 : normalisedVerticalEmittance.hashCode());
+		result = prime * result + ((particle == null) ? 0 : particle.hashCode());
+		result = prime * result + ((particleName == null) ? 0 : particleName.hashCode());
+		result = prime * result + ((particleNumber == null) ? 0 : particleNumber.hashCode());
+		result = prime * result + ((radiate == null) ? 0 : radiate.hashCode());
+		result = prime * result + ((relativeEnergySpread == null) ? 0 : relativeEnergySpread.hashCode());
+		result = prime * result + ((sequence == null) ? 0 : sequence.hashCode());
+		result = prime * result + ((verticalEmittance == null) ? 0 : verticalEmittance.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Beam)) {
+			return false;
+		}
+		Beam other = (Beam) obj;
+		if (bunchCurrent == null) {
+			if (other.bunchCurrent != null) {
+				return false;
+			}
+		} else if (!bunchCurrent.equals(other.bunchCurrent)) {
+			return false;
+		}
+		if (bunchLength == null) {
+			if (other.bunchLength != null) {
+				return false;
+			}
+		} else if (!bunchLength.equals(other.bunchLength)) {
+			return false;
+		}
+		if (bunchNumber == null) {
+			if (other.bunchNumber != null) {
+				return false;
+			}
+		} else if (!bunchNumber.equals(other.bunchNumber)) {
+			return false;
+		}
+		if (bunched == null) {
+			if (other.bunched != null) {
+				return false;
+			}
+		} else if (!bunched.equals(other.bunched)) {
+			return false;
+		}
+		if (charge == null) {
+			if (other.charge != null) {
+				return false;
+			}
+		} else if (!charge.equals(other.charge)) {
+			return false;
+		}
+		if (direction != other.direction) {
+			return false;
+		}
+		if (energy == null) {
+			if (other.energy != null) {
+				return false;
+			}
+		} else if (!energy.equals(other.energy)) {
+			return false;
+		}
+		if (gamma == null) {
+			if (other.gamma != null) {
+				return false;
+			}
+		} else if (!gamma.equals(other.gamma)) {
+			return false;
+		}
+		if (horizontalEmittance == null) {
+			if (other.horizontalEmittance != null) {
+				return false;
+			}
+		} else if (!horizontalEmittance.equals(other.horizontalEmittance)) {
+			return false;
+		}
+		if (longitudinalEmittance == null) {
+			if (other.longitudinalEmittance != null) {
+				return false;
+			}
+		} else if (!longitudinalEmittance.equals(other.longitudinalEmittance)) {
+			return false;
+		}
+		if (mass == null) {
+			if (other.mass != null) {
+				return false;
+			}
+		} else if (!mass.equals(other.mass)) {
+			return false;
+		}
+		if (momentum == null) {
+			if (other.momentum != null) {
+				return false;
+			}
+		} else if (!momentum.equals(other.momentum)) {
+			return false;
+		}
+		if (normalisedHorizontalEmittance == null) {
+			if (other.normalisedHorizontalEmittance != null) {
+				return false;
+			}
+		} else if (!normalisedHorizontalEmittance.equals(other.normalisedHorizontalEmittance)) {
+			return false;
+		}
+		if (normalisedVerticalEmittance == null) {
+			if (other.normalisedVerticalEmittance != null) {
+				return false;
+			}
+		} else if (!normalisedVerticalEmittance.equals(other.normalisedVerticalEmittance)) {
+			return false;
+		}
+		if (particle != other.particle) {
+			return false;
+		}
+		if (particleName == null) {
+			if (other.particleName != null) {
+				return false;
+			}
+		} else if (!particleName.equals(other.particleName)) {
+			return false;
+		}
+		if (particleNumber == null) {
+			if (other.particleNumber != null) {
+				return false;
+			}
+		} else if (!particleNumber.equals(other.particleNumber)) {
+			return false;
+		}
+		if (radiate == null) {
+			if (other.radiate != null) {
+				return false;
+			}
+		} else if (!radiate.equals(other.radiate)) {
+			return false;
+		}
+		if (relativeEnergySpread == null) {
+			if (other.relativeEnergySpread != null) {
+				return false;
+			}
+		} else if (!relativeEnergySpread.equals(other.relativeEnergySpread)) {
+			return false;
+		}
+		if (sequence == null) {
+			if (other.sequence != null) {
+				return false;
+			}
+		} else if (!sequence.equals(other.sequence)) {
+			return false;
+		}
+		if (verticalEmittance == null) {
+			if (other.verticalEmittance != null) {
+				return false;
+			}
+		} else if (!verticalEmittance.equals(other.verticalEmittance)) {
+			return false;
+		}
+		return true;
+	}
+
 }

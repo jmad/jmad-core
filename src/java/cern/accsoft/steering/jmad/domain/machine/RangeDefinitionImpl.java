@@ -275,4 +275,47 @@ public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
         return this;
     }
 
+    /* NOTE: to avoid issues with missing hashCode() and equals() on JMad objects,
+     * and to avoid circular references, the following implementations of hashCode()
+     * and equals() DELIBERATELY ONLY OPERATE ON NAMES (Strings) 
+     * 
+     * Be careful when changing this behaviour and/or re-generating! */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((sequenceDefinition == null) ? 0 : sequenceDefinition.getName().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof RangeDefinitionImpl)) {
+			return false;
+		}
+		RangeDefinitionImpl other = (RangeDefinitionImpl) obj;
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (sequenceDefinition == null) {
+			if (other.sequenceDefinition != null) {
+				return false;
+			}
+		} else if (!sequenceDefinition.getName().equals(other.sequenceDefinition.getName())) {
+			return false;
+		}
+		return true;
+	}
+
 }

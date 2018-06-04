@@ -64,8 +64,6 @@ public interface JMadModelDefinitionExporter {
 	 * only the optics, sequences and ranges according to the export request are
 	 * actually exported.
 	 * 
-	 * @param exportRequest
-	 *            the export request to select the scope of the export
 	 * @param destDir
 	 *            the destination directory
 	 * @return the xml file to which the model definition was written to
@@ -78,8 +76,6 @@ public interface JMadModelDefinitionExporter {
 	 * only the optics, sequences and ranges according to the export request are
 	 * actually exported.
 	 * 
-	 * @param exportRequest
-	 *            the export request to select the scope of the export
 	 * @param zipFile
 	 *            the zip file which shall finally contain the model definitioin
 	 * @return the zip file to which the data was written (can be different since

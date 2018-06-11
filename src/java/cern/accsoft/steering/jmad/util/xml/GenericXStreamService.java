@@ -30,11 +30,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public abstract class GenericXStreamService<T> implements PersistenceService<T> {
 
@@ -42,6 +47,7 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 
 	/** the original xstream xml-converter (singleton) */
 	private final XStream xStream;
+	private final HierarchicalStreamDriver hierarchicalStreamDriver = new XppDriver();
 
 	public GenericXStreamService() {
 		super();
@@ -57,21 +63,17 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 	protected abstract XStream createXStream();
 
 	/**
-	 * Has to return the class which can be saved by this service. This is used
-	 * for checking and producing an error message, if an object cannot be
-	 * saved.
+	 * Has to return the class which can be saved by this service. This is used for
+	 * checking and producing an error message, if an object cannot be saved.
 	 * 
 	 * @return The class which can be saved by this persistence service
 	 */
 	protected abstract Class<? extends T> getSaveableClass();
 
-	@Override
-	public synchronized final File save(T object, File destFile)
-			throws PersistenceServiceException {
-
+	public synchronized final File save(T object, File destFile, Map<?, ?> context) throws PersistenceServiceException {
 		if (!(getSaveableClass().isInstance(object))) {
-			LOGGER.error("can only save model definitions of type '"
-					+ getSaveableClass().getCanonicalName() + "' to file.");
+			LOGGER.error(
+					"can only save model definitions of type '" + getSaveableClass().getCanonicalName() + "' to file.");
 			return null;
 		}
 
@@ -79,16 +81,19 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 
 		try {
 			FileWriter writer = new FileWriter(file);
-			writer.write(xStream.toXML(object));
+			writer.write(toXML(object, context));
 			writer.close();
 		} catch (Exception ex) {
-			throw new PersistenceServiceException("Error writing Object ["
-					+ object.toString() + "] of Class ["
-					+ object.getClass().getCanonicalName() + "] to XmlFile ["
-					+ file.getAbsolutePath() + "]", ex);
+			throw new PersistenceServiceException("Error writing Object [" + object.toString() + "] of Class ["
+					+ object.getClass().getCanonicalName() + "] to XmlFile [" + file.getAbsolutePath() + "]", ex);
 		}
 
 		return file;
+	}
+
+	@Override
+	public synchronized final File save(T object, File destFile) throws PersistenceServiceException {
+		return save(object, destFile, null);
 	}
 
 	/**
@@ -119,19 +124,30 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 		return fileName.toLowerCase().endsWith(getFileExtension());
 	}
 
-	@Override
-	public void save(T object, OutputStream outStream)
-			throws PersistenceServiceException {
+	private String toXML(T object, Map<?, ?> context) {
+		DataHolder dataHolder = xStream.newDataHolder();
+		if (context != null) {
+			context.entrySet().forEach(e -> dataHolder.put(e.getKey(), e.getValue()));
+		}
+		StringWriter writer = new StringWriter();
+		xStream.marshal(object, hierarchicalStreamDriver.createWriter(writer), dataHolder);
+		return writer.toString();
+	}
+
+	public void save(T object, OutputStream outStream, Map<?, ?> context) throws PersistenceServiceException {
 		try {
 			OutputStreamWriter writer = new OutputStreamWriter(outStream);
-			writer.write(xStream.toXML(object));
+			writer.write(toXML(object, context));
 			writer.flush();
 		} catch (IOException e) {
-			throw new PersistenceServiceException("Error writing Object ["
-					+ object.toString() + "] of Class ["
-					+ object.getClass().getCanonicalName()
-					+ "] to output stream.", e);
+			throw new PersistenceServiceException("Error writing Object [" + object.toString() + "] of Class ["
+					+ object.getClass().getCanonicalName() + "] to output stream.", e);
 		}
+	}
+
+	@Override
+	public void save(T object, OutputStream outStream) throws PersistenceServiceException {
+		save(object, outStream, null);
 	}
 
 	@Override
@@ -142,9 +158,8 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 		try {
 			retVal = (T) xStream.fromXML(new FileReader(srcFile));
 		} catch (Exception ex) {
-			throw new PersistenceServiceException(
-					"Error loading Object from file ["
-							+ srcFile.getAbsolutePath() + "]", ex);
+			throw new PersistenceServiceException("Error loading Object from file [" + srcFile.getAbsolutePath() + "]",
+					ex);
 		}
 
 		return retVal;
@@ -152,14 +167,12 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public synchronized T load(InputStream inputStream)
-			throws PersistenceServiceException {
+	public synchronized T load(InputStream inputStream) throws PersistenceServiceException {
 		T retVal = null;
 		try {
 			retVal = (T) xStream.fromXML(new InputStreamReader(inputStream));
 		} catch (Exception ex) {
-			throw new PersistenceServiceException(
-					"Error loading Object from Xml stream", ex);
+			throw new PersistenceServiceException("Error loading Object from Xml stream", ex);
 		}
 		return retVal;
 	}
@@ -175,8 +188,7 @@ public abstract class GenericXStreamService<T> implements PersistenceService<T> 
 
 			String className = object.getClass().getCanonicalName();
 
-			throw new PersistenceServiceException(
-					"Error cloning Object of Class [" + className + "]", ex);
+			throw new PersistenceServiceException("Error cloning Object of Class [" + className + "]", ex);
 		}
 
 		return retVal;

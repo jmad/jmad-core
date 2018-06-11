@@ -112,29 +112,6 @@ public class ModelDefinitionExportImportTest extends JMadTestCase {
 	}
 
 	@Test
-	public void testExportAsFilesWithJsonFile() {
-		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-		String exportFilePath = testDir.getAbsolutePath() + File.separator + "test.jmd.json";
-		File file = exporter.exportAsFiles(modelDefinition, new File(exportFilePath));
-		assertNotNull("returned file must not be null", file);
-		assertTrue("Test dir should exist", testDir.exists());
-		assertTrue("export file should exist", file.exists());
-
-		assertEquals("Returned file should be the same as the original one.",
-				exportFilePath, file.getAbsolutePath());
-	}
-
-	@Test
-	public void testImportFromJsonFile() {
-		JMadModelDefinition modelDefinition = findExampleModelDefinition();
-		String exportFilePath = testDir.getAbsolutePath() + File.separator + "test.jmd.json";
-		File file = exporter.exportAsFiles(modelDefinition, new File(exportFilePath));
-
-		JMadModelDefinition importedModelDefinition = importer.importModelDefinition(file);
-		assertNull("Json import is not implemented at the moment!", importedModelDefinition);
-	}
-
-	@Test
 	public void testImportFromZip() throws JMadModelException, InterruptedException {
 		/* To test this we first have to export the model definition as zip */
 		JMadModelDefinition modelDefinition = findExampleModelDefinition();

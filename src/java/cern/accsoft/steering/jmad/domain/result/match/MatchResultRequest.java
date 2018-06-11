@@ -38,20 +38,6 @@ import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
  * @author muellerg
  */
 public interface MatchResultRequest {
-    // TODO: think about RMATRIX and CHROM Flag of the MATCH Command
-
-    // TODO: think about SaveBeta/InitialTwissConditions in the Frame of Matching
-    // /**
-    // * @return The Name of the MadX internally stored initial optical function
-    // * values --> SAVEBETA
-    // */
-    // public abstract String getSaveBetaNames();
-    //
-    // /**
-    // * @return The initial values of the optical functions for the matching if
-    // * specified
-    // */
-    // public abstract TwissInitialConditions getInitialTwiss();
 
     /**
      * @return the Sequence Name that is going to me used for Matching
@@ -80,11 +66,15 @@ public interface MatchResultRequest {
 
     /**
      * @return The initial values of the optical functions for the insertion matching.
+     * @deprecated Is this really required? Shouldnt the initial conditions be taken from the model all the time?
      */
+    @Deprecated
     public abstract TwissInitialConditions getInitialOpticsValues();
 
     /**
      * @return the name of the previously saved optical functions values {@literal -->} SAVEBETA
+     * @deprecated getSaveBetaName from TwissInitialConditions should be used
      */
+    @Deprecated
     public abstract String getSaveBetaName();
 }

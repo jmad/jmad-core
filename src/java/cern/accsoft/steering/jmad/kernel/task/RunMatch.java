@@ -37,6 +37,8 @@ import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethod;
 import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodLmdif;
 import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodMigrad;
 import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodSimplex;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
 import cern.accsoft.steering.jmad.io.MatchOutputParser.MatchingOutputTag;
 import cern.accsoft.steering.jmad.kernel.cmd.AssignCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
@@ -58,9 +60,11 @@ public class RunMatch extends AbstractTask {
     public static final double FINAL_PENALTY_FACTOR = 1.0e25;
 
     private final MatchResultRequest request;
+    private final TwissInitialConditions twissFromModel;
 
-    public RunMatch(MatchResultRequest newReq) {
+    public RunMatch(MatchResultRequest newReq, TwissInitialConditions twissFromModel) {
         this.request = newReq;
+        this.twissFromModel = twissFromModel;
     }
 
     @Override
@@ -74,19 +78,19 @@ public class RunMatch extends AbstractTask {
 
     @Override
     protected List<Command> getCommands() {
-        List<Command> commands = new ArrayList<Command>();
+        List<Command> commands = new ArrayList<>();
 
         // Initial Match Command (eventually SAVEBETA/InitialTwiss afterwards)
-        commands.add(new MatchInitiateCommand(this.request));
+        commands.add(new MatchInitiateCommand(this.request.getSequenceName(), twissToUse()));
 
         // Add Constraint Commands
         for (MatchConstraint constraint : this.request.getMatchConstraints()) {
             if (constraint.isGlobal()) {
-                commands.add(new MatchConstraintGlobalCommand((MatchConstraintGlobal) constraint, this.request
-                        .getSequenceName()));
+                commands.add(new MatchConstraintGlobalCommand((MatchConstraintGlobal) constraint,
+                        this.request.getSequenceName()));
             } else {
-                commands.add(new MatchConstraintLocalCommand((MatchConstraintLocal) constraint, this.request
-                        .getSequenceName()));
+                commands.add(new MatchConstraintLocalCommand((MatchConstraintLocal) constraint,
+                        this.request.getSequenceName()));
             }
 
         }
@@ -118,7 +122,7 @@ public class RunMatch extends AbstractTask {
         case NONE:
             // TODO think about ErrorHandling...
             // for now empty CmdArray --> no action
-            return new ArrayList<Command>();
+            return new ArrayList<>();
         }
 
         // Append endMatch Command to CmdBlock/JMadTask
@@ -133,8 +137,8 @@ public class RunMatch extends AbstractTask {
         // finalPenaltyFactor to even retrieve small numbers that might be
         // omitted by the Madx SetFormat command...
         commands.add(new PrintCommand(MatchingOutputTag.FINAL_PENALTY.toString()));
-        commands.add(new ValueCommand(Collections.singletonList(FINAL_PENALTY_FACTOR + "*"
-                + MatchingOutputTag.FINAL_PENALTY.toString())));
+        commands.add(new ValueCommand(
+                Collections.singletonList(FINAL_PENALTY_FACTOR + "*" + MatchingOutputTag.FINAL_PENALTY.toString())));
 
         // Issue command to read VaryParameters
         commands.add(new PrintCommand(MatchingOutputTag.VARY_PARAMETERS.toString()));
@@ -143,5 +147,30 @@ public class RunMatch extends AbstractTask {
         commands.add(new AssignCommand());
 
         return commands;
+    }
+
+    /**
+     * Resembles the following priority:
+     * <ol>
+     * <li>If a savebeta is defined in the request, then this is used (the rest of initial conditions will be default)
+     * <li>if initial conditions are given in the request, they will be used
+     * <li>If none of them is given, then the twiss from the model is used
+     * </ol>
+     * 
+     * @return the initial conditions to finally use for matching
+     * @deprecated It should be possible to remove this, as soon as the request does not rely on the according methods
+     *             anymore, and always the model initial conditions are used.
+     */
+    @Deprecated
+    private TwissInitialConditions twissToUse() {
+        if (this.request.getSaveBetaName() != null) {
+            TwissInitialConditionsImpl tw = new TwissInitialConditionsImpl();
+            tw.setSaveBetaName(this.request.getSaveBetaName());
+            return tw;
+        }
+        if (this.request.getInitialOpticsValues() != null) {
+            return this.request.getInitialOpticsValues();
+        }
+        return twissFromModel;
     }
 }

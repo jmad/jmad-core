@@ -48,7 +48,7 @@ public class RunTwiss extends AbstractResultSelectableTask {
 
     @Override
     protected List<Command> getCommands() {
-        List<Command> commands = new ArrayList<Command>();
+        List<Command> commands = new ArrayList<>();
         commands.add(new DeleteCommand("twiss"));
         commands.add(new DeleteCommand("summ"));
         commands.addAll(createSelectCommands(SELECT_FLAG_TWISS));

@@ -995,7 +995,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
         Result result = null;
         try {
-            result = getKernel().execute(new RunMatch(resultRequest));
+            result = getKernel().execute(new RunMatch(resultRequest, getTwissInitialConditions()));
         } catch (JMadException e) {
             throw new JMadModelException("Error executing matching.", e);
         }

@@ -132,17 +132,22 @@ public abstract class AbstractElement implements Element {
      */
     @Override
     public void setAttribute(String name, Double value) {
+        ensureAttributesInitialized();
         attributes.put(name, value);
         fireChangedAttribute(name);
     }
 
     @Override
     public Double getAttribute(String attributeName) {
-        if (!isAttributesInitialized()) {
-            initAttributes();
-        }
+        ensureAttributesInitialized();
         return attributes.get(attributeName);
     }
+
+	private void ensureAttributesInitialized() {
+		if (!isAttributesInitialized()) {
+            initAttributes();
+        }
+	}
 
     /**
      * reads the attributes for this element

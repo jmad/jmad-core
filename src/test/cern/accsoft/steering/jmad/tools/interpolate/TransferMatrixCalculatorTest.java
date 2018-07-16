@@ -84,7 +84,7 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
                         tfM.get(1, 1), 1.0e-12);
             }
         }
-    }
+    } 
 
     @Test
     public void testMatrix() {

@@ -518,6 +518,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
          */
         for (Element element : elements) {
             element.setListenersEnabled(false);
+            element.setAttributesInitialized(true); /* this has to be set here to prevent call loops */
         }
 
         ArrayList<String> valueNames = new ArrayList<String>();
@@ -548,7 +549,6 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
         /* finally we re-activate the listeners */
         for (Element element : elements) {
-            element.setAttributesInitialized(true);
             element.setListenersEnabled(true);
         }
     }

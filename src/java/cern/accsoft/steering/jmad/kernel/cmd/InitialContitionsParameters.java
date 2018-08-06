@@ -47,7 +47,5 @@ public final class InitialContitionsParameters {
             parameters.add(new GenericParameter<String>("beta0", tw.getSaveBetaName(), true));
         }
 
-        parameters.add(new GenericParameter<Boolean>("chrom", tw.isCalcChromaticFunctions()));
-        parameters.add(new GenericParameter<Boolean>("centre", tw.isCalcAtCenter()));
     }
 }

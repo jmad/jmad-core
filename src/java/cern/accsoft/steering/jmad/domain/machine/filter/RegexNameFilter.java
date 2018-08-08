@@ -94,4 +94,9 @@ public class RegexNameFilter implements NameFilter {
             return ((name.matches(regex)) && (this.plane.equals(planeToCheck)));
         }
     }
+
+    @Override
+    public String toString() {
+        return "RegexNameFilter [regex=" + regex + ", plane=" + plane + "]";
+    }
 }

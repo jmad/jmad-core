@@ -98,7 +98,7 @@ public class StrengthFileParser {
             /* next we split at the equal sign in order to get name and value */
             String[] tokens = parts[0].trim().split("=");
             if (tokens.length != 2) {
-                LOGGER.warn("Unable to interpret line '" + line + "' (maybe no '=' or too many of them?)");
+                LOGGER.debug("Unable to interpret line '" + line + "' (maybe no '=' or too many of them?)");
                 continue; // -> skip
             }
 

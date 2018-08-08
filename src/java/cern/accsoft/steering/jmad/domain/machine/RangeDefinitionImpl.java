@@ -109,7 +109,7 @@ public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
      * @param name a verbose name for the range
      * @param madxRange the range as it has to be defined for MadX
      * @param twiss the initial conditions for the twiss command in this range
-     */
+     */ 
     public RangeDefinitionImpl(SequenceDefinition sequenceDefinition, String name, MadxRange madxRange,
             TwissInitialConditionsImpl twiss) {
         this(sequenceDefinition, name, twiss);
@@ -317,5 +317,12 @@ public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
 		}
 		return true;
 	}
+
+    public String toStringFull() {
+        return "RangeDefinitionImpl [name=" + name + ", madxRange=" + madxRange + ", twiss=" + twiss
+                + ", monitorInvertFilters=" + monitorInvertFilters + ", correctorInvertFilters="
+                + correctorInvertFilters + ", postUseFiles=" + postUseFiles + ", startElementName=" + startElementName
+                + ", apertureDefinition=" + apertureDefinition + ", sequenceDefinition=" + sequenceDefinition + "]";
+    }
 
 }

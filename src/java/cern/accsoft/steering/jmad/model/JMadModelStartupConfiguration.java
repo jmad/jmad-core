@@ -23,6 +23,7 @@
 package cern.accsoft.steering.jmad.model;
 
 import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinitionImpl;
 import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 
 public class JMadModelStartupConfiguration {
@@ -91,5 +92,21 @@ public class JMadModelStartupConfiguration {
     @Deprecated
     public void setLoadDefaultOptics(boolean b) {
         /* does nothing */
+    }
+
+    @Override
+    public String toString() {
+        return "JMadModelStartupConfiguration [loadDefaultRange=" + loadDefaultRange + ", initialOpticsDefinition="
+                + initialOpticsDefinition + ", initialRangeDefinition=" + initialRangeDefinitionString() + "]";
+    }
+
+    private String initialRangeDefinitionString() {
+        if (initialRangeDefinition == null) {
+            return null;
+        }
+        if (initialRangeDefinition instanceof RangeDefinitionImpl) {
+            return ((RangeDefinitionImpl) initialRangeDefinition).toStringFull();
+        }
+        return initialRangeDefinition.toString();
     }
 }

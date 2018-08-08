@@ -85,4 +85,9 @@ public class MadxRange {
     public String getLastElementName() {
         return this.lastElementName;
     }
+
+    @Override
+    public String toString() {
+        return "MadxRange [firstElementName=" + firstElementName + ", lastElementName=" + lastElementName + "]";
+    }
 }

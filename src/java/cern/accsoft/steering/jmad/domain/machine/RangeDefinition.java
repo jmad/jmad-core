@@ -78,4 +78,5 @@ public interface RangeDefinition extends ModelFileDependant {
      */
     public abstract SequenceDefinition getSequenceDefinition();
 
+    
 }

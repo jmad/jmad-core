@@ -23,11 +23,8 @@
 package cern.accsoft.steering.jmad.model;
 
 import static org.assertj.core.data.Offset.offset;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.data.Offset;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,12 +38,7 @@ import cern.accsoft.steering.jmad.domain.result.match.MatchResultRequestImpl;
 import cern.accsoft.steering.jmad.domain.result.match.input.MadxVaryParameterImpl;
 import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraintGlobal;
 import cern.accsoft.steering.jmad.domain.result.match.output.MatchConstraintResult;
-import cern.accsoft.steering.jmad.domain.result.tfs.TfsResult;
-import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequest;
-import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequestImpl;
-import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
-import cern.accsoft.steering.jmad.kernel.cmd.match.MatchVaryParameterCommand;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
 
 public class JMadModelMatchingTest extends JMadTestCase {

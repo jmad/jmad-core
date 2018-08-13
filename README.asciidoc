@@ -7,7 +7,7 @@ image:https://api.codacy.com/project/badge/Grade/b830f8eafc0441199d126967bd87d08
 JMad
 ====
 
-JMad is a Java API for the http://mad.web.cern.ch/mad/[MadX] software, which is used at http://www.cern.ch[CERN] and in many other accelerator labs to simulate particle accelerators.
+JMad is a Java API for the http://mad.web.cern.ch/mad/[MadX] software, which is used at http://www.cern.ch[CERN] and in many other accelerator labs to simulate particle accelerators. JMad plays a key role in CERNs accelerator control system as it is bridges numerical simulations with the control system of the real CERN accelerators. 
 
 More information can be found at the http://www.cern.ch/jmad[JMad homepage].
 

@@ -8,6 +8,13 @@ import cern.accsoft.steering.jmad.domain.beam.Beam;
 import cern.accsoft.steering.jmad.domain.beam.Beam.Direction;
 import cern.accsoft.steering.jmad.domain.beam.Beam.Particle;
 
+/**
+ * This class contains all the possible methods to initialize the beam definition
+ * A @Consumer<BeamBlock>  is used to add a beam definition to a sequence
+ * 
+ * @author delph
+ */
+
 public class BeamBlock {
     
     private final Beam beam;

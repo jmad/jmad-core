@@ -4,18 +4,20 @@
 
 package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
 
-import static java.util.Objects.requireNonNull;
-
 import cern.accsoft.steering.jmad.domain.beam.Beam;
 import cern.accsoft.steering.jmad.domain.beam.Beam.Direction;
 import cern.accsoft.steering.jmad.domain.beam.Beam.Particle;
 
-public class OngoingBeam {
-
+public class BeamBlock {
+    
     private final Beam beam;
-
-    public OngoingBeam(Beam beam) {
-        this.beam = requireNonNull(beam, "beam must not be null");
+    
+    
+    /**
+     * @param beam the beam to create
+     */
+    public BeamBlock(Beam beam) {
+        this.beam = beam;
     }
 
     public void particle(Particle particle) {

@@ -10,7 +10,7 @@ import cern.accsoft.steering.jmad.domain.beam.Beam.Particle;
 
 /**
  * This class contains all the possible methods to initialize the beam definition
- * A @Consumer<BeamBlock>  is used to add a beam definition to a sequence
+ * A @Consumer  is used to add a beam definition to a sequence
  * 
  * @author delph
  */

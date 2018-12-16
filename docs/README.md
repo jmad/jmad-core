@@ -137,6 +137,9 @@ optics functions and can be embedded easily in other GUIs.
 * To Retrieve model definitions from git repositories, the project 
 [jmad-modelpack-service](https://github.com/jmad/jmad-modelpack-service)
 can be used (works currently only with gitlab repos)
+* [pyjmad](https://github.com/pymad/pyjmad) is a wrapper around jmad with which
+all the features of jmad (including model definitions, GUI and retrieval from git repos) 
+can be used as library in python.
 
 ## Further Reading
 

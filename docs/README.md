@@ -4,14 +4,14 @@
 [![codecov](https://codecov.io/gh/jmad/jmad-core/branch/master/graph/badge.svg)](https://codecov.io/gh/jmad/jmad-core)
 [![Codacy code quality](https://api.codacy.com/project/badge/Grade/b830f8eafc0441199d126967bd87d08c)](https://www.codacy.com/app/jmad/jmad-core?utm_source=github.com&utm_medium=referral&utm_content=jmad/jmad-core&utm_campaign=Badge_Grade)
 
-#JMad
+# JMad
 
 JMad is a Java API for the http://mad.web.cern.ch/mad/[MadX] software, which is used at http://www.cern.ch[CERN] and 
 in many other accelerator labs to simulate particle accelerators. 
 JMad plays a key role in CERNs accelerator control system as it is bridges numerical simulations with the control 
 system of the real CERN accelerators. 
 
-##Getting Started
+## Getting Started
 
 In order to use JMad in your java projects add the following to your build files:
 

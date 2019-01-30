@@ -55,6 +55,7 @@ public enum MadxElementType {
     SEXTUPOLE(JMadElementType.SEXTUPOLE), //
     OCTUPOLE(JMadElementType.OCTUPOLE), //
     BEAMBEAM(JMadElementType.BEAMBEAM), //
+    SOLENOID(JMadElementType.SOLENOID), //
 
     /*
      * The following types are not (yet) mapped to a corresponding type in jmad
@@ -63,7 +64,6 @@ public enum MadxElementType {
     MULTIPOLE(JMadElementType.UNKNOWN), //
     RFCAVITY(JMadElementType.UNKNOWN), //
     RCOLLIMATOR(JMadElementType.UNKNOWN), //
-    SOLENOID(JMadElementType.UNKNOWN), //
 
     /*
      * the following is for elements which have not (yet) a corresponding type here

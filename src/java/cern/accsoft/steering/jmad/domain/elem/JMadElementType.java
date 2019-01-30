@@ -1,8 +1,8 @@
 // @formatter:off
- /*******************************************************************************
+/*******************************************************************************
  *
  * This file is part of JMad.
- * 
+ *
  * Copyright (c) 2008-2011, CERN. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,27 +16,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  ******************************************************************************/
 // @formatter:on
 
 package cern.accsoft.steering.jmad.domain.elem;
 
-import cern.accsoft.steering.jmad.domain.elem.impl.BeamBeam;
-import cern.accsoft.steering.jmad.domain.elem.impl.Bend;
-import cern.accsoft.steering.jmad.domain.elem.impl.Corrector;
-import cern.accsoft.steering.jmad.domain.elem.impl.Marker;
-import cern.accsoft.steering.jmad.domain.elem.impl.Monitor;
-import cern.accsoft.steering.jmad.domain.elem.impl.Octupole;
-import cern.accsoft.steering.jmad.domain.elem.impl.Quadrupole;
-import cern.accsoft.steering.jmad.domain.elem.impl.Sextupole;
-import cern.accsoft.steering.jmad.domain.elem.impl.UnknownElement;
+import cern.accsoft.steering.jmad.domain.elem.impl.*;
 
 /**
  * Represents the type of an element in JMad. This type groups together some of the basic element-types of madx, which
  * themselves are represented one to one by {@link MadxElementType} Most importantly this enum also contains the
  * information, which classes will be instancated for every type.
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public enum JMadElementType {
@@ -75,17 +67,25 @@ public enum JMadElementType {
     /**
      * a beam-beam interaction point in MadX
      */
-    BEAMBEAM(BeamBeam.class);
+    BEAMBEAM(BeamBeam.class), //
+    /**
+     * a solenoid in MadX
+     */
+    SOLENOID(Solenoid.class);
 
-    /** a wildcard expression, which can be used e.g. for searches in a database */
+    /**
+     * a wildcard expression, which can be used e.g. for searches in a database
+     */
     private String wildcardExpression = this.name();
 
-    /** the java class which has to be used to create the element */
+    /**
+     * the java class which has to be used to create the element
+     */
     private Class<? extends Element> elementClass;
 
     /**
      * default constructor
-     * 
+     *
      * @param elementClass The class that shall be instantiated for this type
      * @see #elementClass
      */
@@ -95,10 +95,10 @@ public enum JMadElementType {
 
     /**
      * constructor with possibility to provide the element class and a wildcard extension.
-     * 
-     * @param elementClass the class that shall be instantiated for this element-type.
+     *
+     * @param elementClass       the class that shall be instantiated for this element-type.
      * @param wildcardExpression an wildcard expression which represents the madx names of this type. (This is no
-     *            regular expression!)
+     *                           regular expression!)
      */
     private JMadElementType(Class<? extends Element> elementClass, String wildcardExpression) {
         this(elementClass);
@@ -111,7 +111,7 @@ public enum JMadElementType {
 
     /**
      * returns true, if the given element is of the type.
-     * 
+     *
      * @param element the element to check
      * @return true, if the given element is of the type, false if not.
      */
@@ -125,7 +125,7 @@ public enum JMadElementType {
 
     /**
      * determines the {@link JMadElementType} of the given element.
-     * 
+     *
      * @param element the element for which to get the element type
      * @return the element type
      */

@@ -151,7 +151,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
     private ModelFileFinderManager modelFileFinderManager;
 
     /** The listeners */
-    private final List<JMadModelListener> listeners = new ArrayList<JMadModelListener>();
+    private final List<JMadModelListener> listeners = new ArrayList<>();
 
     /** Keeps track of all the strengths and variables */
     private StrengthVarManager strengthVarManager;

@@ -146,3 +146,10 @@ can be used as library in python.
 * An overview of jmad was given in a [paper at IPAC 2010](http://accelconf.web.cern.ch/AccelConf/IPAC10/papers/MOPEC006.pdf).
 * A summary - including the GUI parts - can also be found in the [Phd Thesis of K. Fuchsberger](http://cds.cern.ch/record/1377386/files/CERN-THESIS-2011-075.pdf) (see page 61).  
 
+## Build Artifacts of the Latest Version
+ 
+* [dependency license report](https://jmad.io/jmad-core/dependency-license/index.html)
+* [junit test report](https://jmad.io/jmad-core/tests/test/index.html)
+* [jacoco test report](https://jmad.io/jmad-core/jacoco/test/html/index.html) 
+* [javadoc](https://jmad.io/jmad-core/javadoc/index.html) 
+

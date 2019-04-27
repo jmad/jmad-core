@@ -25,7 +25,15 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
-import static cern.accsoft.steering.jmad.util.PathUtil.parentPath;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
+import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformationImpl;
+import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
+import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,16 +45,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
-import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
-import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
-import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformationImpl;
-import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
-import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
-import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
+import static cern.accsoft.steering.jmad.util.PathUtil.parentPath;
 
 /**
  * The default implementation of a {@link JMadModelDefinitionImporter}
@@ -100,6 +99,8 @@ public class JMadModelDefinitionImporterImpl implements JMadModelDefinitionImpor
         for (File file : fileList) {
             if (ModelDefinitionUtil.isXmlFileName(file.getName())) {
                 definitions.addAll(importFromXml(file));
+            } else if (file.isDirectory()) {
+                definitions.addAll(importFromDir(file));
             }
         }
         return definitions;

@@ -15,12 +15,12 @@ public class ModelDefinitionUtilTest {
 
     @Test
     public void findModelExampleDefinitionsInTestPath() {
-        assertThat(modelDefinitionFilesBelow(Paths.get("./src/test"))).hasSize(3);
+        assertThat(modelDefinitionFilesBelow(Paths.get("./src/java"))).hasSize(3);
     }
 
     @Test
     public void findNoModelExampleDefinitionsInJavaPath() {
-        assertThat(modelDefinitionFilesBelow(Paths.get("./src/java"))).isEmpty();
+        assertThat(modelDefinitionFilesBelow(Paths.get("./src/test"))).isEmpty();
     }
 
 }

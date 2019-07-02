@@ -220,7 +220,7 @@ public class Beam { // NOPMD by kaifox on 6/25/10 5:26 PM
      */
     public enum Particle implements MadxValue {
         POSITRON("positron"), ELECTRON("electron"), PROTON("proton"), ANTIPROTON("antiproton"), POSMUON("posmuon"), NEGMUON(
-                "negmuon");
+                "negmuon"), HMINUS("Hminus");
 
         private String name;
 

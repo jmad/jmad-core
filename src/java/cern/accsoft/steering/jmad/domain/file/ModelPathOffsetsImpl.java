@@ -21,7 +21,7 @@
 // @formatter:on
 
 /**
- * 
+ *
  */
 package cern.accsoft.steering.jmad.domain.file;
 
@@ -39,6 +39,12 @@ public class ModelPathOffsetsImpl implements ModelPathOffsets {
     @XStreamAlias("resource-offset")
     private String resourceOffset = null;
 
+    @XStreamAlias("repository-prefix")
+    private String repositoryPrefix = null;
+
+    @XStreamAlias("resource-prefix")
+    private String resourcePrefix = null;
+
     @Override
     public String getRepositoryOffset() {
         return this.repositoryOffset;
@@ -49,6 +55,16 @@ public class ModelPathOffsetsImpl implements ModelPathOffsets {
         return this.resourceOffset;
     }
 
+    @Override
+    public String getRepositoryPrefix() {
+        return this.repositoryPrefix;
+    }
+
+    @Override
+    public String getResourcePrefix() {
+        return this.resourcePrefix;
+    }
+
     public void setResourceOffset(String resourceOffset) {
         this.resourceOffset = resourceOffset;
     }
@@ -57,4 +73,11 @@ public class ModelPathOffsetsImpl implements ModelPathOffsets {
         this.repositoryOffset = repositoryOffset;
     }
 
+    public void setResourcePrefix(String resourcePrefix) {
+        this.resourcePrefix = resourcePrefix;
+    }
+
+    public void setRepositoryPrefix(String repositoryPrefix) {
+        this.repositoryPrefix = repositoryPrefix;
+    }
 }

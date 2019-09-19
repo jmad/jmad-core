@@ -21,62 +21,69 @@
 // @formatter:on
 
 /**
- * 
+ *
  */
 package cern.accsoft.steering.jmad.domain.file;
 
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 
+import java.util.Optional;
+
 /**
  * This interface represents the description of a file used for a model and provides the information where to find it.
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public interface ModelFile {
 
+
     /**
      * Where to search the file? In the repository (or if not found there in the repo-copy within the jar) or in the
      * sourcepath
-     * 
+     *
      * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
      */
-    public static enum ModelFileLocation {
-        REPOSITORY("repdata") {
+    enum ModelFileLocation {
+        REPOSITORY {
             @Override
             public String getPathOffset(ModelPathOffsets offsets) {
                 return offsets.getRepositoryOffset();
             }
+
+            @Override
+            public String getResourcePrefix(ModelPathOffsets offsets) {
+                return Optional.ofNullable(offsets.getRepositoryPrefix()).orElse(DEFAULT_REPOSITORY_PREFIX);
+            }
         },
-        RESOURCE("resdata") {
+        RESOURCE {
             @Override
             public String getPathOffset(ModelPathOffsets offsets) {
                 return offsets.getResourceOffset();
             }
+
+            @Override
+            public String getResourcePrefix(ModelPathOffsets offsets) {
+                return Optional.ofNullable(offsets.getResourcePrefix()).orElse(DEFAULT_RESOURCE_PREFIX);
+            }
         };
 
-        /** The path prefix within the jar/zip/source */
-        private String resourcePrefix;
+        private static final String DEFAULT_REPOSITORY_PREFIX = "repdata";
+        private static final String DEFAULT_RESOURCE_PREFIX = "resdata";
 
         public abstract String getPathOffset(ModelPathOffsets offsets);
 
-        private ModelFileLocation(String resourcePrefix) {
-            this.resourcePrefix = resourcePrefix;
-        }
-
-        public String getResourcePrefix() {
-            return resourcePrefix;
-        }
+        public abstract String getResourcePrefix(ModelPathOffsets offsets);
     }
-   
-    
+
+
     /**
      * @return the name used by the {@link ModelFileFinder} to find the file.
      */
-    public abstract String getName();
+    String getName();
 
     /**
      * @return the location where to search for the file.
      */
-    public abstract ModelFileLocation getLocation();
+    ModelFileLocation getLocation();
 
 }

@@ -37,13 +37,27 @@ public interface ModelPathOffsets {
      * 
      * @return the offset
      */
-    public abstract String getResourceOffset();
+    String getResourceOffset();
 
     /**
      * this method must return the offset within the repository.
      * 
      * @return the offset
      */
-    public abstract String getRepositoryOffset();
+    String getRepositoryOffset();
+
+    /**
+     * this method must return the prefix of the resource-path-tree.
+     *
+     * @return the prefix
+     */
+    String getResourcePrefix();
+
+    /**
+     * this method must return the prefix of the repository path tree.
+     *
+     * @return the offset
+     */
+    String getRepositoryPrefix();
 
 }

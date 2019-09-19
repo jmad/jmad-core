@@ -257,8 +257,8 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         String resourcePath = modelFile.getName();
         /* 2) the model definition - dependent offset */
         resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getPathOffset(this.modelPathOffsets));
-        /* 3) the offset depending on the type (Resource or repo file) */
-        resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getResourcePrefix());
+        /* 3) the offset depending on the type (Resource or repo file; can be overridden by the model definition) */
+        resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getResourcePrefix(this.modelPathOffsets));
 
         return resourcePath;
     }

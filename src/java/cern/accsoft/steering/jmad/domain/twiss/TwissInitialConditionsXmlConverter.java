@@ -45,6 +45,18 @@ public class TwissInitialConditionsXmlConverter implements Converter {
         writer.addAttribute(ATTR_NAME_VALUE, String.valueOf(twiss.isCalcAtCenter()));
         writer.endNode();
 
+        if (twiss.getPtcPhaseSpaceDimension() != null) {
+            writer.startNode("ptc-icase");
+            writer.addAttribute(ATTR_NAME_VALUE, String.valueOf(twiss.getPtcPhaseSpaceDimension()));
+            writer.endNode();
+        }
+
+        if (twiss.getPtcMapOrder() != null) {
+            writer.startNode("ptc-no");
+            writer.addAttribute(ATTR_NAME_VALUE, String.valueOf(twiss.getPtcMapOrder()));
+            writer.endNode();
+        }
+
         for (MadxTwissVariable variable : twiss.getMadxVariables()) {
             Double value = twiss.getValue(variable);
             if (value != null) {
@@ -69,11 +81,15 @@ public class TwissInitialConditionsXmlConverter implements Converter {
             reader.moveDown();
             String nodeName = reader.getNodeName();
             if ("chrom".equals(nodeName)) {
-                retVal.setCalcChromaticFunctions(Boolean.valueOf(reader.getAttribute(ATTR_NAME_VALUE)));
+                retVal.setCalcChromaticFunctions(Boolean.parseBoolean(reader.getAttribute(ATTR_NAME_VALUE)));
             } else if ("closed-orbit".equals(nodeName)) {
-                retVal.setClosedOrbit(Boolean.valueOf(reader.getAttribute(ATTR_NAME_VALUE)));
+                retVal.setClosedOrbit(Boolean.parseBoolean(reader.getAttribute(ATTR_NAME_VALUE)));
             } else if ("centre".equals(nodeName)) {
-                retVal.setCalcAtCenter(Boolean.valueOf(reader.getAttribute(ATTR_NAME_VALUE)));
+                retVal.setCalcAtCenter(Boolean.parseBoolean(reader.getAttribute(ATTR_NAME_VALUE)));
+            } else if ("ptc-icase".equals(nodeName)) {
+                retVal.setPtcPhaseSpaceDimension(Integer.parseInt(reader.getAttribute(ATTR_NAME_VALUE)));
+            } else if ("ptc-no".equals(nodeName)) {
+                retVal.setPtcMapOrder(Integer.parseInt(reader.getAttribute(ATTR_NAME_VALUE)));
             } else {
                 MadxTwissVariable twissVariable = MadxTwissVariable.fromMadxName(nodeName);
                 if (retVal.getMadxVariables().contains(twissVariable)) {

@@ -31,6 +31,8 @@ import com.thoughtworks.xstream.io.json.JsonWriter;
 
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 
+import java.util.Optional;
+
 public class TwissInitialConditionsJsonConverter implements Converter {
 
     @Override
@@ -41,6 +43,10 @@ public class TwissInitialConditionsJsonConverter implements Converter {
         JsonWriter underWriter = (JsonWriter) writer.underlyingWriter();
 
         underWriter.addAttribute("name", twiss.getName());
+        Optional.ofNullable(twiss.getPtcPhaseSpaceDimension())
+                .ifPresent(p -> underWriter.addAttribute("ptc-icase", String.valueOf(p)));
+        Optional.ofNullable(twiss.getPtcMapOrder())
+                .ifPresent(p -> underWriter.addAttribute("ptc-no", String.valueOf(p)));
         underWriter.addAttribute("chrom", String.valueOf(twiss.isCalcChromaticFunctions()));
         underWriter.addAttribute("closed-orbit", String.valueOf(twiss.isClosedOrbit()));
         underWriter.addAttribute("centre", String.valueOf(twiss.isCalcAtCenter()));
@@ -65,11 +71,15 @@ public class TwissInitialConditionsJsonConverter implements Converter {
         while (iter.hasNext()) {
             String attrName = iter.next();
             if ("chrom".equals(attrName)) {
-                retVal.setCalcChromaticFunctions(Boolean.getBoolean(reader.getAttribute(attrName)));
+                retVal.setCalcChromaticFunctions(Boolean.parseBoolean(reader.getAttribute(attrName)));
             } else if ("closed-orbit".equals(attrName)) {
-                retVal.setClosedOrbit(Boolean.getBoolean(reader.getAttribute(attrName)));
+                retVal.setClosedOrbit(Boolean.parseBoolean(reader.getAttribute(attrName)));
             } else if ("centre".equals(attrName)) {
-                retVal.setCalcAtCenter(Boolean.getBoolean(reader.getAttribute(attrName)));
+                retVal.setCalcAtCenter(Boolean.parseBoolean(reader.getAttribute(attrName)));
+            } else if ("ptc-icase".equals(attrName)) {
+                retVal.setPtcPhaseSpaceDimension(Integer.parseInt(reader.getAttribute(attrName)));
+            } else if ("ptc-no".equals(attrName)) {
+                retVal.setPtcMapOrder(Integer.parseInt(reader.getAttribute(attrName)));
             } else {
                 MadxTwissVariable twissVariable = MadxTwissVariable.fromMadxName(attrName);
                 if (retVal.getMadxVariables().contains(twissVariable)) {

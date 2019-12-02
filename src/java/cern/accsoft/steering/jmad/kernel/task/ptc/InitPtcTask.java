@@ -42,8 +42,8 @@ import cern.accsoft.steering.jmad.kernel.task.AbstractTask;
 public class InitPtcTask extends AbstractTask {
 
     private static final int LAYOUT_DEFAULT_MODEL = 2;
-    private static final int LAYOUT_DEFAULT_NST = 1;
-    private static final int LAYOUT_DEFAULT_METHOD = 2;
+    private static final int LAYOUT_DEFAULT_NST = 2;
+    private static final int LAYOUT_DEFAULT_METHOD = 6;
 
     @Override
     protected List<Command> getCommands() {
@@ -59,6 +59,7 @@ public class InitPtcTask extends AbstractTask {
         layoutCmd.setResplit(true);
         layoutCmd.setThin(0.0005);
         layoutCmd.setXbend(0.0005);
+        layoutCmd.setEven(true);
         commands.add(layoutCmd);
 
         commands.add(new PtcAlignCommand());

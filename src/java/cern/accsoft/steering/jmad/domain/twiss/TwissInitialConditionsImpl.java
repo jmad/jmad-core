@@ -33,6 +33,8 @@ import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
 import cern.accsoft.steering.jmad.util.xml.CloneUtil;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @XStreamAlias("twiss-initial-conditions")
 public final class TwissInitialConditionsImpl extends EditableOpticPointImpl implements NamedBean,
         TwissInitialConditions, Cloneable {
@@ -79,6 +81,16 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl imp
     private String saveBetaName = null;
 
     /**
+     * The phase space dimension (4, 5, or 6) for PTC
+     */
+    private Integer ptcPhaseSpaceDimension = null;
+
+    /**
+     * The map order for PTC
+     */
+    private Integer ptcMapOrder = null;
+
+    /**
      * the constructor
      * 
      * @param name the name of the twiss (arbitrary)
@@ -98,6 +110,32 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl imp
 
     public String getSaveBetaName() {
         return saveBetaName;
+    }
+
+    @Override
+    public Integer getPtcPhaseSpaceDimension() {
+        return ptcPhaseSpaceDimension;
+    }
+
+    @Override
+    public void setPtcPhaseSpaceDimension(Integer dim) {
+        if (dim != null) {
+            checkArgument(dim >= 4 && dim <= 6, "phase space dimension must be 4, 5 or 6.");
+        }
+        ptcPhaseSpaceDimension = dim;
+    }
+
+    @Override
+    public Integer getPtcMapOrder() {
+        return ptcMapOrder;
+    }
+
+    @Override
+    public void setPtcMapOrder(Integer order) {
+        if (order != null) {
+            checkArgument(order > 1, "map order must be at least 1");
+        }
+        ptcMapOrder = order;
     }
 
     public Double getDeltap() {

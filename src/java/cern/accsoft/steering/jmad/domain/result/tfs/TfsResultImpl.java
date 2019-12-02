@@ -28,6 +28,8 @@ import cern.accsoft.steering.jmad.domain.var.MadxVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
 
+import static cern.accsoft.steering.jmad.domain.result.tfs.TfsDoubles.parseTfsDouble;
+
 public class TfsResultImpl implements TfsResult {
 
     /** the class logger */
@@ -132,7 +134,7 @@ public class TfsResultImpl implements TfsResult {
 
         for (String value : valueList) {
             try {
-                doubleList.add(Double.parseDouble(value));
+                doubleList.add(parseTfsDouble(value));
             } catch (NumberFormatException e) {
                 throw new TfsResultException("Error while converting value '" + value + "' to Double", e);
             }

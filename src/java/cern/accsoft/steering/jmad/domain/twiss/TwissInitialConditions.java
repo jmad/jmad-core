@@ -29,6 +29,14 @@ import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 
 public interface TwissInitialConditions extends EditableOpticPoint {
 
+    public abstract Integer getPtcPhaseSpaceDimension();
+
+    public abstract void setPtcPhaseSpaceDimension(Integer dim);
+
+    public abstract Integer getPtcMapOrder();
+
+    public abstract void setPtcMapOrder(Integer order);
+
     public abstract Double getDeltap();
 
     public abstract void setDeltap(Double deltap);

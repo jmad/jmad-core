@@ -33,6 +33,8 @@ import cern.accsoft.steering.jmad.JMadConstants;
 import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
 
+import static cern.accsoft.steering.jmad.domain.result.tfs.TfsDoubles.parseTfsDouble;
+
 public class TfsSummaryImpl implements TfsSummary {
 
     /** the logger for this class */
@@ -77,7 +79,7 @@ public class TfsSummaryImpl implements TfsSummary {
                 }
 
                 try {
-                    this.doubleValues.put(unifyKey(key), Double.parseDouble(strValue));
+                    this.doubleValues.put(unifyKey(key), parseTfsDouble(strValue));
                 } catch (NumberFormatException e) {
                     throw new TfsResultException("Error while converting value '" + strValue + "' to Double", e);
                 }

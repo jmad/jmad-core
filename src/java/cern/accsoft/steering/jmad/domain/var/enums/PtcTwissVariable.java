@@ -31,9 +31,17 @@ import cern.accsoft.steering.jmad.util.MadxVarType;
 public enum PtcTwissVariable implements TwissVariable {
 
     // ptc-variables
-    PTC_DISP_X("disp1"), PTC_DISP2("disp2"), PTC_DISP_Y("disp3"), PTC_DISP4("disp4"), PTC_BETA11("beta11"), PTC_BETA12(
-            "beta12"), PTC_BETA13("beta13"), PTC_BETA21("beta21"), PTC_BETA22("beta22"), PTC_BETA23("beta23"), PTC_BETA31(
-            "beta31"), PTC_BETA32("beta32"), PTC_BETA33("beta33"),
+    PTC_DISP_X("disp1"), PTC_DISP2("disp2"), PTC_DISP_Y("disp3"), PTC_DISP4("disp4"), //
+    PTC_BETA11("beta11"), PTC_BETA12("beta12"), PTC_BETA13("beta13"), //
+    PTC_BETA21("beta21"), PTC_BETA22("beta22"), PTC_BETA23("beta23"), //
+    PTC_BETA31("beta31"), PTC_BETA32("beta32"), PTC_BETA33("beta33"), //
+    PTC_MU_X("mu1"), PTC_MU_Y("mu2"), PTC_MU_Z("mu3"), //
+    ALFA_11("alfa11"), ALFA_12("alfa12"), ALFA_13("alfa13"), //
+    ALFA_21("alfa21"), ALFA_22("alfa22"), ALFA_23("alfa23"), //
+    ALFA_31("alfa31"), ALFA_32("alfa32"), ALFA_33("alfa23"), //
+    PTC_DISP_XP("disp1p"), PTC_DISP_2P("disp2p"), PTC_DISP_YP("disp3p"), PTC_DISP_4P("disp4p"), //
+    PTC_DISP_XP2("disp1p2"), PTC_DISP_2P2("disp2p2"), PTC_DISP_YP2("disp3p2"), PTC_DISP_4P2("disp4p2"), //
+    PTC_DISP_XP3("disp1p3"), PTC_DISP_2P3("disp2p3"), PTC_DISP_YP3("disp3p3"), PTC_DISP_4P3("disp4p3"), //
 
     // if something wrong:
     UNKNOWN("jmad_unknown", MadxVarType.UNKNOWN);
@@ -68,7 +76,7 @@ public enum PtcTwissVariable implements TwissVariable {
 
     /**
      * Determine the correct Value of ResultVariable for a given tag.
-     * 
+     *
      * @param madxName the tag for which to get the VarType - Value.
      * @return The VarType corresponding to the given tag.
      */
@@ -78,7 +86,7 @@ public enum PtcTwissVariable implements TwissVariable {
 
     /**
      * returns a set of variables of a given type.
-     * 
+     *
      * @param type which variables to retrieve
      * @return the variables.
      */

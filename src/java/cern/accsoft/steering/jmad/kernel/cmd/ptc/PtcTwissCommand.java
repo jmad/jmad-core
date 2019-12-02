@@ -29,22 +29,21 @@ import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
 import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * this class represents a ptc-twiss command
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class PtcTwissCommand extends AbstractCommand {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PtcTwissCommand.class);
 
-    /** the name of the command */
-    private static final String CMD_NAME = "ptc_twiss";
-
-    /*
-     * TODO the following parameters should be either parameters, or integrated into the Twiss - class (maybe derive!?)
+    /**
+     * the name of the command
      */
-    private static final int MAP_ORDER = 2;
-    private static final int PHASE_SPACE_DIM = 5;
+    private static final String CMD_NAME = "ptc_twiss";
 
     /**
      * the twiss values
@@ -89,8 +88,12 @@ public class PtcTwissCommand extends AbstractCommand {
             parameters.add(new GenericParameter<Double>("muy", twiss.getMuy()));
         }
         parameters.add(new GenericParameter<Boolean>("closed_orbit", twiss.isClosedOrbit()));
-        parameters.add(new GenericParameter<Integer>("icase", PHASE_SPACE_DIM));
-        parameters.add(new GenericParameter<Integer>("no", MAP_ORDER));
+        parameters.add(new GenericParameter<Integer>("icase", twiss.getPtcPhaseSpaceDimension()));
+        parameters.add(new GenericParameter<Integer>("no", twiss.getPtcMapOrder()));
+        if (twiss.isCalcAtCenter()) {
+            LOGGER.warn("Calculating at the center is not supported by PTC_TWISS. Ignoring option." +
+                    "Calculating at the end of the elements.");
+        }
 
         if (getOutputFile() != null) {
             parameters.add(new GenericParameter<String>("file", getOutputFile().getAbsolutePath(), true));

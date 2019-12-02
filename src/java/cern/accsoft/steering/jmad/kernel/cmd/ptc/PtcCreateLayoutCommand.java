@@ -58,6 +58,7 @@ public class PtcCreateLayoutCommand extends AbstractCommand {
     private Boolean resplit = null;
     private Double thin = null;
     private Double xbend = null;
+    private Boolean even = null;
 
     /**
      * the default constructor, which sets no values
@@ -105,6 +106,10 @@ public class PtcCreateLayoutCommand extends AbstractCommand {
         parameters.add(new GenericParameter<Boolean>("resplit", resplit));
         parameters.add(new GenericParameter<Double>("thin", thin));
         parameters.add(new GenericParameter<Double>("xbend", xbend));
+        /* same as for "time": default is true! */
+        if (even != null) {
+            parameters.add(new GenericParameter<String>("even", even.toString()));
+        }
         return parameters;
     }
 
@@ -202,5 +207,13 @@ public class PtcCreateLayoutCommand extends AbstractCommand {
 
     public void setXbend(Double xbend) {
         this.xbend = xbend;
+    }
+
+    public Boolean getEven() {
+        return even;
+    }
+
+    public void setEven(Boolean even) {
+        this.even = even;
     }
 }

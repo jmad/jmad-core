@@ -91,6 +91,11 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl imp
     private Integer ptcMapOrder = null;
 
     /**
+     * Initial BETA-Z for PTC (if phase space dimension = 6)
+     */
+    private Double ptcBetz = null;
+
+    /**
      * the constructor
      * 
      * @param name the name of the twiss (arbitrary)
@@ -136,6 +141,19 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl imp
             checkArgument(order > 1, "map order must be at least 1");
         }
         ptcMapOrder = order;
+    }
+
+    @Override
+    public Double getPtcBetz() {
+        return ptcBetz;
+    }
+
+    @Override
+    public void setPtcBetz(Double betz) {
+        if (betz != null) {
+            checkArgument(betz > 0, "betz must be > 0");
+        }
+        ptcBetz = betz;
     }
 
     public Double getDeltap() {

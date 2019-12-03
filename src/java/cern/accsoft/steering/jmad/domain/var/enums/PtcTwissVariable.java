@@ -36,9 +36,9 @@ public enum PtcTwissVariable implements TwissVariable {
     PTC_BETA21("beta21"), PTC_BETA22("beta22"), PTC_BETA23("beta23"), //
     PTC_BETA31("beta31"), PTC_BETA32("beta32"), PTC_BETA33("beta33"), //
     PTC_MU_X("mu1"), PTC_MU_Y("mu2"), PTC_MU_Z("mu3"), //
-    ALFA_11("alfa11"), ALFA_12("alfa12"), ALFA_13("alfa13"), //
-    ALFA_21("alfa21"), ALFA_22("alfa22"), ALFA_23("alfa23"), //
-    ALFA_31("alfa31"), ALFA_32("alfa32"), ALFA_33("alfa23"), //
+    PTC_ALFA_11("alfa11"), PTC_ALFA_12("alfa12"), PTC_ALFA_13("alfa13"), //
+    PTC_ALFA_21("alfa21"), PTC_ALFA_22("alfa22"), PTC_ALFA_23("alfa23"), //
+    PTC_ALFA_31("alfa31"), PTC_ALFA_32("alfa32"), PTC_ALFA_33("alfa23"), //
     PTC_DISP_XP("disp1p"), PTC_DISP_2P("disp2p"), PTC_DISP_YP("disp3p"), PTC_DISP_4P("disp4p"), //
     PTC_DISP_XP2("disp1p2"), PTC_DISP_2P2("disp2p2"), PTC_DISP_YP2("disp3p2"), PTC_DISP_4P2("disp4p2"), //
     PTC_DISP_XP3("disp1p3"), PTC_DISP_2P3("disp2p3"), PTC_DISP_YP3("disp3p3"), PTC_DISP_4P3("disp4p3"), //

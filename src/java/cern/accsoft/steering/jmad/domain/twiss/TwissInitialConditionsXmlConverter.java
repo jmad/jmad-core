@@ -57,6 +57,12 @@ public class TwissInitialConditionsXmlConverter implements Converter {
             writer.endNode();
         }
 
+        if (twiss.getPtcBetz() != null) {
+            writer.startNode("ptc-betz");
+            writer.addAttribute(ATTR_NAME_VALUE, String.valueOf(twiss.getPtcBetz()));
+            writer.endNode();
+        }
+
         for (MadxTwissVariable variable : twiss.getMadxVariables()) {
             Double value = twiss.getValue(variable);
             if (value != null) {
@@ -90,6 +96,8 @@ public class TwissInitialConditionsXmlConverter implements Converter {
                 retVal.setPtcPhaseSpaceDimension(Integer.parseInt(reader.getAttribute(ATTR_NAME_VALUE)));
             } else if ("ptc-no".equals(nodeName)) {
                 retVal.setPtcMapOrder(Integer.parseInt(reader.getAttribute(ATTR_NAME_VALUE)));
+            } else if ("ptc-betz".equals(nodeName)) {
+                retVal.setPtcBetz(Double.parseDouble(reader.getAttribute(ATTR_NAME_VALUE)));
             } else {
                 MadxTwissVariable twissVariable = MadxTwissVariable.fromMadxName(nodeName);
                 if (retVal.getMadxVariables().contains(twissVariable)) {

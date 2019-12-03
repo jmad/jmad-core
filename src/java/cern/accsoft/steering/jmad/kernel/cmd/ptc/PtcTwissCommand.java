@@ -90,8 +90,9 @@ public class PtcTwissCommand extends AbstractCommand {
         parameters.add(new GenericParameter<Boolean>("closed_orbit", twiss.isClosedOrbit()));
         parameters.add(new GenericParameter<Integer>("icase", twiss.getPtcPhaseSpaceDimension()));
         parameters.add(new GenericParameter<Integer>("no", twiss.getPtcMapOrder()));
+        parameters.add(new GenericParameter<Double>("betz", twiss.getPtcBetz()));
         if (twiss.isCalcAtCenter()) {
-            LOGGER.warn("Calculating at the center is not supported by PTC_TWISS. Ignoring option." +
+            LOGGER.warn("Calculating at the center is not supported by PTC_TWISS. Ignoring option. " +
                     "Calculating at the end of the elements.");
         }
 

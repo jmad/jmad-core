@@ -47,6 +47,8 @@ public class TwissInitialConditionsJsonConverter implements Converter {
                 .ifPresent(p -> underWriter.addAttribute("ptc-icase", String.valueOf(p)));
         Optional.ofNullable(twiss.getPtcMapOrder())
                 .ifPresent(p -> underWriter.addAttribute("ptc-no", String.valueOf(p)));
+        Optional.ofNullable(twiss.getPtcBetz())
+                .ifPresent(p -> underWriter.addAttribute("ptc-betz", String.valueOf(p)));
         underWriter.addAttribute("chrom", String.valueOf(twiss.isCalcChromaticFunctions()));
         underWriter.addAttribute("closed-orbit", String.valueOf(twiss.isClosedOrbit()));
         underWriter.addAttribute("centre", String.valueOf(twiss.isCalcAtCenter()));
@@ -80,6 +82,8 @@ public class TwissInitialConditionsJsonConverter implements Converter {
                 retVal.setPtcPhaseSpaceDimension(Integer.parseInt(reader.getAttribute(attrName)));
             } else if ("ptc-no".equals(attrName)) {
                 retVal.setPtcMapOrder(Integer.parseInt(reader.getAttribute(attrName)));
+            } else if ("ptc-betz".equals(attrName)) {
+                retVal.setPtcBetz(Double.parseDouble(reader.getAttribute(attrName)));
             } else {
                 MadxTwissVariable twissVariable = MadxTwissVariable.fromMadxName(attrName);
                 if (retVal.getMadxVariables().contains(twissVariable)) {

@@ -37,6 +37,10 @@ public interface TwissInitialConditions extends EditableOpticPoint {
 
     public abstract void setPtcMapOrder(Integer order);
 
+    public abstract Double getPtcBetz();
+
+    public abstract void setPtcBetz(Double betz);
+
     public abstract Double getDeltap();
 
     public abstract void setDeltap(Double deltap);

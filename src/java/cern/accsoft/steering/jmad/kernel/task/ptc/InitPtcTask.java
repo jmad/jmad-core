@@ -25,14 +25,15 @@
  */
 package cern.accsoft.steering.jmad.kernel.task.ptc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
 import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcAlignCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcCreateLayoutCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcCreateUniverseCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcSetSwitchCommand;
 import cern.accsoft.steering.jmad.kernel.task.AbstractTask;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * initializes the PTC universe, creates the layout and calls the ptc-align
@@ -51,7 +52,7 @@ public class InitPtcTask extends AbstractTask {
         commands.add(new PtcCreateUniverseCommand());
 
         PtcCreateLayoutCommand layoutCmd = new PtcCreateLayoutCommand();
-        layoutCmd.setTime(false);
+        layoutCmd.setTime(true);
         layoutCmd.setModel(LAYOUT_DEFAULT_MODEL);
         layoutCmd.setMethod(LAYOUT_DEFAULT_METHOD);
         layoutCmd.setNst(LAYOUT_DEFAULT_NST);
@@ -61,6 +62,12 @@ public class InitPtcTask extends AbstractTask {
         layoutCmd.setXbend(0.0005);
         layoutCmd.setEven(true);
         commands.add(layoutCmd);
+
+        PtcSetSwitchCommand switchCommand = new PtcSetSwitchCommand();
+        switchCommand.setTime(true);
+        switchCommand.setFringe(true);
+        switchCommand.setNocavity(false);
+        commands.add(switchCommand);
 
         commands.add(new PtcAlignCommand());
         return commands;

@@ -22,17 +22,21 @@
 
 /*
  * $Id: ResourceUtil.java,v 1.5 2009-02-25 18:48:27 kfuchsbe Exp $
- * 
+ *
  * $Date: 2009-02-25 18:48:27 $ $Revision: 1.5 $ $Author: kfuchsbe $
- * 
+ *
  * Copyright CERN, All Rights Reserved.
  */
 package cern.accsoft.steering.jmad.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,16 +44,15 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class provides methods to handle resource files
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public final class ResourceUtil {
-    /** the logger for the class */
+    /**
+     * the logger for the class
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUtil.class);
 
     private ResourceUtil() {
@@ -58,7 +61,7 @@ public final class ResourceUtil {
 
     /**
      * searches all the resources in the classpath to get a list of all the resources in the given package.
-     * 
+     *
      * @param packageName the package name in which to search for the resources.
      * @return the names of the resources (without leading package names)
      */
@@ -77,9 +80,9 @@ public final class ResourceUtil {
 
     /**
      * just adds a prefix to the path
-     * 
+     *
      * @param filepath the path to which to add the prefix
-     * @param offset the offset to add as prefix
+     * @param offset   the offset to add as prefix
      * @return the whole path
      */
     public static String prependPathOffset(String filepath, String offset) {
@@ -94,9 +97,19 @@ public final class ResourceUtil {
     }
 
     /**
+     * Canonicalize a resource-path name by resolving "./" and "../", and replacing backslashes with slashes.
+     *
+     * @param path the path
+     * @return a canonical representation of the path
+     */
+    public static String canonicalizePath(String path) {
+        return Paths.get(path).normalize().toString().replace("\\", "/");
+    }
+
+    /**
      * Converts the given package name into a path like string (e.g. "a.java.pkg" is converted to "a/java/pkg"). Hereby
      * always slashes ("/") are used and not the system file separator.
-     * 
+     *
      * @param packageName the package name to convert
      * @return the converted package name as path represention
      */
@@ -112,9 +125,9 @@ public final class ResourceUtil {
      * for all elements of java.class.path get a Collection of resources. All ressources can be found with:
      * <p>
      * <code>
-     * Pattern pattern = Pattern.compile(".*"); 
+     * Pattern pattern = Pattern.compile(".*");
      * </code>
-     * 
+     *
      * @param pattern the pattern to match
      * @return the resources in the order they are found
      */

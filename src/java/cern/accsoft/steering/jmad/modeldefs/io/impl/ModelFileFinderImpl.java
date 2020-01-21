@@ -25,22 +25,6 @@
  */
 package cern.accsoft.steering.jmad.modeldefs.io.impl;
 
-import static cern.accsoft.steering.jmad.util.ResourceUtil.prependPathOffset;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
@@ -52,6 +36,21 @@ import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import static cern.accsoft.steering.jmad.util.ResourceUtil.canonicalizePath;
+import static cern.accsoft.steering.jmad.util.ResourceUtil.prependPathOffset;
 
 /**
  * This is the implementation of a class that finds model-files.
@@ -133,11 +132,11 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         String archivePath = getArchivePath(modelFile);
         if (SourceType.JAR == sourceType) {
             String path = prependPathOffset(archivePath, ModelDefinitionUtil.PACKAGE_OFFSET);
-            return ModelDefinitionUtil.BASE_CLASS.getResourceAsStream(path);
+            return ModelDefinitionUtil.BASE_CLASS.getResourceAsStream(canonicalizePath(path));
         } else if (SourceType.ZIP == sourceType) {
             /* 4) if there is an offset with in the archive, then also prepend this one */
             String withinZipPath = prependPathOffset(archivePath, sourceInformation.getPathOffsetWithinArchive());
-            return getZipInputStream(getSourceInformation().getRootPath(), withinZipPath);
+            return getZipInputStream(getSourceInformation().getRootPath(), canonicalizePath(withinZipPath));
         } else if (SourceType.FILE == sourceType) {
             return getFileInputStream(getSourceInformation().getRootPath(), archivePath);
         } else {
@@ -176,9 +175,6 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         ZipFile zipFile;
         try {
             zipFile = new ZipFile(file);
-        } catch (ZipException e) {
-            LOGGER.error("Could not open zip file '" + file.getAbsolutePath() + "'");
-            return null;
         } catch (IOException e) {
             LOGGER.error("Could not open zip file '" + file.getAbsolutePath() + "'");
             return null;

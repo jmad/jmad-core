@@ -22,19 +22,18 @@
 
 package cern.accsoft.steering.jmad.tools.response;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import Jama.Matrix;
 import cern.accsoft.steering.jmad.JMadTestCase;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.model.JMadModel;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResponseMatrixToolTest extends JMadTestCase {
 
@@ -64,7 +63,8 @@ public class ResponseMatrixToolTest extends JMadTestCase {
 
         ResponseRequestImpl request = new ResponseRequestImpl();
         request.addCorrector("MCIAV.20304", 0.5e-4, JMadPlane.V);
-        request.addCorrector("MCIAV.20504", 0.5e-4, JMadPlane.V);
+//        request.addCorrector("MCIAV.20504", 0.5e-4, JMadPlane.V);
+        request.addCorrector("MDLV.610304.BEND", 0.5e-4, JMadPlane.V);
         request.addMonitor("BPMIH.20204", JMadPlane.H);
         request.addMonitor("BPMIH.20404", JMadPlane.H);
         request.addMonitor("BPMIV.20504", JMadPlane.V);
@@ -74,19 +74,17 @@ public class ResponseMatrixToolTest extends JMadTestCase {
         assertEquals("Matrix should be 3x2", 3, responseMatrix.getRowDimension());
 
         // these pickups are before the kickers ;-) -> no results
-        assertEquals(0.0, responseMatrix.get(0, 0), 0.00000000000001);
-        assertEquals(0.0, responseMatrix.get(0, 1), 0.00000000000001);
-        assertEquals(0.0, responseMatrix.get(1, 1), 0.00000000000001);
+        assertEquals(0.0, responseMatrix.get(0, 0), 1e-4);
         // x-pickup, y-kick -> no result
-        assertEquals(0.0, responseMatrix.get(1, 0), 0.00000000000001);
+        assertEquals(0.0, responseMatrix.get(1, 0), 1e-4);
+        assertEquals(0.0, responseMatrix.get(0, 1), 1e-4);
+        assertEquals(0.0, responseMatrix.get(1, 1), 1e-4);
 
         // these pickups should return values:
-        // strength ACIBV.20304, monitor BPMIV.20504,
         // TODO: rechecked manually with madx!
-        assertEquals(90.86729324, responseMatrix.get(2, 0), 0.00000001);
+        assertEquals(90.86729324, responseMatrix.get(2, 0), 1e-4);
+        assertEquals(141.2689035, responseMatrix.get(2, 1), 1e-4);
 
-        // BPMIV.20504 again seems to be before RCIBV.20504 -> no result.
-        assertEquals(0.0, responseMatrix.get(2, 1), 0.00000000001);
     }
 
 }

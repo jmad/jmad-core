@@ -4,13 +4,15 @@
 
 package cern.accsoft.steering.jmad.kernel.task;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.accsoft.steering.jmad.domain.result.ResultType;
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
 import cern.accsoft.steering.jmad.kernel.cmd.EsaveCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.SelectCommand;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static cern.accsoft.steering.jmad.kernel.cmd.SelectCommand.SELECT_FLAG_ERROR;
 
 /**
  * This task is intended to call kernel in order to get actual machine imperfections.
@@ -19,7 +21,6 @@ import cern.accsoft.steering.jmad.kernel.cmd.SelectCommand;
  */
 public class GetMisalignmentsTask extends AbstractTask {
 
-    private static final String ERROR_FLAG = "ERROR";
     private static final String ALL_ELEMENTS_PATTERN = "";
     private final String patternToSelect;
 
@@ -38,8 +39,8 @@ public class GetMisalignmentsTask extends AbstractTask {
     protected List<Command> getCommands() {
 
         SelectCommand selectCommand = new SelectCommand();
-        selectCommand.setFlag(ERROR_FLAG);
-        if (patternToSelect != ALL_ELEMENTS_PATTERN) {
+        selectCommand.setFlag(SELECT_FLAG_ERROR);
+        if (!ALL_ELEMENTS_PATTERN.equals(patternToSelect)) {
             selectCommand.setPattern(patternToSelect);
         } else {
             selectCommand.setFull(true);

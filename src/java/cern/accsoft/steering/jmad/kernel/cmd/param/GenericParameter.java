@@ -24,6 +24,10 @@ package cern.accsoft.steering.jmad.kernel.cmd.param;
 
 import cern.accsoft.steering.jmad.domain.types.MadxValue;
 
+import java.util.Collection;
+
+import static java.util.stream.Collectors.joining;
+
 public class GenericParameter<T> extends AbstractParameter {
     private String name;
     private T value;
@@ -54,23 +58,30 @@ public class GenericParameter<T> extends AbstractParameter {
 
     @Override
     public String compose() {
-        String valueString;
-
         if (value.getClass().equals(Boolean.class)) {
             if ((Boolean) value) {
                 return name;
             } else {
                 return "";
             }
-        } else if (value instanceof MadxValue) {
-            return name + "=" + ((MadxValue) value).getMadxString();
+        } else if (value instanceof Collection) {
+            Collection<?> values = (Collection<?>) value;
+            return name + "=" + values.stream().map(v -> valueToString(v, useValueQuotes))
+                    .collect(joining(", ", "{", "}"));
+        } else {
+            return name + "=" + valueToString(value, useValueQuotes);
+        }
+    }
+
+    private static String valueToString(Object value, boolean useValueQuotes) {
+        if (value instanceof MadxValue) {
+            return ((MadxValue) value).getMadxString();
         } else {
             if (useValueQuotes) {
-                valueString = "\"" + value.toString() + "\"";
+                return "\"" + value.toString() + "\"";
             } else {
-                valueString = value.toString();
+                return value.toString();
             }
-            return name + "=" + valueString;
         }
     }
 

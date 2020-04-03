@@ -10,6 +10,10 @@ import java.util.List;
 
 import static cern.accsoft.steering.jmad.kernel.cmd.SelectCommand.SELECT_FLAG_ERROR;
 
+/**
+ * Task to add absolute field errors to a single element. The provided field errors are ADDED to any field errors
+ * already present by the means of an "eoption,add=true" MAD-X command.
+ */
 public class AddFieldErrors extends AbstractTask {
 
     private final String elementName;

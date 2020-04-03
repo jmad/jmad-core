@@ -211,7 +211,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
         } else if (JMadElementType.BEND.isTypeOf(element)) {
             int tiltSign = bendFieldErrorSignFromTilt(element, plane);
             AddFieldErrors fieldErrorsTask = new AddFieldErrors(element.getName(),
-                    singletonList(kick * tiltSign));
+                    singletonList(kick * tiltSign)); /* this will ADD to any existing field errors */
             model.execute(fieldErrorsTask.compose());
         } else {
             throw new JMadModelException("Element '" + element.getName()

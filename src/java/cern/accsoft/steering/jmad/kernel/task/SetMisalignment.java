@@ -29,14 +29,16 @@
  */
 package cern.accsoft.steering.jmad.kernel.task;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.accsoft.steering.jmad.domain.misalign.Misalignment;
 import cern.accsoft.steering.jmad.domain.misalign.MisalignmentConfiguration;
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
 import cern.accsoft.steering.jmad.kernel.cmd.EalignCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.SelectCommand;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static cern.accsoft.steering.jmad.kernel.cmd.SelectCommand.SELECT_FLAG_ERROR;
 
 /**
  * This class represents a task, which applies a certain misalignment to a element.
@@ -44,9 +46,6 @@ import cern.accsoft.steering.jmad.kernel.cmd.SelectCommand;
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class SetMisalignment extends AbstractTask {
-
-    /** the flag to use for the select command to set the misalignment */
-    private static final String SELECT_FLAG_ERROR = "error";
 
     /** the machine-element to which to apply the misalignment */
     private final String elementName;

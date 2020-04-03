@@ -22,18 +22,18 @@
 
 package cern.accsoft.steering.jmad.kernel.task;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequest;
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
 import cern.accsoft.steering.jmad.kernel.cmd.Command;
 import cern.accsoft.steering.jmad.kernel.cmd.DeleteCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.TwissCommand;
 
-public class RunTwiss extends AbstractResultSelectableTask {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final String SELECT_FLAG_TWISS = "twiss";
+import static cern.accsoft.steering.jmad.kernel.cmd.SelectCommand.SELECT_FLAG_TWISS;
+
+public class RunTwiss extends AbstractResultSelectableTask {
 
     private TwissInitialConditions twiss = null;
 

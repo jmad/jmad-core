@@ -22,13 +22,18 @@
 
 package cern.accsoft.steering.jmad.kernel.cmd;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SelectCommand extends AbstractCommand {
+
+    /** the flag to use for the select command to select the twiss output */
+    public static final String SELECT_FLAG_TWISS = "twiss";
+    /** the flag to use for the select command to set the misalignment */
+    public static final String SELECT_FLAG_ERROR = "error";
 
     private static final String CMD_NAME = "select";
 

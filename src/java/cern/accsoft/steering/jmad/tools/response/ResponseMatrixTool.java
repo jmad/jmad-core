@@ -20,9 +20,6 @@
  ******************************************************************************/
 // @formatter:on
 
-/**
- * 
- */
 package cern.accsoft.steering.jmad.tools.response;
 
 import Jama.Matrix;
@@ -45,6 +42,6 @@ public interface ResponseMatrixTool {
      * @return the response-matrix
      * @throws JMadModelException if the calculation of the response matrix fails
      */
-    public abstract Matrix calcResponseMatrix(JMadModel model, ResponseRequest request) throws JMadModelException;
+    Matrix calcResponseMatrix(JMadModel model, ResponseRequest request) throws JMadModelException;
 
 }

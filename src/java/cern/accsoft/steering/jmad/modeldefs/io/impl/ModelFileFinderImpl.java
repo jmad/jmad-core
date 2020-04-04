@@ -161,7 +161,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            LOGGER.error("Could not open file '" + file.getAbsolutePath() + "'", e);
+            LOGGER.warn("Could not open file '" + file.getAbsolutePath() + "'", e);
             return null;
         }
     }
@@ -181,7 +181,7 @@ public class ModelFileFinderImpl implements ModelFileFinder {
         }
         ZipEntry entry = zipFile.getEntry(entryName);
         if (entry == null) {
-            LOGGER.error("Could not get entry '" + entryName + "' from zip file '" + zipFile + "'.");
+            LOGGER.warn("Could not get entry '" + entryName + "' from zip file '" + zipFile + "'.");
             return null;
         }
         try {

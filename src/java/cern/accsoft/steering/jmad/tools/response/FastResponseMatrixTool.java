@@ -25,8 +25,6 @@
  */
 package cern.accsoft.steering.jmad.tools.response;
 
-import java.util.List;
-
 import Jama.Matrix;
 import cern.accsoft.steering.jmad.domain.beam.Beam.Direction;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
@@ -34,6 +32,9 @@ import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
 import cern.accsoft.steering.jmad.domain.optics.OpticPoint;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.model.JMadModel;
+
+import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
@@ -133,6 +134,16 @@ public class FastResponseMatrixTool implements ResponseMatrixTool {
             }
         }
         return matrix;
+    }
+
+    @Override
+    public void addProgressListener(BiConsumer<ResponseRequest, Integer> listener) {
+        /* do not support progress listeners */
+    }
+
+    @Override
+    public void removeProgressListener(BiConsumer<ResponseRequest, Integer> listener) {
+        /* do not support progress listeners */
     }
 
 }

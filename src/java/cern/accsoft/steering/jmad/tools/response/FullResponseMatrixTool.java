@@ -39,10 +39,16 @@ import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.kernel.task.AddFieldErrors;
 import cern.accsoft.steering.jmad.model.JMadModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
+import static java.util.Collections.newSetFromMap;
 import static java.util.Collections.singletonList;
 
 /**
@@ -53,12 +59,15 @@ import static java.util.Collections.singletonList;
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class FullResponseMatrixTool implements ResponseMatrixTool {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(FullResponseMatrixTool.class);
     /**
      * below this value we treat the kick as zero and leave the matrix values also at zero.
      */
     private static final double KICK_ZERO_LIMIT = 1e-10;
     private static final double BEND_TILT_TOLERANCE = 1e-5;
+
+    private final Set<BiConsumer<ResponseRequest, Integer>> progressListeners =
+            newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
     public Matrix calcResponseMatrix(JMadModel model, ResponseRequest request) throws JMadModelException {
@@ -75,6 +84,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
             String correctorName = correctorNames.get(i);
             JMadPlane correctorPlane = correctorPlanes.get(i);
             double strengthValue = strengthValues.get(i);
+            LOGGER.info("Calculating for corrector {}", correctorName);
 
             Element element = model.getActiveRange().getElement(correctorName);
             if (element == null) {
@@ -90,7 +100,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
                     request.getMonitorRegexps());
             TfsResultImpl plus = calcResponse(model, element, correctorPlane, strengthValue, monitorNames,
                     request.getMonitorRegexps());
-            Double deltaKick = 2 * strengthValue;
+            double deltaKick = 2 * strengthValue;
 
             if (Math.abs(deltaKick) < KICK_ZERO_LIMIT) {
                 continue;
@@ -114,7 +124,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
                     throw new JMadModelException("No Data for monitor '" + monitorName + "' in minus-Result.");
                 }
 
-                Double deltaPos = null;
+                double deltaPos;
                 if (JMadPlane.H.equals(monitorPlane)) {
                     deltaPos = plusXData.get(plusIndex) - minusXData.get(minusIndex);
                 } else if (JMadPlane.V.equals(monitorPlane)) {
@@ -147,8 +157,23 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
 
                 matrix.set(j, i, value);
             }
+            notifyProgressListeners(request, i);
         }
         return matrix;
+    }
+
+    private void notifyProgressListeners(ResponseRequest request, int i) {
+        progressListeners.forEach(p -> p.accept(request, i));
+    }
+
+    @Override
+    public void addProgressListener(BiConsumer<ResponseRequest, Integer> listener) {
+        progressListeners.add(listener);
+    }
+
+    @Override
+    public void removeProgressListener(BiConsumer<ResponseRequest, Integer> listener) {
+        progressListeners.remove(listener);
     }
 
     /**

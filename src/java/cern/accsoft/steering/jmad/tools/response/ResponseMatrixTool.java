@@ -26,6 +26,8 @@ import Jama.Matrix;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.model.JMadModel;
 
+import java.util.function.BiConsumer;
+
 /**
  * This is the interface of a simple tool, which can calculate a response matrix.
  * 
@@ -44,4 +46,13 @@ public interface ResponseMatrixTool {
      */
     Matrix calcResponseMatrix(JMadModel model, ResponseRequest request) throws JMadModelException;
 
+    /**
+     * adds a progress listener, which will get notified for every corrector under calculation. The second argument
+     * is the index of the corrector for which calculation just finished.
+     *
+     * @param listener the listener to add
+     */
+    void addProgressListener(BiConsumer<ResponseRequest, Integer> listener);
+
+    void removeProgressListener(BiConsumer<ResponseRequest, Integer> listener);
 }

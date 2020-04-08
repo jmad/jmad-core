@@ -84,7 +84,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
             String correctorName = correctorNames.get(i);
             JMadPlane correctorPlane = correctorPlanes.get(i);
             double strengthValue = strengthValues.get(i);
-            LOGGER.info("Calculating for corrector {}", correctorName);
+            LOGGER.info("Calculating for corrector {} ({} of {})", correctorName, i + 1, correctorNames.size());
 
             Element element = model.getActiveRange().getElement(correctorName);
             if (element == null) {

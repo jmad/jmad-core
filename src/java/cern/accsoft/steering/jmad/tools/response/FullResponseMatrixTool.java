@@ -92,19 +92,18 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
                         + "' in active range.");
             }
 
-            /*
-             * calc plus and minus response
-             */
+            double deltaKick = 2 * strengthValue;
+
+            if (Math.abs(deltaKick) < KICK_ZERO_LIMIT) {
+                LOGGER.info("  corrector {} skipped: no kick", correctorName);
+                notifyProgressListeners(request, i);
+                continue;
+            }
 
             TfsResultImpl minus = calcResponse(model, element, correctorPlane, -strengthValue, monitorNames,
                     request.getMonitorRegexps());
             TfsResultImpl plus = calcResponse(model, element, correctorPlane, strengthValue, monitorNames,
                     request.getMonitorRegexps());
-            double deltaKick = 2 * strengthValue;
-
-            if (Math.abs(deltaKick) < KICK_ZERO_LIMIT) {
-                continue;
-            }
 
             List<Double> plusXData = plus.getDoubleData(MadxTwissVariable.X);
             List<Double> plusYData = plus.getDoubleData(MadxTwissVariable.Y);

@@ -233,9 +233,9 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
             double oldKick = corrector.getKick(plane);
             corrector.setKick(plane, oldKick + kick);
         } else if (JMadElementType.BEND.isTypeOf(element)) {
-            int tiltSign = bendFieldErrorSignFromTilt(element, plane);
+            assertBendCanKickInPlane(element, plane);
             AddFieldErrors fieldErrorsTask = new AddFieldErrors(element.getName(),
-                    singletonList(kick * tiltSign)); /* this will ADD to any existing field errors */
+                    singletonList(-kick)); /* this will ADD to any existing field errors; - for orbit sign convention */
             model.execute(fieldErrorsTask.compose());
         } else {
             throw new JMadModelException("Element '" + element.getName()
@@ -243,23 +243,15 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
         }
     }
 
-    private int bendFieldErrorSignFromTilt(Element element, JMadPlane plane) throws JMadModelException {
-        double elementTilt = Optional.ofNullable(element.getAttribute("tilt")).orElse(0.0);
-        int tiltSign;
-        if (plane == JMadPlane.H && Math.abs(elementTilt) < BEND_TILT_TOLERANCE) {
-            tiltSign = -1;
-        } else if (plane == JMadPlane.H && Math.abs(Math.abs(elementTilt) - Math.PI) < BEND_TILT_TOLERANCE) {
-            tiltSign = 1;
-        } else if (plane == JMadPlane.V && Math.abs(elementTilt - Math.PI / 2) < BEND_TILT_TOLERANCE) {
-            tiltSign = -1;
-        } else if (plane == JMadPlane.V && Math.abs(elementTilt + Math.PI / 2) < BEND_TILT_TOLERANCE) {
-            tiltSign = 1;
-        } else {
+    private static void assertBendCanKickInPlane(Element element, JMadPlane plane) throws JMadModelException {
+        double tilt = Math.abs(Optional.ofNullable(element.getAttribute("tilt")).orElse(0.0));
+        boolean hBend = Math.abs(tilt) < BEND_TILT_TOLERANCE || Math.abs(tilt - Math.PI) > BEND_TILT_TOLERANCE;
+        boolean vBend = Math.abs(tilt - Math.PI / 2) < BEND_TILT_TOLERANCE;
+        if (!(plane == JMadPlane.H && hBend) && !(plane == JMadPlane.V && vBend)) {
             String planeAngle = plane == JMadPlane.H ? "0 rad" : "pi/2 rad";
-            throw new JMadModelException("Element '" + element.getName() + "' is a BEND with tilt=" + elementTilt
+            throw new JMadModelException("Element '" + element.getName() + "' is a BEND with tilt=" + tilt
                     + " rad - can not kick in " + plane + " (= " + planeAngle + ", tol=" + BEND_TILT_TOLERANCE + ")");
         }
-        return tiltSign;
     }
 
 }

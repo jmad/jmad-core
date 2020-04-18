@@ -42,7 +42,7 @@ public interface JMadModelDefinition extends ModelFileDependant {
     /**
      * @return the name
      */
-    public abstract String getName();
+    String getName();
 
     /**
      * this method must return all the {@link ModelFile}s that shall be called during the initialization process of the
@@ -50,17 +50,17 @@ public interface JMadModelDefinition extends ModelFileDependant {
      * 
      * @return the files to be called
      */
-    public abstract List<ModelFile> getInitFiles();
+    List<ModelFile> getInitFiles();
 
     /**
      * @return the names of all {@link SequenceImpl}s defined for this machine
      */
-    public abstract List<SequenceDefinition> getSequenceDefinitions();
+    List<SequenceDefinition> getSequenceDefinitions();
 
     /**
      * @return the sequence definition, which shall be selected by default
      */
-    public abstract SequenceDefinition getDefaultSequenceDefinition();
+    SequenceDefinition getDefaultSequenceDefinition();
 
     /**
      * retrieves the sequence definition of the given name.
@@ -68,31 +68,31 @@ public interface JMadModelDefinition extends ModelFileDependant {
      * @param name the name of the sequence definition
      * @return the {@link SequenceDefinition} if found, null otherwise.
      */
-    public abstract SequenceDefinition getSequenceDefinition(String name);
+    SequenceDefinition getSequenceDefinition(String name);
 
     /**
      * convenience method to return all range definitions which are contained in the sequence definitions.
      * 
      * @return all the range definitions
      */
-    public List<RangeDefinition> getRangeDefinitions();
+    List<RangeDefinition> getRangeDefinitions();
 
     /**
      * convenience method to return the default range of the default sequence.
      * 
      * @return the default range
      */
-    public RangeDefinition getDefaultRangeDefinition();
+    RangeDefinition getDefaultRangeDefinition();
 
     /**
      * @return all the possible optics definitions available for this model
      */
-    public abstract List<OpticsDefinition> getOpticsDefinitions();
+    List<OpticsDefinition> getOpticsDefinitions();
 
     /**
      * @return the default optics definition for this model
      */
-    public abstract OpticsDefinition getDefaultOpticsDefinition();
+    OpticsDefinition getDefaultOpticsDefinition();
 
     /**
      * retrieves the optics definition by its name.
@@ -100,22 +100,27 @@ public interface JMadModelDefinition extends ModelFileDependant {
      * @param name the name of the opticsDefinition
      * @return the opticsDefinition if found, null otherwise
      */
-    public abstract OpticsDefinition getOpticsDefinition(String name);
+    OpticsDefinition getOpticsDefinition(String name);
 
     /**
      * @return the {@link ModelPathOffsets} for the {@link ModelFile}s
      */
-    public abstract ModelPathOffsets getModelPathOffsets();
+    ModelPathOffsets getModelPathOffsets();
 
     /**
      * @return the {@link SourceInformation} for the model definition, which describes from which source the Model
      *         definition was loaded.
      */
-    public abstract SourceInformation getSourceInformation();
+    SourceInformation getSourceInformation();
 
     /**
-     * @return the revision number of the jmd.xml in the svn source control system.
+     * @return the URI to the origin model pack of the model definition. This URI can be used with
+     * jmad-modelpack-service to retrieve this definition at a later time. If this definition was not loaded from a
+     * model pack, null is returned.
+     *
+     * Unlike {@link #getSourceInformation()}, this provides a more "high level" view on the origin location,
+     * independent of the (possibly temporary) location in the file system.
      */
-    public abstract String getSvnRevision();
+    String getModelPackUri();
 
 }

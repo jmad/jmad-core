@@ -43,7 +43,9 @@ import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
 @XStreamAlias("jmad-model-definition")
 public class JMadModelDefinitionImpl extends AbstractModelDefinition {
 
-    /** the logger for the class */
+    /**
+     * the logger for the class
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(JMadModelDefinitionImpl.class);
 
     @XStreamAlias("name")
@@ -79,8 +81,11 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     @XStreamOmitField
     private SourceInformation sourceInformation = null;
 
+    @XStreamOmitField
+    private String modelPackUri = null;
+
     @XStreamAlias("svn-revision")
-    private String svnRevision = "$" + "Revision" + "$";
+    private String unusedSvnRevision = "unused field kept for XStream backwards compatibility";
 
     // ***********************************************
     // * Add and Remove SequenceDefinitions
@@ -167,7 +172,7 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
 
     /**
      * Add an File which will be called when initializing the model
-     * 
+     *
      * @param modelFile the {@link ModelFile} to add
      */
     public void addInitFile(ModelFile modelFile) {
@@ -225,9 +230,13 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
         this.sourceInformation = sourceInformation;
     }
 
+    public void setModelPackUri(String modelPackUri) {
+        this.modelPackUri = modelPackUri;
+    }
+
     @Override
-    public String getSvnRevision() {
-        return this.svnRevision;
+    public String getModelPackUri() {
+        return this.modelPackUri;
     }
 
 }

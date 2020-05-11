@@ -70,7 +70,7 @@ public interface JMadModel {
      *         <li>current Sequence Name
      *         </ul>
      */
-    public String getName();
+    String getName();
 
     /**
      * @return the current description of the Model containing
@@ -81,12 +81,12 @@ public interface JMadModel {
      *         <li>current Optic Name
      *         </ul>
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * @return the model-definition, from which the model was created.
      */
-    public JMadModelDefinition getModelDefinition();
+    JMadModelDefinition getModelDefinition();
 
     //
     // Methods to determine and change the state of model
@@ -98,7 +98,7 @@ public interface JMadModel {
      * @param rangeDefinition the {@link RangeDefinition} which shall be used to set the newly active range
      * @throws JMadModelException if the change of the range fails
      */
-    public void setActiveRangeDefinition(RangeDefinition rangeDefinition) throws JMadModelException;
+    void setActiveRangeDefinition(RangeDefinition rangeDefinition) throws JMadModelException;
 
     /**
      * applies the values of the strengths given by the provided {@link OpticsDefinition} to the model. after loading of
@@ -109,27 +109,27 @@ public interface JMadModel {
      * @param newOpticsDefinition the optics definition to set as the active one
      * @throws JMadModelException in case setting the active range fails
      */
-    public void setActiveOpticsDefinition(OpticsDefinition newOpticsDefinition) throws JMadModelException;
+    void setActiveOpticsDefinition(OpticsDefinition newOpticsDefinition) throws JMadModelException;
 
     /**
      * @return the actually used {@link OpticsDefinition}, or <code>null</code> if no optic is loaded.
      */
-    public OpticsDefinition getActiveOpticsDefinition();
+    OpticsDefinition getActiveOpticsDefinition();
 
     /**
      * @return the currently active {@link RangeDefinition}
      */
-    public RangeDefinition getActiveRangeDefinition();
+    RangeDefinition getActiveRangeDefinition();
 
     /**
      * @return the currently active {@link Range}
      */
-    public Range getActiveRange();
+    Range getActiveRange();
 
     /**
      * @return the manager, which contains all the model specific knobs.
      */
-    public KnobManager getKnobManager();
+    KnobManager getKnobManager();
 
     //
     // initialization and cleanup stuff
@@ -140,12 +140,12 @@ public interface JMadModel {
      * 
      * @throws JMadModelException if the initialization fails
      */
-    public abstract void init() throws JMadModelException;
+    void init() throws JMadModelException;
 
     /**
      * @return true, if the model is correctly initialized, false if not
      */
-    public boolean isInitialized();
+    boolean isInitialized();
 
     /**
      * resets the model. Preserves the elements-state: if they are initialized, they will be reinitialized, otherwise
@@ -153,14 +153,14 @@ public interface JMadModel {
      * 
      * @throws JMadModelException if the reset fails
      */
-    public abstract void reset() throws JMadModelException;
+    void reset() throws JMadModelException;
 
     /**
      * cleanup all the stuff and free memory
      * 
      * @throws JMadModelException if the cleanup fails
      */
-    public abstract void cleanup() throws JMadModelException;
+    void cleanup() throws JMadModelException;
 
     //
     // The methods for the calculation of the twiss-values and retrieving data.
@@ -173,7 +173,7 @@ public interface JMadModel {
      * @return the result of the twiss
      * @throws JMadModelException if the twiss calculations fail
      */
-    public TfsResult twiss(TfsResultRequest resultRequest) throws JMadModelException;
+    TfsResult twiss(TfsResultRequest resultRequest) throws JMadModelException;
 
     /**
      * run a twiss with the given given ResultRequest and the initial conditions defined in the model and write to file.
@@ -183,7 +183,7 @@ public interface JMadModel {
      * @return The tfsresult from the twiss
      * @throws JMadModelException if the twiss calculations fail
      */
-    public TfsResult twissToFile(TfsResultRequest resultRequest, File tfsFile) throws JMadModelException;
+    TfsResult twissToFile(TfsResultRequest resultRequest, File tfsFile) throws JMadModelException;
 
     /**
      * runs the twiss with the given initial conditions. NOTE: This changes nothing in the state of the model
@@ -193,7 +193,7 @@ public interface JMadModel {
      * @return the result of the twiss
      * @throws JMadModelException if the twiss calculations fail
      */
-    public TfsResult twiss(TfsResultRequest resultRequest, TwissInitialConditions twissInitialConditions)
+    TfsResult twiss(TfsResultRequest resultRequest, TwissInitialConditions twissInitialConditions)
             throws JMadModelException;
 
     /**
@@ -206,14 +206,13 @@ public interface JMadModel {
      * @return The tfs result, which is also written to the file
      * @throws JMadModelException if the twiss calculations fail
      */
-    public TfsResult twissToFile(TfsResultRequest resultRequest, TwissInitialConditions twissInitialConditions,
-            File tfsFile) throws JMadModelException;
+    TfsResult twissToFile(TfsResultRequest resultRequest, TwissInitialConditions twissInitialConditions, File tfsFile) throws JMadModelException;
 
     /**
      * @return the actual twiss initial-conditions. These can be changed in order to start subsequent twiss-commands
      *         with the new initial conditions.
      */
-    public TwissInitialConditions getTwissInitialConditions();
+    TwissInitialConditions getTwissInitialConditions();
 
     /**
      * Do a tracking with the given initial condition. Note : This changes nothing in the state of the model
@@ -223,7 +222,7 @@ public interface JMadModel {
      * @return The result from the tracking
      * @throws JMadModelException if tracking fails
      */
-    public TrackResult track(TrackResultRequest trackResultRequest, TrackInitialCondition trackInitialCondition)
+    TrackResult track(TrackResultRequest trackResultRequest, TrackInitialCondition trackInitialCondition)
             throws JMadModelException;
 
     /**
@@ -235,7 +234,7 @@ public interface JMadModel {
      * @return The result from the dynap command
      * @throws JMadModelException if the command fails
      */
-    public DynapResult dynap(DynapResultRequest dynapResultRequest, TrackInitialCondition trackInitialCondition)
+    DynapResult dynap(DynapResultRequest dynapResultRequest, TrackInitialCondition trackInitialCondition)
             throws JMadModelException;
 
     /**
@@ -243,13 +242,13 @@ public interface JMadModel {
      * 
      * @throws JMadModelException if the calculation of the optics fails
      */
-    public void calcOpticsIfDirty() throws JMadModelException;
+    void calcOpticsIfDirty() throws JMadModelException;
 
     /**
      * @return the actual optics values for all elements in the active range.
      * @throws JMadModelException if the calculation of the optics fails
      */
-    public Optic getOptics() throws JMadModelException;
+    Optic getOptics() throws JMadModelException;
 
     //
     // Listener handling
@@ -260,28 +259,28 @@ public interface JMadModel {
      * 
      * @param listener the listener to add
      */
-    public void addListener(JMadModelListener listener);
+    void addListener(JMadModelListener listener);
 
     /**
      * remove a listener
      * 
      * @param listener the listener to remove
      */
-    public void removeListener(JMadModelListener listener);
+    void removeListener(JMadModelListener listener);
 
     /**
      * This method retrieves the {@link JMadKernel} to which the model sends its commands. Use with care!
      * 
      * @return the kernel of the model.
      */
-    public JMadKernel getKernel();
+    JMadKernel getKernel();
 
     /**
      * calls a file from madx.
      * 
      * @param file the file to call
      */
-    public void call(File file);
+    void call(File file);
 
     /**
      * executes the given string directly in madx. (must also contain ";" at the end!) Use with care!
@@ -323,7 +322,7 @@ public interface JMadModel {
      * @return the values
      * @throws JMadModelException if the retrieval of the values fails
      */
-    public List<Double> getValues(List<String> valueNames) throws JMadModelException;
+    List<Double> getValues(List<String> valueNames) throws JMadModelException;
 
     /**
      * reads multiple values from the model given by their names to a map. The non-null map contains the mappings
@@ -333,7 +332,7 @@ public interface JMadModel {
      * @return a guaranteed non-null map, containing the mappings of the read values
      * @throws JMadModelException
      */
-    public Map<String, Double> getValueMap(Collection<String> valueNames) throws JMadModelException;
+    Map<String, Double> getValueMap(Collection<String> valueNames) throws JMadModelException;
 
     /**
      * Run a MadX Matching Command on the JMad Model
@@ -347,7 +346,7 @@ public interface JMadModel {
      * @return the {@link MatchResult} as retrieved from MadX
      * @throws JMadModelException if the matching fails
      */
-    public MatchResult match(MatchResultRequest resultRequest) throws JMadModelException;
+    MatchResult match(MatchResultRequest resultRequest) throws JMadModelException;
 
     /**
      * Execute the MadX SaveBeta Function, which saves the Optical Functions Values for a given location with the next
@@ -370,7 +369,7 @@ public interface JMadModel {
      * 4) evtl stattdessen ein objekt zurueckliefern, das die twisswerte (OpticsPoint) und evtl einen automatisch
      * generierten Key zurueckliefert.
      */
-    public abstract void saveBeta(String name, String location, boolean runDummyTwiss) throws JMadModelException;
+    void saveBeta(String name, String location, boolean runDummyTwiss) throws JMadModelException;
 
     /**
      * Function issues a single twiss and returns only the summary of the resulting TfsResult. This is nothing else than
@@ -383,54 +382,54 @@ public interface JMadModel {
      * @return the summary part of the actually valid twiss result.
      * @throws JMadModelException if the twiss fails.
      */
-    public abstract TfsSummary calcTwissSummary() throws JMadModelException;
+    TfsSummary calcTwissSummary() throws JMadModelException;
 
     /**
      * loads all the aperture-files to the model aperture
      * 
      * @throws JMadModelException if loading of the aperture fails
      */
-    public void loadAperture() throws JMadModelException;
+    void loadAperture() throws JMadModelException;
 
     /**
      * @return the actually loaded aperture
      */
-    public abstract Aperture getAperture();
+    Aperture getAperture();
 
     /**
      * @return the actually valid strengths and variables.
      */
-    public abstract StrengthVarSet getStrengthsAndVars();
+    StrengthVarSet getStrengthsAndVars();
 
     /**
      * @return the model file finder
      */
-    public abstract ModelFileFinder getModelFileFinder();
+    ModelFileFinder getModelFileFinder();
 
     /**
      * @return the startup configuration which will be used when initializing and resetting the model
      */
-    public abstract JMadModelStartupConfiguration getStartupConfiguration();
+    JMadModelStartupConfiguration getStartupConfiguration();
 
     /**
      * @param startupConfiguration the new startup-configuration
      */
-    public abstract void setStartupConfiguration(JMadModelStartupConfiguration startupConfiguration);
+    void setStartupConfiguration(JMadModelStartupConfiguration startupConfiguration);
 
     /**
      * @param modelMode defines if normal madx or ptc is used
      */
-    public abstract void setMode(ModelMode modelMode);
+    void setMode(ModelMode modelMode);
 
     /**
      * @return the current mode
      */
-    public abstract ModelMode getMode();
+    ModelMode getMode();
 
     /**
      * @param title the title to set in MadX for the following twiss-commands
      */
-    public void setTitel(String title);
+    void setTitle(String title);
 
     /**
      * NOTE: due to incubation form of this method ONLY QUADRUPOLE elements are extracted!

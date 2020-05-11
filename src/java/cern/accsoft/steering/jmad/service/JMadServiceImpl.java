@@ -21,10 +21,11 @@
 // @formatter:on
 
 /**
- * 
+ *
  */
 package cern.accsoft.steering.jmad.service;
 
+import cern.accsoft.steering.jmad.model.JMadModelStartupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,30 +40,44 @@ import cern.accsoft.steering.jmad.util.JMadPreferences;
 
 /**
  * The default implementation of the jmad-service. This class is configured by spring.
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class JMadServiceImpl implements JMadService {
 
-    /** The logger for the class */
+    /**
+     * The logger for the class
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(JMadServiceImpl.class);
 
-    /** The preferences, injected by spring */
+    /**
+     * The preferences, injected by spring
+     */
     private JMadPreferences preferences;
 
-    /** The model factory to use */
+    /**
+     * The model factory to use
+     */
     private JMadModelFactory modelFactory;
 
-    /** The model definition manager to use */
+    /**
+     * The model definition manager to use
+     */
     private JMadModelDefinitionManager modelDefinitionManager;
 
-    /** The model definition exporter */
+    /**
+     * The model definition exporter
+     */
     private JMadModelDefinitionExporter modelDefinitionExporter;
 
-    /** The class to import model definitions */
+    /**
+     * The class to import model definitions
+     */
     private JMadModelDefinitionImporter modelDefinitionImporter;
 
-    /** The manager for the models */
+    /**
+     * The manager for the models
+     */
     private JMadModelManager modelManager;
 
     /*
@@ -71,9 +86,18 @@ public class JMadServiceImpl implements JMadService {
 
     @Override
     public JMadModel createModel(JMadModelDefinition definition) {
-        JMadModel model = getModelFactory().createModel(definition);
-        if ((model != null) && (getModelManager() != null)) {
-            getModelManager().addModel(model);
+        return createModel(definition, null);
+    }
+
+    @Override
+    public JMadModel createModel(JMadModelDefinition definition, JMadModelStartupConfiguration startupConfiguration) {
+        JMadModel model = modelFactory.createModel(definition);
+        if (model != null && startupConfiguration != null) {
+            model.setStartupConfiguration(startupConfiguration);
+        }
+        if (model != null && modelManager != null) {
+            modelManager.addModel(model);
+            modelManager.setActiveModel(model);
         }
         return model;
     }

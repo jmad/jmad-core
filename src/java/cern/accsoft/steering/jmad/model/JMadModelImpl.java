@@ -1222,7 +1222,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
     }
 
     @Override
-    public void setTitel(String title) {
+    public void setTitle(String title) {
         this.execute("title,\"" + title + "\";");
     }
 

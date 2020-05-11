@@ -53,7 +53,7 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     private String name;
 
     @XStreamAlias("optics")
-    private final List<OpticsDefinition> opticsDefinitions = new ArrayList<OpticsDefinition>();
+    private final List<OpticsDefinition> opticsDefinitions = new ArrayList<>();
 
     @XStreamOmitField
     private OpticsDefinition defaultOpticsDefinition = null;
@@ -63,7 +63,7 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     private String defaultOpticsDefinitionName = null;
 
     @XStreamAlias("sequences")
-    private final List<SequenceDefinition> sequenceDefinitions = new ArrayList<SequenceDefinition>();
+    private final List<SequenceDefinition> sequenceDefinitions = new ArrayList<>();
 
     @XStreamOmitField
     private SequenceDefinition defaultSequenceDefinition = null;
@@ -73,7 +73,7 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     private String defaultSequenceDefinitionName = null;
 
     @XStreamAlias("init-files")
-    private final List<ModelFile> initFiles = new ArrayList<ModelFile>();
+    private final List<ModelFile> initFiles = new ArrayList<>();
 
     @XStreamAlias("path-offsets")
     private ModelPathOffsets modelPathOffsets = new ModelPathOffsetsImpl();

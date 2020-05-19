@@ -22,36 +22,33 @@
 
 package cern.accsoft.steering.jmad.domain.twiss;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 import cern.accsoft.steering.jmad.domain.optics.EditableOpticPointImpl;
-import cern.accsoft.steering.jmad.domain.optics.OpticPointImpl;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
 import cern.accsoft.steering.jmad.util.xml.CloneUtil;
-
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.ImmutableList;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("twiss-initial-conditions")
-public final class TwissInitialConditionsImpl extends EditableOpticPointImpl implements NamedBean,
-        TwissInitialConditions, Cloneable {
+public final class TwissInitialConditionsImpl extends EditableOpticPointImpl
+        implements NamedBean, TwissInitialConditions, Cloneable {
 
-    /** the listeners to the twiss-object */
-    private final List<TwissListener> listeners = new ArrayList<TwissListener>();
+    /**
+     * the listeners to the twiss-object
+     */
+    private final List<TwissListener> listeners = new ArrayList<>();
 
-    public static final List<MadxTwissVariable> TWISS_MADX_VARIABLES = new ArrayList<MadxTwissVariable>();
-
-    /* TODO implement all parameters! */
-
-    static {
-        TwissInitialConditionsImpl.TWISS_MADX_VARIABLES.addAll(OpticPointImpl.MADX_VARIABLES);
-        TwissInitialConditionsImpl.TWISS_MADX_VARIABLES.add(MadxTwissVariable.DELTAP);
-        TwissInitialConditionsImpl.TWISS_MADX_VARIABLES.add(MadxTwissVariable.T);
-        TwissInitialConditionsImpl.TWISS_MADX_VARIABLES.add(MadxTwissVariable.PT);
-    }
+    private static final List<MadxTwissVariable> TWISS_MADX_VARIABLES = ImmutableList.<MadxTwissVariable>builder() //
+            .addAll(MADX_VARIABLES) //
+            .add(MadxTwissVariable.DELTAP) //
+            .add(MadxTwissVariable.T) //
+            .add(MadxTwissVariable.PT) //
+            .build();
 
     /*
      * TWISS, BETX=real,ALFX=real,MUX=real, BETY=real,ALFY=real,MUY=real, DX=real,DPX=real,DY=real,DPY=real,
@@ -60,7 +57,9 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl imp
      * TOLERANCE=real, DELTAP=real:real:real;
      */
 
-    /** when set, the chromatic functions are also calculated during twiss */
+    /**
+     * when set, the chromatic functions are also calculated during twiss
+     */
     private boolean calcChromaticFunctions = true;
 
     /**
@@ -97,7 +96,7 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl imp
 
     /**
      * the constructor
-     * 
+     *
      * @param name the name of the twiss (arbitrary)
      */
     public TwissInitialConditionsImpl(String name) {

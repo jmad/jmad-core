@@ -11,13 +11,12 @@
 
 package cern.accsoft.steering.jmad.domain.twiss;
 
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-
-import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 
 public class TwissInitialConditionsXmlConverter implements Converter {
 
@@ -63,6 +62,12 @@ public class TwissInitialConditionsXmlConverter implements Converter {
             writer.endNode();
         }
 
+        if (twiss.getSaveBetaName() != null) {
+            writer.startNode("beta0");
+            writer.addAttribute(ATTR_NAME_VALUE, twiss.getSaveBetaName());
+            writer.endNode();
+        }
+
         for (MadxTwissVariable variable : twiss.getMadxVariables()) {
             Double value = twiss.getValue(variable);
             if (value != null) {
@@ -98,6 +103,8 @@ public class TwissInitialConditionsXmlConverter implements Converter {
                 retVal.setPtcMapOrder(Integer.parseInt(reader.getAttribute(ATTR_NAME_VALUE)));
             } else if ("ptc-betz".equals(nodeName)) {
                 retVal.setPtcBetz(Double.parseDouble(reader.getAttribute(ATTR_NAME_VALUE)));
+            } else if ("beta0".equals(nodeName)) {
+                retVal.setSaveBetaName(reader.getAttribute(ATTR_NAME_VALUE));
             } else {
                 MadxTwissVariable twissVariable = MadxTwissVariable.fromMadxName(nodeName);
                 if (retVal.getMadxVariables().contains(twissVariable)) {

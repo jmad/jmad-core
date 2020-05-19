@@ -42,7 +42,7 @@ public interface JMadKernel {
      * 
      * @throws JMadException if the starting of the MadX process fails
      */
-    public abstract void start() throws JMadException;
+    void start() throws JMadException;
 
     /**
      * stops the madx-thread
@@ -50,7 +50,7 @@ public interface JMadKernel {
      * @return the exit-value of madx
      * @throws JMadException if the stopping of the MadX process fails
      */
-    public abstract int stop() throws JMadException;
+    int stop() throws JMadException;
 
     /**
      * executes a Command or Task, waits for completion (our timeout if set), and returns result, if command/task
@@ -60,25 +60,25 @@ public interface JMadKernel {
      * @return the result, if available, otherwise null
      * @throws JMadException if the execution fails
      */
-    public abstract Result execute(JMadExecutable executable) throws JMadException;
+    Result execute(JMadExecutable executable) throws JMadException;
 
     /**
      * @return true, if madx was started before, false otherwise
      */
-    public abstract boolean isMadxRunning();
+    boolean isMadxRunning();
 
     /**
      * @param listener the listener to add
      */
-    public abstract void addListener(JMadKernelListener listener);
+    void addListener(JMadKernelListener listener);
 
     /**
      * @param listener the listener to remove
      */
-    public abstract void removeListener(JMadKernelListener listener);
+    void removeListener(JMadKernelListener listener);
 
     /**
      * @return the JMadKernel OutputFile
      */
-    public abstract File getOutputFile();
+    File getOutputFile();
 }

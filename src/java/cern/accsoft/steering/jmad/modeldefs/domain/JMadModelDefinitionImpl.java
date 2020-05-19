@@ -26,19 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
 import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
 import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @XStreamAlias("jmad-model-definition")
 public class JMadModelDefinitionImpl extends AbstractModelDefinition {
@@ -85,6 +83,7 @@ public class JMadModelDefinitionImpl extends AbstractModelDefinition {
     private String modelPackUri = null;
 
     @XStreamAlias("svn-revision")
+    @XStreamOmitField
     private String unusedSvnRevision = "unused field kept for XStream backwards compatibility";
 
     // ***********************************************

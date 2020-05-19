@@ -29,7 +29,7 @@ public final class InitialContitionsParameters {
      * @param tw the twiss initial conditons which shall be added to the list of parameters
      */
     public static void addTwissParameters(List<Parameter> parameters, TwissInitialConditions tw) {
-        parameters.add(new GenericParameter<Double>("deltap", tw.getDeltap()));
+        parameters.add(new GenericParameter<>("deltap", tw.getDeltap()));
 
         /*
          * the initial conditions must not be set, if we want to calc the closed orbit solution
@@ -38,13 +38,13 @@ public final class InitialContitionsParameters {
             for (MadxTwissVariable var : tw.getMadxVariables()) {
                 Double value = tw.getValue(var);
                 if ((value != null) && (!MadxTwissVariable.DELTAP.equals(var))) {
-                    parameters.add(new GenericParameter<Double>(var.getMadxName(), value));
+                    parameters.add(new GenericParameter<>(var.getMadxName(), value));
                 }
             }
         }
 
         if (tw.getSaveBetaName() != null) {
-            parameters.add(new GenericParameter<String>("beta0", tw.getSaveBetaName(), true));
+            parameters.add(new GenericParameter<>("beta0", tw.getSaveBetaName(), false));
         }
 
     }

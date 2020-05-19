@@ -26,48 +26,47 @@ import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 
 public interface EditableOpticPoint extends OpticPoint {
 
-    public abstract void setValue(MadxTwissVariable variable, Double value);
+    void setValue(MadxTwissVariable variable, Double value);
 
-    public abstract void setBetx(Double betx);
+    void setBetx(Double betx);
 
-    public abstract void setBety(Double bety);
+    void setBety(Double bety);
 
-    public abstract void setMux(Double mux);
+    void setMux(Double mux);
 
-    public abstract void setMuy(Double muy);
-
-    /* short name to use the same as madx */
-    public abstract void setDx(Double dx); // NOPMD by kaifox on 6/25/10 5:48 PM
+    void setMuy(Double muy);
 
     /* short name to use the same as madx */
-    public abstract void setDy(Double dy); // NOPMD by kaifox on 6/25/10 5:49 PM
-
-    public abstract void setAlfx(Double alfx);
-
-    public abstract void setAlfy(Double alfy);
-
-    public abstract void setDdx(Double ddx);
-
-    public abstract void setDpx(Double dpx);
-
-    public abstract void setDpy(Double dpy);
-
-    public abstract void setDdy(Double ddy);
-
-    public abstract void setDdpx(Double ddpx);
-
-    public abstract void setDdpy(Double ddpy);
+    void setDx(Double dx);
 
     /* short name to use the same as madx */
-    public abstract void setX(Double x); // NOPMD by kaifox on 6/25/10 5:49 PM
+    void setDy(Double dy);
+
+    void setAlfx(Double alfx);
+
+    void setAlfy(Double alfy);
+
+    void setDdx(Double ddx);
+
+    void setDpx(Double dpx);
+
+    void setDpy(Double dpy);
+
+    void setDdy(Double ddy);
+
+    void setDdpx(Double ddpx);
+
+    void setDdpy(Double ddpy);
 
     /* short name to use the same as madx */
-    public abstract void setPx(Double px); // NOPMD by kaifox on 6/25/10 5:49 PM
+    void setX(Double x);
 
     /* short name to use the same as madx */
-    public abstract void setY(Double y); // NOPMD by kaifox on 6/25/10 5:50 PM
+    void setPx(Double px);
 
     /* short name to use the same as madx */
-    public abstract void setPy(Double py); // NOPMD by kaifox on 6/25/10 5:50 PM
+    void setY(Double y);
 
+    /* short name to use the same as madx */
+    void setPy(Double py);
 }

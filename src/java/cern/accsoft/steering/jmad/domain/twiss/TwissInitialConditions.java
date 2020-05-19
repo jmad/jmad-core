@@ -29,71 +29,71 @@ import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 
 public interface TwissInitialConditions extends EditableOpticPoint {
 
-    public abstract Integer getPtcPhaseSpaceDimension();
+    Integer getPtcPhaseSpaceDimension();
 
-    public abstract void setPtcPhaseSpaceDimension(Integer dim);
+    void setPtcPhaseSpaceDimension(Integer dim);
 
-    public abstract Integer getPtcMapOrder();
+    Integer getPtcMapOrder();
 
-    public abstract void setPtcMapOrder(Integer order);
+    void setPtcMapOrder(Integer order);
 
-    public abstract Double getPtcBetz();
+    Double getPtcBetz();
 
-    public abstract void setPtcBetz(Double betz);
+    void setPtcBetz(Double betz);
 
-    public abstract Double getDeltap();
+    Double getDeltap();
 
-    public abstract void setDeltap(Double deltap);
+    void setDeltap(Double deltap);
 
     /**
      * @param calcChromaticFunctions the calcChromaticFunctions to set
      */
-    public abstract void setCalcChromaticFunctions(boolean calcChromaticFunctions);
+    void setCalcChromaticFunctions(boolean calcChromaticFunctions);
 
     /**
      * @return the calcChromaticFunctions
      */
-    public abstract boolean isCalcChromaticFunctions();
+    boolean isCalcChromaticFunctions();
 
     /**
      * @param closedOrbit the closedOrbit to set
      */
-    public abstract void setClosedOrbit(boolean closedOrbit);
+    void setClosedOrbit(boolean closedOrbit);
 
     /**
      * @return the closedOrbit
      */
-    public abstract boolean isClosedOrbit();
+    boolean isClosedOrbit();
 
     /**
      * @param calcAtCentre the calcAtCentre to set
      */
-    public abstract void setCalcAtCenter(boolean calcAtCentre);
+    void setCalcAtCenter(boolean calcAtCentre);
 
     /**
      * @return the calcAtCenter
      */
-    public abstract boolean isCalcAtCenter();
+    boolean isCalcAtCenter();
 
-    public abstract Double getT();
-
-    /* short name to use the same as madx */
-    public abstract void setT(Double t); // NOPMD by kaifox on 6/25/10 6:06 PM
-
-    public abstract Double getPt();
+    Double getT();
 
     /* short name to use the same as madx */
-    public abstract void setPt(Double pt); // NOPMD by kaifox on 6/25/10 6:06 PM
+    void setT(Double t);
 
-    public abstract List<MadxTwissVariable> getMadxVariables();
+    Double getPt();
 
-    public abstract Double getValue(MadxTwissVariable var);
+    /* short name to use the same as madx */
+    void setPt(Double pt);
 
-    public abstract void setSaveBetaName(String saveBetaName);
+    List<MadxTwissVariable> getMadxVariables();
 
-    public abstract String getSaveBetaName();
+    Double getValue(MadxTwissVariable var);
 
-    public abstract void addListener(TwissListener listener);
+    void setSaveBetaName(String saveBetaName);
 
-    public abstract void removeListener(TwissListener listener);
+    String getSaveBetaName();
+
+    void addListener(TwissListener listener);
+
+    void removeListener(TwissListener listener);
 }

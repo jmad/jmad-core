@@ -22,16 +22,15 @@
 
 package cern.accsoft.steering.jmad.domain.twiss;
 
+import java.util.Optional;
+
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.json.JsonWriter;
-
-import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
-
-import java.util.Optional;
 
 public class TwissInitialConditionsJsonConverter implements Converter {
 
@@ -49,6 +48,8 @@ public class TwissInitialConditionsJsonConverter implements Converter {
                 .ifPresent(p -> underWriter.addAttribute("ptc-no", String.valueOf(p)));
         Optional.ofNullable(twiss.getPtcBetz())
                 .ifPresent(p -> underWriter.addAttribute("ptc-betz", String.valueOf(p)));
+        Optional.ofNullable(twiss.getSaveBetaName())
+                .ifPresent(p -> underWriter.addAttribute("beta0", p));
         underWriter.addAttribute("chrom", String.valueOf(twiss.isCalcChromaticFunctions()));
         underWriter.addAttribute("closed-orbit", String.valueOf(twiss.isClosedOrbit()));
         underWriter.addAttribute("centre", String.valueOf(twiss.isCalcAtCenter()));
@@ -84,6 +85,8 @@ public class TwissInitialConditionsJsonConverter implements Converter {
                 retVal.setPtcMapOrder(Integer.parseInt(reader.getAttribute(attrName)));
             } else if ("ptc-betz".equals(attrName)) {
                 retVal.setPtcBetz(Double.parseDouble(reader.getAttribute(attrName)));
+            } else if ("beta0".equals(attrName)) {
+                retVal.setSaveBetaName(reader.getAttribute(attrName));
             } else {
                 MadxTwissVariable twissVariable = MadxTwissVariable.fromMadxName(attrName);
                 if (retVal.getMadxVariables().contains(twissVariable)) {

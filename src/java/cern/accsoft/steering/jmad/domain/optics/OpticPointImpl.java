@@ -22,42 +22,49 @@
 
 package cern.accsoft.steering.jmad.domain.optics;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.domain.var.enums.JMadTwissVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.bean.NamedBean;
+import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OpticPointImpl implements NamedBean, OpticPoint {
 
-    /** the logger for the class */
+    /**
+     * the logger for the class
+     */
     protected static final Logger LOGGER = LoggerFactory.getLogger(OpticPointImpl.class);
 
-    /** The name of this point (element name) */
+    /**
+     * The name of this point (element name)
+     */
     private final String name;
 
-    /** all the madx-variables that are available at an optics-point */
-    public static final List<MadxTwissVariable> MADX_VARIABLES = Arrays.asList(new MadxTwissVariable[] { //
+    /**
+     * all the madx-variables that are available at an optics-point
+     */
+    public static final List<MadxTwissVariable> MADX_VARIABLES = ImmutableList.of( //
             MadxTwissVariable.S, //
-                    MadxTwissVariable.BETX, MadxTwissVariable.BETY, //
-                    MadxTwissVariable.ALFX, MadxTwissVariable.ALFY, //
-                    MadxTwissVariable.MUX, MadxTwissVariable.MUY, //
-                    MadxTwissVariable.DX, MadxTwissVariable.DY, //
-                    MadxTwissVariable.DPX, MadxTwissVariable.DPY, //
-                    MadxTwissVariable.X, MadxTwissVariable.Y, //
-                    MadxTwissVariable.PX, MadxTwissVariable.PY, //
-                    MadxTwissVariable.DDX, MadxTwissVariable.DDY, //
-                    MadxTwissVariable.DDPX, MadxTwissVariable.DDPY });
+            MadxTwissVariable.BETX, MadxTwissVariable.BETY, //
+            MadxTwissVariable.ALFX, MadxTwissVariable.ALFY, //
+            MadxTwissVariable.MUX, MadxTwissVariable.MUY, //
+            MadxTwissVariable.DX, MadxTwissVariable.DY, //
+            MadxTwissVariable.DPX, MadxTwissVariable.DPY, //
+            MadxTwissVariable.X, MadxTwissVariable.Y, //
+            MadxTwissVariable.PX, MadxTwissVariable.PY, //
+            MadxTwissVariable.DDX, MadxTwissVariable.DDY, //
+            MadxTwissVariable.DDPX, MadxTwissVariable.DDPY);
 
-    /** the values for the variables */
-    protected Map<MadxTwissVariable, Double> variableValues = new HashMap<MadxTwissVariable, Double>();
+    /**
+     * the values for the variables
+     */
+    private Map<MadxTwissVariable, Double> variableValues = new HashMap<>();
 
     public OpticPointImpl(String name) {
         this.name = name;

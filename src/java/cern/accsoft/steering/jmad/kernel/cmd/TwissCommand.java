@@ -43,17 +43,16 @@ public class TwissCommand extends AbstractCommand {
 		return CMD_NAME;
 	}
 
-	/* TODO implement all options! */
 	@Override
 	public List<Parameter> getParameters() {
-		ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+		ArrayList<Parameter> parameters = new ArrayList<>();
 
 		InitialContitionsParameters.addTwissParameters(parameters, twiss);
 
-		parameters.add(new GenericParameter<Boolean>("chrom", twiss.isCalcChromaticFunctions()));
-		parameters.add(new GenericParameter<Boolean>("centre", twiss.isCalcAtCenter()));
+		parameters.add(new GenericParameter<>("chrom", twiss.isCalcChromaticFunctions()));
+		parameters.add(new GenericParameter<>("centre", twiss.isCalcAtCenter()));
 		if (getOutputFile() != null) {
-			parameters.add(new GenericParameter<String>("file", getOutputFile().getAbsolutePath(), true));
+			parameters.add(new GenericParameter<>("file", getOutputFile().getAbsolutePath(), true));
 		}
 
 		return parameters;

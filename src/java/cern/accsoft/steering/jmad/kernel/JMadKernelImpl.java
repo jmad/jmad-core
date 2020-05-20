@@ -11,13 +11,18 @@
 
 package cern.accsoft.steering.jmad.kernel;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import cern.accsoft.steering.jmad.JMadException;
 import cern.accsoft.steering.jmad.bin.MadxBin;
@@ -34,7 +39,6 @@ import cern.accsoft.steering.jmad.util.FileUtil;
 import cern.accsoft.steering.jmad.util.JMadPreferences;
 import cern.accsoft.steering.jmad.util.ProcTools;
 import cern.accsoft.steering.jmad.util.ProcessTerminationMonitor;
-import cern.accsoft.steering.jmad.util.StreamLogger;
 import cern.accsoft.steering.jmad.util.StringUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
 import org.slf4j.Logger;
@@ -42,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * this is the implementation of the {@link JMadKernel} which controls one MadX-Process.
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
@@ -50,7 +54,9 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
     private static final int MAX_REPORTED_OUTPUT_LINES = 10;
     private static final int MAX_REPORTED_ERROR_LINES = 10;
 
-    /** the logger for the class */
+    /**
+     * the logger for the class
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(JMadKernelImpl.class);
 
     /**
@@ -58,7 +64,9 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
      */
     private static final int EXIT_VALUE_DESTROYED = -9999;
 
-    /** the command which is used to stop madx. */
+    /**
+     * the command which is used to stop madx.
+     */
     private static final String CMD_STOP = "stop;";
 
     /*
@@ -76,10 +84,14 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
     private File madxOutputLogFile = null;
     private File madxErrorLogFile = null;
 
-    /** wait this amount of ms, when deletion failed and retry */
+    /**
+     * wait this amount of ms, when deletion failed and retry
+     */
     private static final int RETRY_DELAY_IN_MILLISECONDS = 100;
 
-    /** how often to retry deleting a file before throwing an exception? */
+    /**
+     * how often to retry deleting a file before throwing an exception?
+     */
     private static final int RETRY_ATTEMPTS = 3;
 
     /**
@@ -88,22 +100,34 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
      */
     private Long timeout = null;
 
-    /** the process for madx */
+    /**
+     * the process for madx
+     */
     private Process process = null;
 
-    /** the stream for providing madx with input */
+    /**
+     * the stream for providing madx with input
+     */
     private PrintWriter input = null;
 
-    /** the logger, where the inputs to madx are logged */
+    /**
+     * the logger, where the inputs to madx are logged
+     */
     private BufferedWriter inputLogWriter = null;
 
-    /** The preferences to be injected */
+    /**
+     * The preferences to be injected
+     */
     private JMadPreferences preferences;
 
-    /** the file util to be injected */
+    /**
+     * the file util to be injected
+     */
     private TempFileUtil fileUtil;
 
-    /** the class which takes care of the madx-binary */
+    /**
+     * the class which takes care of the madx-binary
+     */
     private MadxBin madxBin;
 
     /**
@@ -118,42 +142,37 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
      */
     private Boolean cleanupDirs = null;
 
-    /** the listeners to the kernel */
-    private final List<JMadKernelListener> listeners = new ArrayList<JMadKernelListener>();
+    /**
+     * the listeners to the kernel
+     */
+    private final List<JMadKernelListener> listeners = new ArrayList<>();
+
+    private final ExecutorService logFileWriteExecutor = Executors.newCachedThreadPool();
 
     @Override
     public void start() throws JMadException {
 
-        if (getFileUtil() == null) {
-            throw new JMadException("File util not configured. Cannot proceed.");
-        }
+        checkState(fileUtil != null, "fileUtil not injected. Fix Spring configuration");
+        checkState(madxBin != null, "madxBin not injected. Fix Spring configuration");
         /*
          * First we have to get temp-files related to this kernel
          */
-        readyFile = getFileUtil().getOutputFile(this, FILENAME_READY);
-        resultFile = getFileUtil().getOutputFile(this, FILENAME_RESULT);
-        madxInputLogFile = getFileUtil().getOutputFile(this, FILENAME_LOG_IN);
-        madxOutputLogFile = getFileUtil().getOutputFile(this, FILENAME_LOG_OUT);
-        madxErrorLogFile = getFileUtil().getOutputFile(this, FILENAME_LOG_ERROR);
+        readyFile = fileUtil.getOutputFile(this, FILENAME_READY);
+        resultFile = fileUtil.getOutputFile(this, FILENAME_RESULT);
+        madxInputLogFile = fileUtil.getOutputFile(this, FILENAME_LOG_IN);
+        madxOutputLogFile = fileUtil.getOutputFile(this, FILENAME_LOG_OUT);
+        madxErrorLogFile = fileUtil.getOutputFile(this, FILENAME_LOG_ERROR);
 
         deleteReadyFile();
 
-        if (!madxInputLogFile.delete()) {
-            /* ignore, may not exist */
-        }
+        madxInputLogFile.delete();
 
         try {
-            MadxBin madxBinary = getMadxBin();
-            process = madxBinary.execute();
-
-            StreamLogger outputLogger = new StreamLogger(process.getInputStream(), madxOutputLogFile);
-            outputLogger.start();
-
-            StreamLogger errorLogger = new StreamLogger(process.getErrorStream(), madxErrorLogFile);
-            errorLogger.start();
-
+            process = madxBin.execute();
             input = new PrintWriter(process.getOutputStream());
             inputLogWriter = new BufferedWriter(new FileWriter(madxInputLogFile));
+            logFileWriteExecutor.submit(() -> Files.copy(process.getInputStream(), madxOutputLogFile.toPath()));
+            logFileWriteExecutor.submit(() -> Files.copy(process.getErrorStream(), madxErrorLogFile.toPath()));
             fireStartedKernel();
         } catch (IOException e) {
             throw new JMadException("Error while executing madx.", e);
@@ -176,18 +195,18 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
                     processTerminationMonitor.interrupt();
                     process.destroy();
                     exitValue = EXIT_VALUE_DESTROYED;
-                    LOGGER.warn("Waiting for terminating madx timed out! (timeout=" + timeout + "ms).");
+                    LOGGER.warn("Waiting for terminating madx timed out! (timeout={} ms)", timeout);
                 } else {
                     exitValue = process.exitValue();
                 }
             }
 
             if (exitValue == 0) {
-                LOGGER.debug("madx terminated correctly with exit-value " + exitValue + ".");
+                LOGGER.debug("madx terminated correctly with exit-value {}.", exitValue);
             } else if (exitValue == EXIT_VALUE_DESTROYED) {
-                LOGGER.debug("Tried to destroy madx-process. -> set exitValue to " + exitValue);
+                LOGGER.debug("Tried to destroy madx-process. -> set exitValue to {}", exitValue);
             } else {
-                LOGGER.warn("madx terminated with exit-value " + exitValue + ".");
+                LOGGER.warn("madx terminated with exit-value {}.", exitValue);
             }
 
             deleteReadyFile();
@@ -197,8 +216,8 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
         }
 
         /* delete the dir corresponding to the kernel. */
-        if (isCleanupDirs() && (getFileUtil() != null)) {
-            getFileUtil().cleanup(this);
+        if (isCleanupDirs() && (fileUtil != null)) {
+            fileUtil.cleanup(this);
         }
 
         fireStoppedKernel();
@@ -206,9 +225,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
     }
 
     private void deleteReadyFile() {
-        if (!readyFile.delete()) {
-            /* ignore, may not exist. */
-        }
+        readyFile.delete();
     }
 
     private void closeInputLogger() {
@@ -222,9 +239,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
     @Override
     public Result execute(JMadExecutable executable) throws JMadException {
-        if (!resultFile.delete()) {
-            /* ignore, may not exist. */
-        }
+        resultFile.delete();
         executable.setOutputFile(resultFile);
 
         /* execute the commands and wait. */
@@ -234,14 +249,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
         /* parse result */
         Result result = null;
         if ((executable.getResultType() != null) && (ResultType.NO_RESULT != executable.getResultType())) {
-
-            LOGGER.debug("parsing madx output-file (" + resultFile.getAbsolutePath() + ")");
-
-            // TODO associate a parser to a type, then the all if else become
-            // Parser parser = executable.getResultType().getParser().parse(executable.getOutputFile());
-            // result = parser.getResult();
-            // ???
-
+            LOGGER.debug("parsing madx output-file ({})", resultFile.getAbsolutePath());
             try {
                 if (ResultType.TFS_RESULT == executable.getResultType()) {
                     TfsFileParser parser = new TfsFileParser(resultFile);
@@ -271,9 +279,9 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
             if (!this.keepOutputFile) {
                 if (!resultFile.delete()) {
-                    throw new JMadException("Could not delete Result-file '" + resultFile.getAbsolutePath());
+                    throw new JMadException("Could not delete result file '" + resultFile.getAbsolutePath());
                 }
-                LOGGER.debug(("deleted madx output-file (" + resultFile.getAbsolutePath() + ")"));
+                LOGGER.debug("deleted madx output file ({})", resultFile.getAbsolutePath());
             }
         }
 
@@ -283,7 +291,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
     /**
      * writes the command(s) as String to MadX-input. This method does not wait for the end of the execution and does
      * not return any result. Use with care!
-     * 
+     *
      * @param command the command to be executed by madx
      * @throws JMadException
      */
@@ -294,13 +302,14 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
             throw new JMadException("MadX is not running -> cannot write commands.");
         }
 
-        LOGGER.debug("writing command(s) to madx:\n" + commandString);
+        LOGGER.debug("writing command(s) to madx:\n{}", commandString);
         input.println(commandString);
         input.flush();
 
         /* also log in separate file for simple executing in madx */
         try {
             inputLogWriter.write(commandString);
+            inputLogWriter.flush();
         } catch (IOException e) {
             LOGGER.warn("Error while logging commands!", e);
         }
@@ -313,14 +322,13 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
     /**
      * writes a file through madx and waits until it exists or reaching timeout (if set).
-     * 
-     * @return <code>true</code>, if waiting timed out, false if not
+     *
+     * @throws JMadException
      * @see #getTimeout()
      * @see #setTimeout(Long)
-     * @throws JMadException
      */
     /* package visibility for testing! */
-    void waitUntilReady() throws JMadException { // NOPMD by kaifox on 6/25/10 4:01 PM
+    void waitUntilReady() throws JMadException {
         if (!isMadxRunning()) {
             throw new JMadException("MadX is not running!");
         }
@@ -339,7 +347,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
         }
 
         if (!fileCreated) {
-            throw new WaitForMadxTimedOutException("Madx-command timed out! (timeout=" + timeout + "ms).");
+            throw new WaitForMadxTimedOutException("madx command timed out! (timeout=" + timeout + "ms).");
         }
 
         deleteReadyFileWithRetries();
@@ -359,12 +367,12 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
     private String fileSnippet(String fileQualifier, File file, int maxLines) {
         List<String> lastMadxErrorLines = FileUtil.tail(file, maxLines);
-        return "MadX " + fileQualifier + "(Max last " + maxLines + " lines):\n---\n'"
-                + StringUtil.join(lastMadxErrorLines, "\n") + "'.\n---\n";
+        return "MadX " + fileQualifier + "(Max last " + maxLines + " lines):\n---\n'" + StringUtil
+                .join(lastMadxErrorLines, "\n") + "'.\n---\n";
     }
 
     private void deleteReadyFileWithRetries() throws JMadException {
-        if ((!readyFile.delete())) {
+        if (!readyFile.delete()) {
             boolean deleted = false;
             for (int i = 0; i < RETRY_ATTEMPTS; i++) {
                 LOGGER.debug("deletion of file '" + readyFile.getAbsolutePath() + "' failed. Retrying again in "
@@ -387,12 +395,11 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
     /**
      * When the class is destroyed it takes care, that MadX is closed in a proper way.
-     * 
+     *
      * @throws Throwable if the finalization fails
      */
     @Override
     protected void finalize() throws Throwable {
-        LOGGER.debug(this.getClass() + " was garbage-collected.");
         if (isMadxRunning()) {
             LOGGER.warn("Madx is still running! - trying to stop...");
             try {
@@ -446,7 +453,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
     /**
      * sets the actual timeout in ms. If null then the kernel waits forever for Madx.
-     * 
+     *
      * @param timeout the timeout to set
      */
     @Override
@@ -456,7 +463,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
 
     /**
      * sets the flag, if the output-file shall be kept or deleted after task/command execution.
-     * 
+     *
      * @param keepOutputFile true if the output-file shall be kept, false otherwise
      */
     @Override
@@ -482,7 +489,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
         if (this.cleanupDirs != null) {
             return cleanupDirs;
         }
-        return getPreferences().isCleanupKernelFiles();
+        return preferences.isCleanupKernelFiles();
     }
 
     @Override
@@ -494,32 +501,11 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
         this.preferences = preferences;
     }
 
-    private JMadPreferences getPreferences() {
-        if (this.preferences == null) {
-            LOGGER.warn("Preferences not set. Maybe config error.");
-        }
-        return preferences;
-    }
-
     public void setFileUtil(TempFileUtil fileUtil) {
         this.fileUtil = fileUtil;
     }
 
-    private TempFileUtil getFileUtil() {
-        if (this.fileUtil == null) {
-            LOGGER.warn("FileUtil not set. Maybe config error.");
-        }
-        return fileUtil;
-    }
-
     public void setMadxBin(MadxBin madxBin) {
         this.madxBin = madxBin;
-    }
-
-    private MadxBin getMadxBin() {
-        if (this.madxBin == null) {
-            LOGGER.warn("madxBin not set. Maybe config error.");
-        }
-        return madxBin;
     }
 }

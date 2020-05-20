@@ -37,6 +37,5 @@ public interface MadxBin {
      * @return the process of the running MadX
      * @throws IOException if the execution fails
      */
-    public abstract Process execute() throws IOException;
-
+    Process execute() throws IOException;
 }

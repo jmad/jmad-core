@@ -32,12 +32,11 @@ package cern.accsoft.steering.jmad.bin;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.util.OsUtil;
 import cern.accsoft.steering.jmad.util.StreamUtil;
 import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Determines the correct version of the madx-executable and provides methods to start its execution. Depending on the
@@ -80,14 +79,14 @@ public class MadxBinImpl implements MadxBin {
     /**
      * @return the path to the executable depending on the OS
      */
-    private final String getExecutablePath() {
+    private String getExecutablePath() {
         return executablePath;
     }
 
     /**
      * @return the name of the executable
      */
-    private static final String getExecutableName() {
+    private static String getExecutableName() {
         if (OsUtil.isIntel32BitArchitecture()) {
             return BIN_NAME_INTEL_32;
         } else if (OsUtil.isIntel64BitArchitecture()) {
@@ -103,7 +102,7 @@ public class MadxBinImpl implements MadxBin {
     /**
      * @return the name of the resource depending on the OS
      */
-    private static final String getResourceName() {
+    private static String getResourceName() {
         if (OsUtil.isWindows()) {
             return RESOURCE_PREFIX_WIN + getExecutableName();
         } else if (OsUtil.isLinux()) {
@@ -121,8 +120,8 @@ public class MadxBinImpl implements MadxBin {
     /**
      * copies the executable to the actual path. This is necessary, when the file is included in a jar.
      */
-    private final void extractExecutable() {
-        if (getFileUtil() == null) {
+    private void extractExecutable() {
+        if (fileUtil == null) {
             return;
         }
         LOGGER.debug("Extracting madx binary for further use.");
@@ -135,7 +134,7 @@ public class MadxBinImpl implements MadxBin {
             executablePath = getExecutableName();
         } else {
             /* unpack the executable */
-            File file = getFileUtil().getOutputFile(getExecutableName());
+            File file = fileUtil.getOutputFile(getExecutableName());
 
             StreamUtil.toFile(MadxBinImpl.class.getResourceAsStream(resourceName), file);
 
@@ -149,15 +148,5 @@ public class MadxBinImpl implements MadxBin {
 
     public void setFileUtil(TempFileUtil fileUtil) {
         this.fileUtil = fileUtil;
-    }
-
-    /**
-     * @return the instance of the FileUtil to use
-     */
-    private TempFileUtil getFileUtil() {
-        if (this.fileUtil == null) {
-            LOGGER.warn("fileUtil not set. Maybe config error.");
-        }
-        return fileUtil;
     }
 }

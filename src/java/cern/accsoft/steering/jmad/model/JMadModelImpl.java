@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.JMadException;
 import cern.accsoft.steering.jmad.domain.aperture.Aperture;
 import cern.accsoft.steering.jmad.domain.beam.Beam;
@@ -114,6 +111,8 @@ import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
 import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
 import cern.accsoft.steering.jmad.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
@@ -407,7 +406,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     @Override
     public Map<String, Double> getValueMap(Collection<String> valueNames) throws JMadModelException {
-        Map<String, Double> mapping = new HashMap<String, Double>();
+        Map<String, Double> mapping = new HashMap<>();
         for (Strength strength : this.getValuesResult(valueNames).getValues()) {
             mapping.put(strength.getMadxName(), strength.getTotalValue());
         }
@@ -521,7 +520,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
             element.setAttributesInitialized(true); /* this has to be set here to prevent call loops */
         }
 
-        ArrayList<String> valueNames = new ArrayList<String>();
+        ArrayList<String> valueNames = new ArrayList<>();
 
         for (Element element : elements) {
             List<String> attributeNames = element.getAttributeNames();
@@ -1022,7 +1021,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
         // Prepare TfsRequest for local Constraints
         TfsResultRequestImpl tfsReq = new TfsResultRequestImpl();
-        Map<String, Map<String, Double>> localConstraints = new HashMap<String, Map<String, Double>>(0);
+        Map<String, Map<String, Double>> localConstraints = new HashMap<>(0);
 
         for (MatchConstraint mC : resultRequest.getMatchConstraints()) {
             if (mC.isGlobal()) {

@@ -64,6 +64,7 @@ public enum MadxElementType {
     MULTIPOLE(JMadElementType.UNKNOWN), //
     RFCAVITY(JMadElementType.UNKNOWN), //
     RCOLLIMATOR(JMadElementType.UNKNOWN), //
+    COLLIMATOR(JMadElementType.UNKNOWN), //
 
     /*
      * the following is for elements which have not (yet) a corresponding type here
@@ -123,7 +124,7 @@ public enum MadxElementType {
      * @param madxName the name used in madx
      * @return the {@link MadxElementType} which corresponds to the name
      */
-    public static final MadxElementType fromMadXName(String madxName) {
+    public static MadxElementType fromMadXName(String madxName) {
         for (MadxElementType type : MadxElementType.values()) {
             if (type.equalsMadxName(madxName)) {
                 return type;
@@ -138,8 +139,8 @@ public enum MadxElementType {
      * @param elementType the {@link JMadElementType} for which to find the madx-types
      * @return all the madx element types.
      */
-    public static final List<MadxElementType> fromElementType(JMadElementType elementType) {
-        List<MadxElementType> madxElementTypes = new ArrayList<MadxElementType>();
+    public static List<MadxElementType> fromElementType(JMadElementType elementType) {
+        List<MadxElementType> madxElementTypes = new ArrayList<>();
         for (MadxElementType type : MadxElementType.values()) {
             if (type.equalsJMadElementType(elementType)) {
                 madxElementTypes.add(type);
@@ -154,7 +155,7 @@ public enum MadxElementType {
      * @param elementType the {@link JMadElementType} for which to find the madx-names
      * @return the names of all madx-element-types for the given {@link JMadElementType}
      */
-    public static final List<String> fromElementTypeAsStrings(JMadElementType elementType) {
+    public static List<String> fromElementTypeAsStrings(JMadElementType elementType) {
         List<MadxElementType> madxElementTypes = fromElementType(elementType);
         return ListUtil.toString(madxElementTypes);
     }

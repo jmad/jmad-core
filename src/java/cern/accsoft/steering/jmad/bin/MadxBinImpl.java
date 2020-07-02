@@ -22,9 +22,9 @@
 
 /*
  * $Id: MadXBin.java,v 1.6 2008-12-12 14:48:13 kfuchsbe Exp $
- * 
+ *
  * $Date: 2008-12-12 14:48:13 $ $Revision: 1.6 $ $Author: kfuchsbe $
- * 
+ *
  * Copyright CERN, All Rights Reserved.
  */
 package cern.accsoft.steering.jmad.bin;
@@ -41,12 +41,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Determines the correct version of the madx-executable and provides methods to start its execution. Depending on the
  * operating system the correct executable is extracted to a temporary directory and can be executed from there.
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class MadxBinImpl implements MadxBin {
-    /** the logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(MadxBinImpl.class);
+
+    private static final String EXTERNAL_MADX_EXECUTABLE_PATH_PROP = "cern.jmad.kernel.madxpath";
 
     private static final String BIN_NAME_DEFAULT = "madx";
     private static final String BIN_NAME_INTEL_32 = "madx";
@@ -56,18 +57,22 @@ public class MadxBinImpl implements MadxBin {
     private static final String RESOURCE_PREFIX_LINUX = "linux/";
     private static final String RESOURCE_PREFIX_OSX = "osx/";
 
-    /** The file util to use (injected by spring) */
+    /**
+     * The file util to use (injected by spring)
+     */
     private TempFileUtil fileUtil;
 
-    /** The filename of the executable, which then can be called by a shell */
+    /**
+     * The filename of the executable, which then can be called by a shell
+     */
     private String executablePath;
 
     /**
      * init-method called by spring
      */
     public void init() {
-        LOGGER.info("Perparing MAD-X binary for OS " + OsUtil.getOsName() + " and architecture "
-                + OsUtil.getCpuArchitecture());
+        LOGGER.info("Preparing MAD-X binary for OS " + OsUtil.getOsName() + " and architecture " + //
+                OsUtil.getCpuArchitecture());
         extractExecutable();
     }
 
@@ -92,9 +97,6 @@ public class MadxBinImpl implements MadxBin {
         } else if (OsUtil.isIntel64BitArchitecture()) {
             return BIN_NAME_INTEL_64;
         } else {
-            LOGGER.warn("No madx binary available in jar for your architecture  '" + OsUtil.getCpuArchitecture()
-                    + "'.\n If you have no executable (named '" + BIN_NAME_DEFAULT + "') in the path,\n"
-                    + "you will not be able to perform any calculations!");
             return BIN_NAME_DEFAULT;
         }
     }
@@ -110,9 +112,6 @@ public class MadxBinImpl implements MadxBin {
         } else if (OsUtil.isOsX()) {
             return RESOURCE_PREFIX_OSX + getExecutableName();
         } else {
-            LOGGER.warn("No madx binary available in jar for operating system '" + OsUtil.getOsName()
-                    + "'.\n If you have no executable in the path,\n"
-                    + "you will not be able to perform any calculations!");
             return null;
         }
     }
@@ -124,25 +123,27 @@ public class MadxBinImpl implements MadxBin {
         if (fileUtil == null) {
             return;
         }
-        LOGGER.debug("Extracting madx binary for further use.");
 
+        String executableName = getExecutableName();
         String resourceName = getResourceName();
-        if (resourceName == null) {
-            /*
-             * we just use the executable name. (executable has to be in the path.)
-             */
-            executablePath = getExecutableName();
-        } else {
-            /* unpack the executable */
-            File file = fileUtil.getOutputFile(getExecutableName());
-
+        String sysPropExecutablePath = System.getProperty(EXTERNAL_MADX_EXECUTABLE_PATH_PROP);
+        if (sysPropExecutablePath != null) {
+            LOGGER.info("Using madx binary '{}' (from system property {}).", sysPropExecutablePath,
+                    EXTERNAL_MADX_EXECUTABLE_PATH_PROP);
+            executablePath = sysPropExecutablePath;
+        } else if (resourceName != null) {
+            LOGGER.debug("Extracting madx binary for further use.");
+            File file = fileUtil.getOutputFile(executableName);
             StreamUtil.toFile(MadxBinImpl.class.getResourceAsStream(resourceName), file);
-
-            /* allow to execute the file (for the current user) */
             file.setExecutable(true);
-
-            /* store the absolute path to be able to execute it */
             executablePath = file.getAbsolutePath();
+        } else {
+            LOGGER.warn("No madx binary is available in the jar for operating system '{}',\n" //
+                            + "and the system property '{}' is not set!\n"  //
+                            + "If you have no executable named '{}' in the path,\n" //
+                            + "you will not be able to perform any calculations!", //
+                    OsUtil.getOsName(), EXTERNAL_MADX_EXECUTABLE_PATH_PROP, executableName);
+            executablePath = executableName;
         }
     }
 

@@ -37,7 +37,7 @@ public interface SourceInformation {
      * 
      * @return the path
      */
-    public File getRootPath();
+    File getRootPath();
 
     /**
      * if the model definition was loaded from an xml/json file (or a zip archive) then this returns the name of the
@@ -45,18 +45,18 @@ public interface SourceInformation {
      * 
      * @return the name of the xml/json file from which the model definition was loaded.
      */
-    public String getFileName();
+    String getFileName();
 
     /**
      * @return The {@link SourceType} which indicates from where the model definition was loaded.
      */
-    public SourceType getSourceType();
+    SourceType getSourceType();
 
     /**
      * @return the path offset within the archive (if the model definition was loaded from an archive). Usually, this is
      *         the parent path entry of {@link #getFileName()}
      */
-    public String getPathOffsetWithinArchive();
+    String getPathOffsetWithinArchive();
 
     /**
      * this enum describes the type of the source of the model definition. Depending on this value the other data in the
@@ -65,7 +65,7 @@ public interface SourceInformation {
      * 
      * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
      */
-    public static enum SourceType {
+    enum SourceType {
         /**
          * JAR means that the model definition was loaded from a jar archive or the source tree if run from the
          * development environment. All {@link cern.accsoft.steering.jmad.domain.file.ModelFile}s will be searched

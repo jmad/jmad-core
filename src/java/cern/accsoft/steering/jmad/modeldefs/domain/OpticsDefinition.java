@@ -40,28 +40,28 @@ public interface OpticsDefinition extends ModelFileDependant {
     /**
      * @return the name of the optics
      */
-    public abstract String getName();
+    String getName();
 
     /**
      * @return the {@link ModelFile}s to call for initializing this optics
      */
-    public abstract List<ModelFile> getInitFiles();
+    List<ModelFile> getInitFiles();
 
     /**
      * @return a list of model files that must be called after switching to ptc
      */
-    public abstract List<ModelFile> getPostPtcUniverseFiles();
+    List<ModelFile> getPostPtcUniverseFiles();
 
     /**
      * convenience methods to get all the relative pathnames of the required files
      * 
      * @return a list of FileNames for all ModelFiles this Optic consists of
      */
-    public abstract String[] getOpticFileNames();
+    String[] getOpticFileNames();
 
     /**
      * @return <code>true</code> if this optics can be loaded together with another optics. <code>false</code> if it is
      *         a full optics definition which in most cases should override all strengths.
      */
-    public abstract boolean isOverlay();
+    boolean isOverlay();
 }

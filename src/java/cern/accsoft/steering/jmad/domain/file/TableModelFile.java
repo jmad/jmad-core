@@ -39,6 +39,6 @@ public interface TableModelFile extends ModelFile {
      * 
      * @return the name of the table where to load the file into
      */
-    public String getTableName();
+    String getTableName();
 
 }

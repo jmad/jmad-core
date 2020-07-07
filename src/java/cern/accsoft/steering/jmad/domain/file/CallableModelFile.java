@@ -37,7 +37,7 @@ public interface CallableModelFile extends ModelFile {
      * 
      * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
      */
-    public static enum ParseType {
+    enum ParseType {
         NONE, /* do not parse */
         STRENGTHS; /* parse for strengths */
     }
@@ -45,6 +45,6 @@ public interface CallableModelFile extends ModelFile {
     /**
      * @return the parse type
      */
-    public abstract ParseType getParseType();
+    ParseType getParseType();
 
 }

@@ -38,5 +38,5 @@ public interface ModelFileDependant {
     /**
      * @return all the {@link ModelFile}s that are required by this definition-component.
      */
-    public Collection<ModelFile> getRequiredFiles();
+    Collection<ModelFile> getRequiredFiles();
 }

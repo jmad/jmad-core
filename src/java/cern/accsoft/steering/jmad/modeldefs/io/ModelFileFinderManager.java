@@ -40,5 +40,5 @@ public interface ModelFileFinderManager {
      * @param modelDefinition the model definition for which to get the filefinder
      * @return the ModelFileFinder
      */
-    public ModelFileFinder getModelFileFinder(JMadModelDefinition modelDefinition);
+    ModelFileFinder getModelFileFinder(JMadModelDefinition modelDefinition);
 }

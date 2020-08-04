@@ -3,7 +3,7 @@ buildscript {
     project.ext.DEPLOYMENT = System.getProperty('deployment') ?: false
     project.ext.VCS_TAG = System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG')
     project.ext.POM = [
-            groupId    : 'jmad',
+            groupId    : 'io.jmad',
             artifactId : 'jmad-core',
             description: 'JMad is a Java API for the MadX software, which is used at CERN and in many other accelerator labs to simulate particle accelerators.'
     ]

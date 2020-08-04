@@ -18,7 +18,7 @@ In order to use JMad in your java projects add the following to your build files
 Maven:
 ```xml
 <dependency>
-    <groupId>jmad</groupId>
+    <groupId>io.jmad</groupId>
     <artifactId>jmad-core</artifactId>
     <version>X.Y.Z</version>
 </dependency>
@@ -26,12 +26,11 @@ Maven:
 
 Gradle:
 ```groovy
-compile 'jmad:jmad-core:X.Y.Z'
+compile 'io.jmad:jmad-core:X.Y.Z'
 ```
 
 __IMPORTANT NOTE__
-> The groupId of JMad (```jmad```) will change soon! It will become ```io.jmad``` for new versions. 
-Stay tuned!
+> As of version 0.5.0, the groupId of JMad has changed from```jmad``` to ```io.jmad```!
 
 ### Using a model
 

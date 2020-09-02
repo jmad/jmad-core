@@ -80,7 +80,7 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl
     private String saveBetaName = null;
 
     /**
-     * The phase space dimension (4, 5, or 6) for PTC
+     * The phase space dimension (4, 5, 56, or 6) for PTC
      */
     private Integer ptcPhaseSpaceDimension = null;
 
@@ -124,7 +124,7 @@ public final class TwissInitialConditionsImpl extends EditableOpticPointImpl
     @Override
     public void setPtcPhaseSpaceDimension(Integer dim) {
         if (dim != null) {
-            checkArgument(dim >= 4 && dim <= 6, "phase space dimension must be 4, 5 or 6.");
+            checkArgument((dim == 4 || dim == 5 || dim == 56 || dim == 6), "phase space dimension must be 4, 5, 56 or 6.");
         }
         ptcPhaseSpaceDimension = dim;
     }

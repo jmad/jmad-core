@@ -62,4 +62,19 @@ public class TableModelFileImpl extends AbstractModelFile implements TableModelF
         return this.tableName;
     }
 
+    private Object writeReplace() {
+        CallableModelFileImpl writtenObj;
+        try {
+            writtenObj = clone();
+        } catch (CloneNotSupportedException e) {
+            return this;
+        }
+        super.fillWriteReplace(writtenObj);
+        return writtenObj;
+    }
+
+    private Object readResolve() {
+        super.abstractReadResolve();
+        return this;
+    }
 }

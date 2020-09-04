@@ -49,9 +49,7 @@ public class MadxBinImpl implements MadxBin {
 
     private static final String EXTERNAL_MADX_EXECUTABLE_PATH_PROP = "cern.jmad.kernel.madxpath";
 
-    private static final String BIN_NAME_DEFAULT = "madx";
-    private static final String BIN_NAME_INTEL_32 = "madx";
-    private static final String BIN_NAME_INTEL_64 = "madx64";
+    private static final String BIN_NAME = "madx";
 
     private static final String RESOURCE_PREFIX_WIN = "win/";
     private static final String RESOURCE_PREFIX_LINUX = "linux/";
@@ -71,8 +69,7 @@ public class MadxBinImpl implements MadxBin {
      * init-method called by spring
      */
     public void init() {
-        LOGGER.info("Preparing MAD-X binary for OS " + OsUtil.getOsName() + " and architecture " + //
-                OsUtil.getCpuArchitecture());
+        LOGGER.info("Preparing MAD-X binary for OS " + OsUtil.getOsName());
         extractExecutable();
     }
 
@@ -89,28 +86,15 @@ public class MadxBinImpl implements MadxBin {
     }
 
     /**
-     * @return the name of the executable
-     */
-    private static String getExecutableName() {
-        if (OsUtil.isIntel32BitArchitecture()) {
-            return BIN_NAME_INTEL_32;
-        } else if (OsUtil.isIntel64BitArchitecture()) {
-            return BIN_NAME_INTEL_64;
-        } else {
-            return BIN_NAME_DEFAULT;
-        }
-    }
-
-    /**
      * @return the name of the resource depending on the OS
      */
     private static String getResourceName() {
         if (OsUtil.isWindows()) {
-            return RESOURCE_PREFIX_WIN + getExecutableName();
+            return RESOURCE_PREFIX_WIN + BIN_NAME;
         } else if (OsUtil.isLinux()) {
-            return RESOURCE_PREFIX_LINUX + getExecutableName();
+            return RESOURCE_PREFIX_LINUX + BIN_NAME;
         } else if (OsUtil.isOsX()) {
-            return RESOURCE_PREFIX_OSX + getExecutableName();
+            return RESOURCE_PREFIX_OSX + BIN_NAME;
         } else {
             return null;
         }
@@ -124,7 +108,7 @@ public class MadxBinImpl implements MadxBin {
             return;
         }
 
-        String executableName = getExecutableName();
+        String executableName = BIN_NAME;
         String resourceName = getResourceName();
         String sysPropExecutablePath = System.getProperty(EXTERNAL_MADX_EXECUTABLE_PATH_PROP);
         if (sysPropExecutablePath != null) {

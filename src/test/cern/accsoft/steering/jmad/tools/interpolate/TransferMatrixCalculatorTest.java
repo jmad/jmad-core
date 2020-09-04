@@ -31,11 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import Jama.Matrix;
 import cern.accsoft.steering.jmad.JMadTestCase;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
@@ -44,6 +39,10 @@ import cern.accsoft.steering.jmad.domain.optics.OpticPoint;
 import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
 import cern.accsoft.steering.jmad.model.JMadModel;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TransferMatrixCalculatorTest extends JMadTestCase {
 
@@ -75,13 +74,13 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
                 Matrix tfM = TransferMatrixCalculator.calculate(planeEntry.getKey(), from, to);
                 Matrix refM = planeEntry.getValue();
                 assertEquals("M11 should be equal for " + from.getName() + " -> " + to.getName(), refM.get(0, 0),
-                        tfM.get(0, 0), 1.0e-12);
+                        tfM.get(0, 0), 1e-6);
                 assertEquals("M12 should be equal for " + from.getName() + " -> " + to.getName(), refM.get(0, 1),
-                        tfM.get(0, 1), 1.0e-12);
+                        tfM.get(0, 1), 1e-6);
                 assertEquals("M21 should be equal for " + from.getName() + " -> " + to.getName(), refM.get(1, 0),
-                        tfM.get(1, 0), 1.0e-12);
+                        tfM.get(1, 0), 1e-6);
                 assertEquals("M22 should be equal for " + from.getName() + " -> " + to.getName(), refM.get(1, 1),
-                        tfM.get(1, 1), 1.0e-12);
+                        tfM.get(1, 1), 1e-6);
             }
         }
     } 
@@ -111,7 +110,7 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
     }
 
     private Map<List<String>, Map<JMadPlane, Matrix>> createTransferMatrixMapping() {
-        Map<List<String>, Map<JMadPlane, Matrix>> mapping = new HashMap<List<String>, Map<JMadPlane, Matrix>>();
+        Map<List<String>, Map<JMadPlane, Matrix>> mapping = new HashMap<>();
 
         ArrayList<String> names;
         Map<JMadPlane, Matrix> planesMapping;
@@ -119,11 +118,11 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
         Matrix vMatrix;
         double[][] values;
 
-        names = new ArrayList<String>();
+        names = new ArrayList<>();
         names.add("MDAV.610013");
         names.add("BPCK.610211");
 
-        planesMapping = new HashMap<JMadPlane, Matrix>();
+        planesMapping = new HashMap<>();
 
         values = new double[][] { new double[] { 1.765828821230122, 39.528798403662634 },
                 new double[] { -0.060120512625108, -0.779515889045146 } };
@@ -137,11 +136,11 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
 
         mapping.put(names, planesMapping);
 
-        names = new ArrayList<String>();
+        names = new ArrayList<>();
         names.add("BPCK.610312");
         names.add("MBB.610413");
 
-        planesMapping = new HashMap<JMadPlane, Matrix>();
+        planesMapping = new HashMap<>();
 
         values = new double[][] { new double[] { 0.420324768768305, 26.020209460934854 },
                 new double[] { -0.036669814131149, 0.109067461211684 } };
@@ -155,11 +154,11 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
 
         mapping.put(names, planesMapping);
 
-        names = new ArrayList<String>();
+        names = new ArrayList<>();
         names.add("QTLF.610600");
         names.add("BPMIV.20504");
 
-        planesMapping = new HashMap<JMadPlane, Matrix>();
+        planesMapping = new HashMap<>();
 
         values = new double[][] { new double[] { 1.1285279724185, 100.8577817821102 },
                 new double[] { 0.0072709736625, 1.5359249547752 } };
@@ -173,11 +172,11 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
 
         mapping.put(names, planesMapping);
 
-        names = new ArrayList<String>();
+        names = new ArrayList<>();
         names.add("BPMIV.20704");
         names.add("MCIAH.20804");
 
-        planesMapping = new HashMap<JMadPlane, Matrix>();
+        planesMapping = new HashMap<>();
 
         values = new double[][] { new double[] { 0.917825840515233, 28.543153977863987 },
                 new double[] { -0.046984968428656, -0.371638249270382 } };
@@ -191,11 +190,11 @@ public class TransferMatrixCalculatorTest extends JMadTestCase {
 
         mapping.put(names, planesMapping);
 
-        names = new ArrayList<String>();
+        names = new ArrayList<>();
         names.add("BPMIH.21004");
         names.add("MCIAH.21604");
 
-        planesMapping = new HashMap<JMadPlane, Matrix>();
+        planesMapping = new HashMap<>();
 
         values = new double[][] { new double[] { -2.319494429875103, -97.588721950970140 },
                 new double[] { 0.067211777888265, 2.396691034290412 } };

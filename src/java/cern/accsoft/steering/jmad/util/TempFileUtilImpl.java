@@ -22,9 +22,9 @@
 
 /*
  * $Id: FileUtil.java,v 1.3 2008-09-09 23:41:42 kfuchsbe Exp $
- * 
+ *
  * $Date: 2008-09-09 23:41:42 $ $Revision: 1.3 $ $Author: kfuchsbe $
- * 
+ *
  * Copyright CERN, All Rights Reserved.
  */
 package cern.accsoft.steering.jmad.util;
@@ -36,21 +36,29 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This Class provides some methods to simply access output-files
- * 
+ *
  * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
  */
 public class TempFileUtilImpl implements TempFileUtil {
 
-    /** the name of the dir which is created below the basepath */
+    /**
+     * the name of the dir which is created below the basepath
+     */
     public static final String TMPDIR_NAME = "jmad-tmp";
 
-    /** the logger for the class */
+    /**
+     * the logger for the class
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtilImpl.class);
 
-    /** the output-path including username and host */
+    /**
+     * the output-path including username and host
+     */
     private String outputPath = null;
 
-    /** The preferences object, to be injected */
+    /**
+     * The preferences object, to be injected
+     */
     private JMadPreferences preferences;
 
     /**
@@ -62,17 +70,21 @@ public class TempFileUtilImpl implements TempFileUtil {
 
     @Override
     public final File getOutputFile(String relativePath) {
-        return createFile(outputPath + File.separator + relativePath);
+        return createFile(outputPath + File.separator + stripDirectoryTraversal(relativePath));
     }
 
     @Override
     public File getOutputDir(String relativePath) {
-        return createDir(outputPath + File.separator + relativePath);
+        return createDir(outputPath + File.separator + stripDirectoryTraversal(relativePath));
     }
 
     @Override
     public final File getOutputFile(Object object, String relativePath) {
-        return createFile(getObjectPath(object) + File.separator + relativePath);
+        return createFile(getObjectPath(object) + File.separator + stripDirectoryTraversal(relativePath));
+    }
+
+    private static String stripDirectoryTraversal(String relativePath) {
+        return relativePath.replace("../", "/");
     }
 
     @Override
@@ -93,7 +105,7 @@ public class TempFileUtilImpl implements TempFileUtil {
 
     /**
      * creates a file object with the given path and takes care that all dirs up to the file exist.
-     * 
+     *
      * @param fullPath the full path to the file
      * @return the file
      */
@@ -109,7 +121,7 @@ public class TempFileUtilImpl implements TempFileUtil {
 
     /**
      * Creates a file objecte representing the directory of the given path and creates it if it does not exist.
-     * 
+     *
      * @param fullPath the full path of the directory
      * @return a file representing the directory
      */
@@ -121,7 +133,7 @@ public class TempFileUtilImpl implements TempFileUtil {
 
     /**
      * creates the output - dir tree with the correct user - rights
-     * 
+     *
      * @return the final output - dir
      */
     private final String createDirTree() {

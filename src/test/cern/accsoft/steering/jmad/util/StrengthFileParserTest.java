@@ -26,13 +26,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
 import cern.accsoft.steering.jmad.io.StrengthFileParser;
 import cern.accsoft.steering.jmad.io.StrengthFileParserException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class StrengthFileParserTest {
     private TestFile testFile = new TestFile("test.str");
@@ -51,8 +50,14 @@ public class StrengthFileParserTest {
 
     @Test
     public void testParseCorrectFile() throws StrengthFileParserException {
-        testFile.write("! This is a comment \n" + "! another comment      \n" + " // yet another comment \n" + "\n\n"
-                + "abiv.610013          :=  0.000000000000000 ;\n" + "abih.610104          :=  0.000743880000000 ;");
+        testFile.write( //
+                "! This is a comment \n" + //
+                        "! another comment      \n" + //
+                        " // yet another comment \n" + //
+                        "\n\n" +  //
+                        "call,file=foobar ;\n" + //
+                        "abiv.610013          :=  0.000000000000000 ;\n" + //
+                        "abih.610104          :=  0.000743880000000 ;");
 
         parser.parse();
 

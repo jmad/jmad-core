@@ -26,9 +26,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.domain.knob.strength.SimpleStrength;
 import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
 import cern.accsoft.steering.jmad.domain.result.StrengthResult;
@@ -37,23 +34,27 @@ import cern.accsoft.steering.jmad.domain.var.custom.CustomVariableImpl;
 import cern.accsoft.steering.jmad.util.io.TextFileParser;
 import cern.accsoft.steering.jmad.util.io.TextFileParserException;
 import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StrengthFileParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(StrengthFileParser.class);
 
-    /** The strength-file to parse */
+    /**
+     * The strength-file to parse
+     */
     private final File file;
 
     /**
      * The initial values for a Sequence that will be read from the Strength file
      */
-    private final List<Strength> strengths = new ArrayList<Strength>();
+    private final List<Strength> strengths = new ArrayList<>();
 
     /**
      * The variables, which are retrieved from the Strengthfile. (Actually these are name-value pairs, where the right
      * side of the equal sign could not be parsed to a double value.
      */
-    private final List<CustomVariable> variables = new ArrayList<CustomVariable>();
+    private final List<CustomVariable> variables = new ArrayList<>();
 
     public StrengthFileParser(File file) {
         this.file = file;
@@ -67,16 +68,16 @@ public class StrengthFileParser {
         try {
             lines = parser.parse(file);
         } catch (TextFileParserException e) {
-            throw new StrengthFileParserException("Error while parsing MadX-Strength file '" + file.getAbsolutePath()
-                    + "'.", e);
+            throw new StrengthFileParserException(
+                    "Error while parsing MadX-Strength file '" + file.getAbsolutePath() + "'.", e);
         }
 
         strengths.clear();
 
         for (String line : lines) {
-            if (line.startsWith("//") || // comments
-                    line.charAt(0) == '!' || // comments
-                    line.length() < 1) { // empty lines
+            if (line.length() < 1 ||// empty lines
+                    line.startsWith("//") || // comments
+                    line.charAt(0) == '!') { // comments
                 continue; // -> skip
             }
 
@@ -117,6 +118,11 @@ public class StrengthFileParser {
                 throw new StrengthFileParserException("Line does not seem to end with an ';' : '" + line + "'");
             }
 
+            if (!isValidMadxName(name)) {
+                LOGGER.debug("{} is not a MAD-X variable name. Ignoring.", name);
+                continue;
+            }
+
             value = tokens[1].substring(0, tokens[1].length() - 1).trim();
 
             Double doubleValue = null;
@@ -134,6 +140,11 @@ public class StrengthFileParser {
                 this.strengths.add(strength);
             }
         }
+
+    }
+
+    private static boolean isValidMadxName(String varName) {
+        return varName.matches("[A-Za-z0-9_.]+");
     }
 
     public List<Strength> getStrengths() {

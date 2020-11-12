@@ -144,7 +144,9 @@ public class StrengthFileParser {
     }
 
     private static boolean isValidMadxName(String varName) {
-        return varName.matches("[A-Za-z0-9_.]+");
+        return varName //
+                .replace("->", "") // ignore "->"
+                .matches("[A-Za-z0-9_.]+"); // according to mad-x manual, variable names must be a-z, 0-9, ., _
     }
 
     public List<Strength> getStrengths() {

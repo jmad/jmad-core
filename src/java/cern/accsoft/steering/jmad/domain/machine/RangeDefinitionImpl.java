@@ -26,13 +26,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
 import cern.accsoft.steering.jmad.domain.file.ModelFile;
 import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
 import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
  * this class defines a range in a sequence, by defining the first and the last element.
@@ -59,14 +58,14 @@ public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
 
     /* filters, which define the monitors which shall be inverted */
     @XStreamAlias("monitor-invert-filters")
-    private List<NameFilter> monitorInvertFilters = new ArrayList<NameFilter>();
+    private List<NameFilter> monitorInvertFilters = new ArrayList<>();
 
     @XStreamAlias("corrector-invert-filters")
-    private List<NameFilter> correctorInvertFilters = new ArrayList<NameFilter>();
+    private List<NameFilter> correctorInvertFilters = new ArrayList<>();
 
     /** files that shall be executed after the use-command. */
     @XStreamAlias("post-use-files")
-    private List<ModelFile> postUseFiles = new ArrayList<ModelFile>();
+    private List<ModelFile> postUseFiles = new ArrayList<>();
 
     /**
      * The name of the start element. If non-null then the sequence is rotatet before use.
@@ -122,11 +121,11 @@ public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
         newRangeDefinition.sequenceDefinition = sequenceDefinition;
         newRangeDefinition.madxRange = madxRange;
         newRangeDefinition.twiss = twiss;
-        newRangeDefinition.monitorInvertFilters = new ArrayList<NameFilter>(this.monitorInvertFilters);
-        newRangeDefinition.correctorInvertFilters = new ArrayList<NameFilter>(this.correctorInvertFilters);
+        newRangeDefinition.monitorInvertFilters = new ArrayList<>(this.monitorInvertFilters);
+        newRangeDefinition.correctorInvertFilters = new ArrayList<>(this.correctorInvertFilters);
         newRangeDefinition.apertureDefinition = apertureDefinition;
         newRangeDefinition.startElementName = startElementName;
-        newRangeDefinition.postUseFiles = new ArrayList<ModelFile>(postUseFiles);
+        newRangeDefinition.postUseFiles = new ArrayList<>(postUseFiles);
         return newRangeDefinition;
     }
 
@@ -264,13 +263,13 @@ public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
      */
     private Object readResolve() {
         if (monitorInvertFilters == null) {
-            monitorInvertFilters = new ArrayList<NameFilter>();
+            monitorInvertFilters = new ArrayList<>();
         }
         if (correctorInvertFilters == null) {
-            correctorInvertFilters = new ArrayList<NameFilter>();
+            correctorInvertFilters = new ArrayList<>();
         }
         if (postUseFiles == null) {
-            postUseFiles = new ArrayList<ModelFile>();
+            postUseFiles = new ArrayList<>();
         }
         return this;
     }

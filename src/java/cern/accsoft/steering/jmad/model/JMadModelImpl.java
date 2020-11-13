@@ -11,11 +11,12 @@
 
 package cern.accsoft.steering.jmad.model;
 
+import static java.util.Collections.singletonList;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,6 @@ import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
 import cern.accsoft.steering.jmad.domain.machine.RangeListener;
 import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
 import cern.accsoft.steering.jmad.domain.misalign.MisalignmentConfiguration;
-import cern.accsoft.steering.jmad.domain.misalign.MisalignmentConfigurationListener;
 import cern.accsoft.steering.jmad.domain.optics.Optic;
 import cern.accsoft.steering.jmad.domain.optics.OpticImpl;
 import cern.accsoft.steering.jmad.domain.result.Result;
@@ -116,46 +116,74 @@ import org.slf4j.LoggerFactory;
 
 public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
-    /** The logger for the class */
+    /**
+     * The logger for the class
+     */
     protected static final Logger LOGGER = LoggerFactory.getLogger(JMadModelImpl.class);
 
-    /** The definition of the model */
+    /**
+     * The definition of the model
+     */
     private JMadModelDefinition modelDefinition = null;
 
-    /** The last loaded optics definition */
+    /**
+     * The last loaded optics definition
+     */
     private OpticsDefinition activeOpticsDefinition = null;
 
-    /** The last loaded range definition */
+    /**
+     * The last loaded range definition
+     */
     private RangeDefinition activeRangeDefinition = null;
 
-    /** The active Range */
+    /**
+     * The active Range
+     */
     private Range activeRange = null;
 
-    /** The actually loaded aperture data. Might be null. */
+    /**
+     * The actually loaded aperture data. Might be null.
+     */
     private Aperture aperture = null;
 
-    /** The kernel for this model to be injected by spring */
+    /**
+     * The kernel for this model to be injected by spring
+     */
     private JMadKernel kernel;
 
-    /** The last calculated optics-values */
+    /**
+     * The last calculated optics-values
+     */
     private Optic optics = new OpticImpl();
 
-    /** The startup configuration defines which optics are loaded per default */
+    /**
+     * The startup configuration defines which optics are loaded per default
+     */
     private JMadModelStartupConfiguration startupConfiguration = new JMadModelStartupConfiguration();
 
-    /** The Manager which keeps all model-specific knobs */
+    /**
+     * The Manager which keeps all model-specific knobs
+     */
     private final KnobManager knobManager;
 
-    /** The file finder for model files to be injected by spring */
+    /**
+     * The file finder for model files to be injected by spring
+     */
     private ModelFileFinderManager modelFileFinderManager;
 
-    /** The listeners */
+    /**
+     * The listeners
+     */
     private final List<JMadModelListener> listeners = new ArrayList<>();
 
-    /** Keeps track of all the strengths and variables */
+    /**
+     * Keeps track of all the strengths and variables
+     */
     private StrengthVarManager strengthVarManager;
 
-    /** true, if some strengthes have been set since last recalc of optics */
+    /**
+     * true, if some strengthes have been set since last recalc of optics
+     */
     protected boolean dirtyModel = false;
 
     /**
@@ -164,7 +192,9 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
      */
     private TwissInitialConditions twissInitialConditions = new TwissInitialConditionsImpl();
 
-    /** The mode defines which kind of twiss is used */
+    /**
+     * The mode defines which kind of twiss is used
+     */
     private ModelMode modelMode = ModelMode.MADX;
 
     /**
@@ -220,7 +250,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     /**
      * ensures, that the model is initialized.
-     * 
+     *
      * @throws JMadModelException if the initialization fails
      */
     private void ensureInit() throws JMadModelException {
@@ -303,8 +333,8 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
     private void processModelFiles(List<ModelFile> modelFiles) {
         boolean containsStrengthFile = false;
         for (ModelFile modelFile : modelFiles) {
-            if ((modelFile instanceof CallableModelFile)
-                    && (ParseType.STRENGTHS == ((CallableModelFile) modelFile).getParseType())) {
+            if ((modelFile instanceof CallableModelFile) && (ParseType.STRENGTHS == ((CallableModelFile) modelFile)
+                    .getParseType())) {
                 containsStrengthFile = true;
                 break;
             }
@@ -341,8 +371,8 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
      * <p>
      * If a tableName is given, then the {@link ReadMyTableCommand} is used and the table is stored in the given table
      * name. If the name is <code>null</code>, then the tablename must be given in the file.
-     * 
-     * @param file the file from which to load the table
+     *
+     * @param file      the file from which to load the table
      * @param tableName the name of the table (lowercase!)
      */
     public void readTable(File file, String tableName) {
@@ -433,7 +463,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     @Override
     public double getValue(String valueName) throws JMadModelException {
-        List<Double> values = getValues(Collections.singletonList(valueName));
+        List<Double> values = getValues(singletonList(valueName));
         if (values.size() != 1) {
             throw new JMadModelException("Result contains " + values.size() + " values, but should contain one.");
         }
@@ -443,7 +473,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
     /**
      * calculates the actual optics-values and stores them in the internal Optics-object. This can be retrieved by
      * <code>getOptics()</code>
-     * 
+     *
      * @return the optics-object
      * @throws JMadModelException if the calculation of the optics fails
      */
@@ -461,7 +491,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
     /**
      * creates all the element-objects for the active range by twissing and reading in the names and types of the
      * elements.
-     * 
+     *
      * @throws JMadModelException if the reading of the active range fails
      */
     private void readActiveRange() throws JMadModelException {
@@ -533,8 +563,9 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         List<Double> values = getValues(valueNames);
 
         if (values.size() != valueNames.size()) {
-            throw new JMadModelException("Amount of returned Values (" + values.size()
-                    + ") differs from requested ones (" + valueNames.size() + ").");
+            throw new JMadModelException(
+                    "Amount of returned Values (" + values.size() + ") differs from requested ones (" + valueNames
+                            .size() + ").");
         }
 
         int index = 0;
@@ -554,7 +585,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     /**
      * sends the misalignment-commands to madx
-     * 
+     *
      * @param misalignmentConfigurations the misalignment-configurations from which to create the commands
      */
     protected void setMisalignments(List<MisalignmentConfiguration> misalignmentConfigurations) {
@@ -847,15 +878,9 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
         activeRange.addListener(new RangeListener() {
             @Override
             public void addedMisalignments(MisalignmentConfiguration misalignmentConfiguration) {
-                misalignmentConfiguration.addListener(new MisalignmentConfigurationListener() {
-
-                    @Override
-                    public void changedMisalignmentValues(MisalignmentConfiguration changedMisalignmentConfiguration) {
-                        setMisalignments(Collections.singletonList(changedMisalignmentConfiguration));
-
-                    }
-                });
-                setMisalignments(Collections.singletonList(misalignmentConfiguration));
+                misalignmentConfiguration.addListener(changedMisalignmentConfiguration -> //
+                        setMisalignments(singletonList(changedMisalignmentConfiguration)));
+                setMisalignments(singletonList(misalignmentConfiguration));
             }
 
             @Override
@@ -916,7 +941,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     /**
      * notifies all listeners, that a different range is now active
-     * 
+     *
      * @param range the new active range
      */
     private void fireRangeChanged(Range range) {

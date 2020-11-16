@@ -36,20 +36,20 @@ public interface TfsResultRequest {
     /**
      * @return the requeset resultVariables.
      */
-    public abstract List<TwissVariable> getResultVariables();
+    List<TwissVariable> getResultVariables();
 
     /**
      * @return the requested element-filters.
      */
-    public abstract List<String> getElementPattern();
+    List<String> getElementPattern();
 
     /**
      * @return the requested element-classes
      */
-    public abstract List<String> getElementClasses();
+    List<String> getElementClasses();
 
     /**
      * @return <code>true</code>, if it is required to run a ptc-twiss to get the variables
      */
-    public abstract boolean needsPtcTwiss();
+    boolean needsPtcTwiss();
 }

@@ -49,7 +49,7 @@ public class PtcAlignCommand extends AbstractCommand {
     @Override
     public List<Parameter> getParameters() {
         /* this command has no parameters! */
-        return new ArrayList<Parameter>();
+        return new ArrayList<>();
     }
 
 }

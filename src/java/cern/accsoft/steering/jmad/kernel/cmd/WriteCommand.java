@@ -57,11 +57,11 @@ public class WriteCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<String>("table", this.tableName, true));
+        parameters.add(new GenericParameter<>("table", this.tableName, true));
         if (file != null) {
-            parameters.add(new GenericParameter<String>("file", this.file, true));
+            parameters.add(new GenericParameter<>("file", this.file, true));
         }
         return parameters;
     }

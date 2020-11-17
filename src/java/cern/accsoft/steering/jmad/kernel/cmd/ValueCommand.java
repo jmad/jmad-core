@@ -50,9 +50,9 @@ public class ValueCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
         for (String valueName : valueNames) {
-            parameters.add(new GenericParameter<Boolean>(valueName, true));
+            parameters.add(new GenericParameter<>(valueName, true));
         }
         return parameters;
     }

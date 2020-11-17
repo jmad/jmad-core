@@ -55,10 +55,10 @@ public class DefineElement extends AbstractJMadExecutable implements Command {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         for (String attribute : this.element.getAttributeNames()) {
             if (this.element.getAttribute(attribute) != null) {
-                parameters.add(new GenericParameter<Double>(attribute, this.element.getAttribute(attribute)));
+                parameters.add(new GenericParameter<>(attribute, this.element.getAttribute(attribute)));
             }
         }
         return parameters;

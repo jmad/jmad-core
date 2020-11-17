@@ -62,42 +62,42 @@ public class PtcTwissCommand extends AbstractCommand {
     /* TODO implement all options! */
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<Double>("deltap", twiss.getDeltap()));
+        parameters.add(new GenericParameter<>("deltap", twiss.getDeltap()));
 
         /*
          * the initial conditions must not be set, if we want to calc the closed orbit solution
          */
         if (!twiss.isClosedOrbit()) {
-            parameters.add(new GenericParameter<Double>("betx", twiss.getBetx()));
-            parameters.add(new GenericParameter<Double>("alfx", twiss.getAlfx()));
-            parameters.add(new GenericParameter<Double>("bety", twiss.getBety()));
-            parameters.add(new GenericParameter<Double>("alfy", twiss.getAlfy()));
-            parameters.add(new GenericParameter<Double>("dx", twiss.getDx()));
-            parameters.add(new GenericParameter<Double>("dy", twiss.getDy()));
-            parameters.add(new GenericParameter<Double>("dpx", twiss.getDpx()));
-            parameters.add(new GenericParameter<Double>("dpy", twiss.getDpy()));
-            parameters.add(new GenericParameter<Double>("x", twiss.getX()));
-            parameters.add(new GenericParameter<Double>("px", twiss.getPx()));
-            parameters.add(new GenericParameter<Double>("y", twiss.getY()));
-            parameters.add(new GenericParameter<Double>("py", twiss.getPy()));
-            parameters.add(new GenericParameter<Double>("t", twiss.getT()));
-            parameters.add(new GenericParameter<Double>("pt", twiss.getPt()));
-            parameters.add(new GenericParameter<Double>("mux", twiss.getMux()));
-            parameters.add(new GenericParameter<Double>("muy", twiss.getMuy()));
+            parameters.add(new GenericParameter<>("betx", twiss.getBetx()));
+            parameters.add(new GenericParameter<>("alfx", twiss.getAlfx()));
+            parameters.add(new GenericParameter<>("bety", twiss.getBety()));
+            parameters.add(new GenericParameter<>("alfy", twiss.getAlfy()));
+            parameters.add(new GenericParameter<>("dx", twiss.getDx()));
+            parameters.add(new GenericParameter<>("dy", twiss.getDy()));
+            parameters.add(new GenericParameter<>("dpx", twiss.getDpx()));
+            parameters.add(new GenericParameter<>("dpy", twiss.getDpy()));
+            parameters.add(new GenericParameter<>("x", twiss.getX()));
+            parameters.add(new GenericParameter<>("px", twiss.getPx()));
+            parameters.add(new GenericParameter<>("y", twiss.getY()));
+            parameters.add(new GenericParameter<>("py", twiss.getPy()));
+            parameters.add(new GenericParameter<>("t", twiss.getT()));
+            parameters.add(new GenericParameter<>("pt", twiss.getPt()));
+            parameters.add(new GenericParameter<>("mux", twiss.getMux()));
+            parameters.add(new GenericParameter<>("muy", twiss.getMuy()));
         }
-        parameters.add(new GenericParameter<Boolean>("closed_orbit", twiss.isClosedOrbit()));
-        parameters.add(new GenericParameter<Integer>("icase", twiss.getPtcPhaseSpaceDimension()));
-        parameters.add(new GenericParameter<Integer>("no", twiss.getPtcMapOrder()));
-        parameters.add(new GenericParameter<Double>("betz", twiss.getPtcBetz()));
+        parameters.add(new GenericParameter<>("closed_orbit", twiss.isClosedOrbit()));
+        parameters.add(new GenericParameter<>("icase", twiss.getPtcPhaseSpaceDimension()));
+        parameters.add(new GenericParameter<>("no", twiss.getPtcMapOrder()));
+        parameters.add(new GenericParameter<>("betz", twiss.getPtcBetz()));
         if (twiss.isCalcAtCenter()) {
             LOGGER.warn("Calculating at the center is not supported by PTC_TWISS. Ignoring option. " +
                     "Calculating at the end of the elements.");
         }
 
         if (getOutputFile() != null) {
-            parameters.add(new GenericParameter<String>("file", getOutputFile().getAbsolutePath(), true));
+            parameters.add(new GenericParameter<>("file", getOutputFile().getAbsolutePath(), true));
         }
 
         return parameters;

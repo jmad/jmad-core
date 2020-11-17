@@ -25,13 +25,12 @@ package cern.accsoft.steering.jmad.kernel.cmd.track;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.domain.result.track.DynapResultRequest;
 import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command DYNAP,TURNS=real, FASTUNE=logical,LYAPUNOV=real,MAXAPER:={..,..,..,..,..,..},ORBIT=logical;
@@ -58,12 +57,12 @@ public class DynapCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<Integer>("turns", this.getDynapResultRequest().getTurns()));
-        parameters.add(new GenericParameter<Double>("lyapunov", this.getDynapResultRequest().getLyapunov()));
-        parameters.add(new GenericParameter<Boolean>("fastune", this.getDynapResultRequest().isFastTune()));
-        parameters.add(new GenericParameter<Boolean>("orbit", this.getDynapResultRequest().isOrbit()));
+        parameters.add(new GenericParameter<>("turns", this.getDynapResultRequest().getTurns()));
+        parameters.add(new GenericParameter<>("lyapunov", this.getDynapResultRequest().getLyapunov()));
+        parameters.add(new GenericParameter<>("fastune", this.getDynapResultRequest().isFastTune()));
+        parameters.add(new GenericParameter<>("orbit", this.getDynapResultRequest().isOrbit()));
         if (this.getDynapResultRequest().isApertureLimited()) {
             LOGGER.warn("Aperture limitation is not avilable yet, no aperture limitation set");
         }

@@ -50,8 +50,8 @@ public class CallCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("file", filePath, true));
+        ArrayList<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("file", filePath, true));
         return parameters;
     }
 }

@@ -25,13 +25,12 @@ package cern.accsoft.steering.jmad.kernel.cmd.track;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.domain.result.track.TrackResultRequest;
 import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * command RUN, maxaper= double array, turns= integer, ffile= integer;
@@ -58,15 +57,15 @@ public class TrackRunCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
 
         if (this.trackRequestResult.isApertureLimited()) {
             LOGGER.warn("maxaper not available yet, no aperture defined");
             // parameters.add(new
             // GenericParameter<Double[]>("maxaper",this.trackRequestResult.getApertureLimitation()));
         }
-        parameters.add(new GenericParameter<Integer>("turns", this.trackRequestResult.getTurns()));
-        parameters.add(new GenericParameter<Integer>("ffile", this.trackRequestResult.getPrintFrequency()));
+        parameters.add(new GenericParameter<>("turns", this.trackRequestResult.getTurns()));
+        parameters.add(new GenericParameter<>("ffile", this.trackRequestResult.getPrintFrequency()));
 
         return parameters;
     }

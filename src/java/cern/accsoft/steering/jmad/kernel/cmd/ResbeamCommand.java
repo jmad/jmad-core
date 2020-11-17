@@ -59,8 +59,8 @@ public class ResbeamCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("sequence", sequence));
+        ArrayList<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("sequence", sequence));
         return parameters;
     }
 

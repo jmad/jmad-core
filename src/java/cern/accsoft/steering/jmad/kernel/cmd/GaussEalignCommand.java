@@ -72,7 +72,7 @@ public class GaussEalignCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
 
         /*
          * define the mapping of the member-vars to the parameter names
@@ -89,16 +89,16 @@ public class GaussEalignCommand extends AbstractCommand {
         parameters.add(new FunctionParameter("dy", "tgauss", misalignment.getDeltaY(), gaussDistribuition));
 
         // TODO add randomness into the rest of the parameters
-        parameters.add(new GenericParameter<Double>("ds", misalignment.getDeltaS()));
-        parameters.add(new GenericParameter<Double>("dphi", misalignment.getDeltaPhi()));
-        parameters.add(new GenericParameter<Double>("dtheta", misalignment.getDeltaTheta()));
-        parameters.add(new GenericParameter<Double>("dpsi", misalignment.getDeltaPsi()));
-        parameters.add(new GenericParameter<Double>("mrex", misalignment.getMonitorReadErrorX()));
-        parameters.add(new GenericParameter<Double>("mrey", misalignment.getMonitorReadErrorY()));
-        parameters.add(new GenericParameter<Double>("mscalx", misalignment.getMonitorScalingErrorX()));
-        parameters.add(new GenericParameter<Double>("mscaly", misalignment.getMonitorScalingErrorY()));
-        parameters.add(new GenericParameter<Double>("arex", misalignment.getApertureErrorX()));
-        parameters.add(new GenericParameter<Double>("arey", misalignment.getApertureErrorY()));
+        parameters.add(new GenericParameter<>("ds", misalignment.getDeltaS()));
+        parameters.add(new GenericParameter<>("dphi", misalignment.getDeltaPhi()));
+        parameters.add(new GenericParameter<>("dtheta", misalignment.getDeltaTheta()));
+        parameters.add(new GenericParameter<>("dpsi", misalignment.getDeltaPsi()));
+        parameters.add(new GenericParameter<>("mrex", misalignment.getMonitorReadErrorX()));
+        parameters.add(new GenericParameter<>("mrey", misalignment.getMonitorReadErrorY()));
+        parameters.add(new GenericParameter<>("mscalx", misalignment.getMonitorScalingErrorX()));
+        parameters.add(new GenericParameter<>("mscaly", misalignment.getMonitorScalingErrorY()));
+        parameters.add(new GenericParameter<>("arex", misalignment.getApertureErrorX()));
+        parameters.add(new GenericParameter<>("arey", misalignment.getApertureErrorY()));
 
         return parameters;
     }

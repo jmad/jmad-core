@@ -34,8 +34,8 @@ public class EsaveCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("file", outputFile.getAbsolutePath()));
+        ArrayList<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("file", outputFile.getAbsolutePath()));
         return parameters;
     }
 

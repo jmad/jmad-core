@@ -68,7 +68,7 @@ public class EalignCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
 
         /*
          * define the mapping of the member-vars to the parameter names
@@ -78,22 +78,20 @@ public class EalignCommand extends AbstractCommand {
          * EALIGN, DX=real,DY=real,DS=real, DPHI=real,DTHETA=real,DPSI=real, MREX=real,MREY=real,
          * MSCALX=real,MSCALY=real, AREX=real,AREY=real;
          */
-        parameters.add(new GenericParameter<Double>(EalignVariables.DX.getName(), misalignment.getDeltaX()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.DY.getName(), misalignment.getDeltaY()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.DS.getName(), misalignment.getDeltaS()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.DPHI.getName(), misalignment.getDeltaPhi()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.DTHETA.getName(), misalignment.getDeltaTheta()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.DPSI.getName(), misalignment.getDeltaPsi()));
+        parameters.add(new GenericParameter<>(EalignVariables.DX.getName(), misalignment.getDeltaX()));
+        parameters.add(new GenericParameter<>(EalignVariables.DY.getName(), misalignment.getDeltaY()));
+        parameters.add(new GenericParameter<>(EalignVariables.DS.getName(), misalignment.getDeltaS()));
+        parameters.add(new GenericParameter<>(EalignVariables.DPHI.getName(), misalignment.getDeltaPhi()));
+        parameters.add(new GenericParameter<>(EalignVariables.DTHETA.getName(), misalignment.getDeltaTheta()));
+        parameters.add(new GenericParameter<>(EalignVariables.DPSI.getName(), misalignment.getDeltaPsi()));
         parameters
-                .add(new GenericParameter<Double>(EalignVariables.MREX.getName(), misalignment.getMonitorReadErrorX()));
+                .add(new GenericParameter<>(EalignVariables.MREX.getName(), misalignment.getMonitorReadErrorX()));
         parameters
-                .add(new GenericParameter<Double>(EalignVariables.MREY.getName(), misalignment.getMonitorReadErrorY()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.MSCALX.getName(), misalignment
-                .getMonitorScalingErrorX()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.MSCALY.getName(), misalignment
-                .getMonitorScalingErrorY()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.AREX.getName(), misalignment.getApertureErrorX()));
-        parameters.add(new GenericParameter<Double>(EalignVariables.AREY.getName(), misalignment.getApertureErrorY()));
+                .add(new GenericParameter<>(EalignVariables.MREY.getName(), misalignment.getMonitorReadErrorY()));
+        parameters.add(new GenericParameter<>(EalignVariables.MSCALX.getName(), misalignment.getMonitorScalingErrorX()));
+        parameters.add(new GenericParameter<>(EalignVariables.MSCALY.getName(), misalignment.getMonitorScalingErrorY()));
+        parameters.add(new GenericParameter<>(EalignVariables.AREX.getName(), misalignment.getApertureErrorX()));
+        parameters.add(new GenericParameter<>(EalignVariables.AREY.getName(), misalignment.getApertureErrorY()));
 
         return parameters;
     }

@@ -48,10 +48,10 @@ public class SaveBetaCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("label", this.label, true));
-        parameters.add(new GenericParameter<String>("place", this.location));
-        parameters.add(new GenericParameter<String>("sequence", this.sequName));
+        ArrayList<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("label", this.label, true));
+        parameters.add(new GenericParameter<>("place", this.location));
+        parameters.add(new GenericParameter<>("sequence", this.sequName));
         return parameters;
     }
 }

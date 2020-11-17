@@ -25,12 +25,12 @@
  */
 package cern.accsoft.steering.jmad.kernel.cmd.ptc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
 import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
 import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class represents the madx-command to initialize the ptc-universe
@@ -59,18 +59,18 @@ public class PtcSetSwitchCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         if (time != null) {
-            parameters.add(new GenericParameter<String>("time", time.toString()));
+            parameters.add(new GenericParameter<>("time", time.toString()));
         }
-        parameters.add(new GenericParameter<Boolean>("fringe", fringe));
-        parameters.add(new GenericParameter<Boolean>("nocavity", nocavity));
-        parameters.add(new GenericParameter<Boolean>("exactmis", exactmis));
-        parameters.add(new GenericParameter<Boolean>("totalpath", totalpath));
-        parameters.add(new GenericParameter<Boolean>("radiation", radiation));
-        parameters.add(new GenericParameter<Boolean>("envelope", envelope));
-        parameters.add(new GenericParameter<Boolean>("stochastic", stochastic));
-        parameters.add(new GenericParameter<Boolean>("modulation", modulation));
+        parameters.add(new GenericParameter<>("fringe", fringe));
+        parameters.add(new GenericParameter<>("nocavity", nocavity));
+        parameters.add(new GenericParameter<>("exactmis", exactmis));
+        parameters.add(new GenericParameter<>("totalpath", totalpath));
+        parameters.add(new GenericParameter<>("radiation", radiation));
+        parameters.add(new GenericParameter<>("envelope", envelope));
+        parameters.add(new GenericParameter<>("stochastic", stochastic));
+        parameters.add(new GenericParameter<>("modulation", modulation));
 
         return parameters;
     }

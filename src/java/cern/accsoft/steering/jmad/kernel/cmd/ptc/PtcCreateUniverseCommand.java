@@ -57,11 +57,11 @@ public class PtcCreateUniverseCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<Integer>("sector_nmul_max", sectorNMulMax));
-        parameters.add(new GenericParameter<Integer>("sector_nmul", sectorNMul));
-        parameters.add(new GenericParameter<Boolean>("ntpsa", ntpsa));
-        parameters.add(new GenericParameter<Boolean>("symprint", symPrint));
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("sector_nmul_max", sectorNMulMax));
+        parameters.add(new GenericParameter<>("sector_nmul", sectorNMul));
+        parameters.add(new GenericParameter<>("ntpsa", ntpsa));
+        parameters.add(new GenericParameter<>("symprint", symPrint));
         return parameters;
     }
 

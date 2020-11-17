@@ -53,8 +53,8 @@ public class SetEqual extends AbstractJMadExecutable implements Command {
         /*
          * XXX check if really necessary, that this implements a command
          */
-        List<Parameter> retVal = new ArrayList<Parameter>();
-        retVal.add(new GenericParameter<Double>(this.valueName, this.value));
+        List<Parameter> retVal = new ArrayList<>();
+        retVal.add(new GenericParameter<>(this.valueName, this.value));
         return retVal;
     }
 }

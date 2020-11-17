@@ -62,9 +62,9 @@ public class DeleteCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("sequence", this.getSequence()));
-        parameters.add(new GenericParameter<String>("table", this.table));
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("sequence", this.getSequence()));
+        parameters.add(new GenericParameter<>("table", this.table));
         return parameters;
     }
 

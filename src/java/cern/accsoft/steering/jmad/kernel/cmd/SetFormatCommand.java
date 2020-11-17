@@ -69,8 +69,8 @@ public class SetFormatCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("format", this.format, true));
+        ArrayList<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("format", this.format, true));
         return parameters;
     }
 

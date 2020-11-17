@@ -52,8 +52,8 @@ public class TrackObserveCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
-        parameters.add(new GenericParameter<String>("place", this.place));
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(new GenericParameter<>("place", this.place));
         return parameters;
     }
 

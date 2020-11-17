@@ -52,6 +52,6 @@ public class SetListEqual extends AbstractJMadExecutable implements Command {
 
     @Override
     public List<Parameter> getParameters() {
-        return new ArrayList<Parameter>(0);
+        return new ArrayList<>(0);
     }
 }

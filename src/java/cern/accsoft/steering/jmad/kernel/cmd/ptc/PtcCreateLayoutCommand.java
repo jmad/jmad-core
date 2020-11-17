@@ -85,30 +85,30 @@ public class PtcCreateLayoutCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
 
         /*
          * this is kind of special boolean parameter: it does not follow the convention, that it is omitted, when it is
          * meant to be false! It has to be set explicitly to false. We therefore use a string-parameter.
          */
         if (time != null) {
-            parameters.add(new GenericParameter<String>("time", time.toString()));
+            parameters.add(new GenericParameter<>("time", time.toString()));
         }
 
-        parameters.add(new GenericParameter<Integer>("model", model));
-        parameters.add(new GenericParameter<Integer>("method", method));
-        parameters.add(new GenericParameter<Integer>("nst", nst));
-        parameters.add(new GenericParameter<Boolean>("exact", exact));
-        parameters.add(new GenericParameter<Double>("offset_deltap", offsetDeltaP));
-        parameters.add(new GenericParameter<Boolean>("errors_in", errorsIn));
-        parameters.add(new GenericParameter<Boolean>("errors_out", errorsOut));
-        parameters.add(new GenericParameter<String>("magnet_name", magnetName));
-        parameters.add(new GenericParameter<Boolean>("resplit", resplit));
-        parameters.add(new GenericParameter<Double>("thin", thin));
-        parameters.add(new GenericParameter<Double>("xbend", xbend));
+        parameters.add(new GenericParameter<>("model", model));
+        parameters.add(new GenericParameter<>("method", method));
+        parameters.add(new GenericParameter<>("nst", nst));
+        parameters.add(new GenericParameter<>("exact", exact));
+        parameters.add(new GenericParameter<>("offset_deltap", offsetDeltaP));
+        parameters.add(new GenericParameter<>("errors_in", errorsIn));
+        parameters.add(new GenericParameter<>("errors_out", errorsOut));
+        parameters.add(new GenericParameter<>("magnet_name", magnetName));
+        parameters.add(new GenericParameter<>("resplit", resplit));
+        parameters.add(new GenericParameter<>("thin", thin));
+        parameters.add(new GenericParameter<>("xbend", xbend));
         /* same as for "time": default is true! */
         if (even != null) {
-            parameters.add(new GenericParameter<String>("even", even.toString()));
+            parameters.add(new GenericParameter<>("even", even.toString()));
         }
         return parameters;
     }

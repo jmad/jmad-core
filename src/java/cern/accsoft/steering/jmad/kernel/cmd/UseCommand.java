@@ -61,10 +61,10 @@ public class UseCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<String>(PARAM_NAME_PERIOD, period));
-        parameters.add(new GenericParameter<String>(PARAM_NAME_RANGE, range));
+        parameters.add(new GenericParameter<>(PARAM_NAME_PERIOD, period));
+        parameters.add(new GenericParameter<>(PARAM_NAME_RANGE, range));
 
         return parameters;
     }

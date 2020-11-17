@@ -22,11 +22,11 @@
 
 package cern.accsoft.steering.jmad.kernel.cmd;
 
-import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
-import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
 
 public class SelectCommand extends AbstractCommand {
 
@@ -52,15 +52,15 @@ public class SelectCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<String>("flag", flag));
-        parameters.add(new GenericParameter<String>("range", range));
-        parameters.add(new GenericParameter<String>("class", elementClass));
-        parameters.add(new GenericParameter<String>("pattern", pattern, true));
-        parameters.add(new GenericParameter<String>("column", column));
-        parameters.add(new GenericParameter<Boolean>("full", full));
-        parameters.add(new GenericParameter<Boolean>("clear", clear));
+        parameters.add(new GenericParameter<>("flag", flag));
+        parameters.add(new GenericParameter<>("range", range));
+        parameters.add(new GenericParameter<>("class", elementClass));
+        parameters.add(new GenericParameter<>("pattern", pattern, true));
+        parameters.add(new GenericParameter<>("column", column));
+        parameters.add(new GenericParameter<>("full", full));
+        parameters.add(new GenericParameter<>("clear", clear));
 
         return parameters;
     }

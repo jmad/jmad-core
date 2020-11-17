@@ -45,7 +45,7 @@ public class TrackEndCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        return new ArrayList<Parameter>();
+        return new ArrayList<>();
     }
 
 }

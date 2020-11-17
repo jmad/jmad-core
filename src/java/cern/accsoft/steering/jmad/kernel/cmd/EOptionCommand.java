@@ -77,16 +77,16 @@ public class EOptionCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<Double>("seed", seed));
+        parameters.add(new GenericParameter<>("seed", seed));
 
         /*
          * this is kind of special boolean parameter: it does not follow the convention, that it is omitted, when it is
          * meant to be false! It has to be set explicitly to false. We therefore use a string-parameter.
          */
         if (add != null) {
-            parameters.add(new GenericParameter<String>("add", add.toString()));
+            parameters.add(new GenericParameter<>("add", add.toString()));
         }
         return parameters;
     }

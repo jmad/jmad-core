@@ -53,15 +53,15 @@ public class TrackCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+        ArrayList<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(new GenericParameter<Double>("deltap", this.trackInitialCondition.getDeltaP()));
-        parameters.add(new GenericParameter<Boolean>("onepass", this.trackInitialCondition.isOnePass()));
-        parameters.add(new GenericParameter<Boolean>("recloss", this.trackInitialCondition.isCreateLossParticleFile()));
-        parameters.add(new GenericParameter<Boolean>("onetable", this.trackInitialCondition.isOneTable()));
-        parameters.add(new GenericParameter<Boolean>("quantum", this.trackInitialCondition.isQuantumExcited()));
-        parameters.add(new GenericParameter<Boolean>("damp", this.trackInitialCondition.isSynchrotronDamped()));
-        parameters.add(new GenericParameter<Boolean>("dump", this.trackInitialCondition.isWriteAtEachTurn()));
+        parameters.add(new GenericParameter<>("deltap", this.trackInitialCondition.getDeltaP()));
+        parameters.add(new GenericParameter<>("onepass", this.trackInitialCondition.isOnePass()));
+        parameters.add(new GenericParameter<>("recloss", this.trackInitialCondition.isCreateLossParticleFile()));
+        parameters.add(new GenericParameter<>("onetable", this.trackInitialCondition.isOneTable()));
+        parameters.add(new GenericParameter<>("quantum", this.trackInitialCondition.isQuantumExcited()));
+        parameters.add(new GenericParameter<>("damp", this.trackInitialCondition.isSynchrotronDamped()));
+        parameters.add(new GenericParameter<>("dump", this.trackInitialCondition.isWriteAtEachTurn()));
 
         return parameters;
     }

@@ -54,9 +54,9 @@ public class OptionCommand extends AbstractCommand {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         if ((option != null) && (value != null)) {
-            parameters.add(new GenericParameter<String>(option.getName(), value.toString()));
+            parameters.add(new GenericParameter<>(option.getName(), value.toString()));
         }
         return parameters;
     }

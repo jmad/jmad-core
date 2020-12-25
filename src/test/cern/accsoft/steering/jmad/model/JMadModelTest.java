@@ -25,17 +25,16 @@ package cern.accsoft.steering.jmad.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import cern.accsoft.steering.jmad.JMadTestCase;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
 import cern.accsoft.steering.jmad.domain.result.tfs.TfsResult;
 import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequest;
 import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequestImpl;
 import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class JMadModelTest extends JMadTestCase {
 
@@ -70,6 +69,14 @@ public class JMadModelTest extends JMadTestCase {
         assertEquals(1, result.getKeys().size());
         String key = result.getKeys().get(0);
         assertEquals(0, result.getDoubleData(key).size());
+    }
+
+    @Test
+    public void testGetValue() throws JMadModelException {
+        assertEquals(-0.0337742, model.getValue("kqid.20700"), 1e-6);
+        assertEquals(12.03, model.getValue("table(summ,q1)"), 1e-3);
+        assertEquals(-1.335e-4, model.getValue("MBI.22134->tilt"), 1e-6);
+        assertEquals(42.42, model.getValue("21*2+0.42"), 1e-12);
     }
 
 }

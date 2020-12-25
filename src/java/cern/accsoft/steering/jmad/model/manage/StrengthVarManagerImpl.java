@@ -26,13 +26,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSet;
 import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSetImpl;
 import cern.accsoft.steering.jmad.io.StrengthFileParser;
 import cern.accsoft.steering.jmad.io.StrengthFileParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the default implementation of a {@link StrengthVarManager}
@@ -67,7 +66,7 @@ public class StrengthVarManagerImpl implements StrengthVarManager {
 
         StrengthFileParser parser = new StrengthFileParser(file);
         try {
-            parser.parse();
+            parser.parse(true);
         } catch (StrengthFileParserException e) {
             LOGGER.error("Could not parse file '" + file.getAbsolutePath() + "'.", e);
             return;

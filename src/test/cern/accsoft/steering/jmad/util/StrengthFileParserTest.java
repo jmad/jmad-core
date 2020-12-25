@@ -59,16 +59,37 @@ public class StrengthFileParserTest {
                         "abiv.610013          :=  0.000000000000000 ;\n" + //
                         "abih.610104          :=  0.000743880000000 ;");
 
-        parser.parse();
+        parser.parse(true);
 
         List<Strength> initValues = parser.getStrengths();
 
         assertEquals("We should get 2 values", 2, initValues.size());
         assertEquals("abiv.610013", initValues.get(0).getName());
-        assertEquals(0.000000000000000, initValues.get(0).getValue(), 0.0);
+        assertEquals(0.000000000000000, initValues.get(0).getValue(), 1e-12);
 
         assertEquals("abih.610104", initValues.get(1).getName());
-        assertEquals(0.000743880000000, initValues.get(1).getValue(), 0.0);
+        assertEquals(0.000743880000000, initValues.get(1).getValue(), 1e-12);
+
+    }
+
+    @Test
+    public void testParseValueCommandResultLeniently() throws StrengthFileParserException {
+        testFile.write( //
+                "! This is a comment \n" + //
+                        "! another comment      \n" + //
+                        "table(foobar,1) =  0.420000000000000 ;\n" + //
+                        "abih.610104 =  0.000743880000000 ;");
+
+        parser.parse(false);
+
+        List<Strength> parsedValues = parser.getStrengths();
+
+        assertEquals("We should get 2 values", 2, parsedValues.size());
+        assertEquals("table(foobar,1)", parsedValues.get(0).getName());
+        assertEquals(0.42, parsedValues.get(0).getValue(), 1e-12);
+
+        assertEquals("abih.610104", parsedValues.get(1).getName());
+        assertEquals(0.000743880000000, parsedValues.get(1).getValue(), 1e-12);
 
     }
 
@@ -76,7 +97,7 @@ public class StrengthFileParserTest {
     public void testParseSimpleEquals() throws StrengthFileParserException {
         testFile.write("abiv.610013          = 0.000000000000000;\n" + "abih.610104=0.000743880000000;");
 
-        parser.parse();
+        parser.parse(true);
 
         List<Strength> initValues = parser.getStrengths();
 
@@ -94,7 +115,7 @@ public class StrengthFileParserTest {
                 + "abih.610104          :=  0.000743880000000 ; ! endline comment B  \n "
                 + "abih.610206          :=  0.000755840000000 ; // commentC ! this will be ignored \n");
 
-        parser.parse();
+        parser.parse(true);
 
         List<Strength> initValues = parser.getStrengths();
 
@@ -116,7 +137,7 @@ public class StrengthFileParserTest {
     @Test
     public void testParseNoEquals() throws StrengthFileParserException {
         testFile.write("abiv.610013          :  0.000000000000000 ; // endline comment A \n");
-        parser.parse();
+        parser.parse(true);
         List<Strength> strengths = parser.getStrengths();
         assertEquals("There should be no lines which return a valid strength.", 0, strengths.size());
     }
@@ -124,7 +145,7 @@ public class StrengthFileParserTest {
     @Test(expected = StrengthFileParserException.class)
     public void testParseNoSemicolon() throws StrengthFileParserException {
         testFile.write("abiv.610013          :=  0.000000000000000  // endline comment A \n");
-        parser.parse();
+        parser.parse(true);
     }
 
     @Test
@@ -133,7 +154,7 @@ public class StrengthFileParserTest {
                 + "abih.610104          :=  0.000743880000000 ; ! endline comment B  \n "
                 + "abih.610206          :=  0.000755840000000 ; // commentC ! this will be ignored \n");
 
-        parser.parse();
+        parser.parse(true);
 
         List<Strength> initValues = parser.getStrengths();
 

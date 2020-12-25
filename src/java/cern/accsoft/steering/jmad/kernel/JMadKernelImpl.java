@@ -257,7 +257,7 @@ public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {
                     result = parser.getResult();
                 } else if (ResultType.VALUES_RESULT == executable.getResultType()) {
                     StrengthFileParser parser = new StrengthFileParser(resultFile);
-                    parser.parse();
+                    parser.parse(false);
                     result = parser.getResult();
                 } else if (ResultType.MATCH_RESULT == executable.getResultType()) {
                     MatchOutputParser parser = new MatchOutputParser(executable.getOutputFile());

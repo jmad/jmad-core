@@ -24,6 +24,6 @@ public class StrengthFileParserTestNotForBamboo {
 
     @Test
     public void testDenseFiles() throws StrengthFileParserException {
-        parser.parse();
+        parser.parse(true);
     }
 }

@@ -60,7 +60,7 @@ public class StrengthFileParser {
         this.file = file;
     }
 
-    public void parse() throws StrengthFileParserException {
+    public void parse(boolean checkForValidStrengthNames) throws StrengthFileParserException {
 
         TextFileParser parser = new TextFileParserImpl();
 
@@ -118,7 +118,7 @@ public class StrengthFileParser {
                 throw new StrengthFileParserException("Line does not seem to end with an ';' : '" + line + "'");
             }
 
-            if (!isValidMadxName(name)) {
+            if (checkForValidStrengthNames && !isValidMadxName(name)) {
                 LOGGER.debug("{} is not a MAD-X variable name. Ignoring.", name);
                 continue;
             }

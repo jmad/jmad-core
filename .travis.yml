@@ -13,7 +13,7 @@ before_deploy:
   - ./gradlew javadoc
   - echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
   - export SIGNING_KEY_PATH=./signing.key.secring
-  - mkdir projectpage
+  - mkdir -p projectpage
   - cp -rv build/reports/* projectpage
   - cp -rv build/docs/* projectpage
   - cp -rv docs/* projectpage

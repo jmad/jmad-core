@@ -8,11 +8,11 @@ before_install:
 script:
   - ./gradlew check
   - ./gradlew jacocoTestReport
+  - echo $KEY_TEST | base64 --decode > ./key-test.txt
+  - cat ./key-test.txt
 before_deploy:
   - ./gradlew generateLicenseReport
   - ./gradlew javadoc
-  - echo $KEY_TEST | base64 --decode > ./key-test.txt
-  - cat ./key-test.txt
   - mkdir projectpage
   - cp -rv build/reports/* projectpage
   - cp -rv build/docs/* projectpage

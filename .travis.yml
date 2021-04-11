@@ -11,6 +11,8 @@ script:
 before_deploy:
   - ./gradlew generateLicenseReport
   - ./gradlew javadoc
+  - echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
+  - export SIGNING_KEY_PATH=./signing.key.secring
   - mkdir projectpage
   - cp -rv build/reports/* projectpage
   - cp -rv build/docs/* projectpage
@@ -18,9 +20,9 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ./gradlew bintrayUpload -Ddeployment=true
+    script: ./gradlew uploadArchives -DDEPLOYMENT=true
     on:
-      tags: true
+#      tags: true TEMPORARELY REMOVED
       jdk: openjdk11
   - provider: pages
     skip_cleanup: true

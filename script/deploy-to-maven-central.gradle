@@ -1,0 +1,92 @@
+static def getDeploymentVersion(String vcsTag) {
+    if (vcsTag == null) {
+        throw new RuntimeException("VCS_TAG is not set. Cannot detect deployment version")
+    }
+    String tmpDeploymentVersion = vcsTag.replaceFirst("v", "");
+    if (!tmpDeploymentVersion.matches("\\d+\\.\\d+\\.\\d+")) {
+        throw new RuntimeException("Version is not valid. Correct format is like 1.0.2 (or v1.0.2) but was " + tmpDeploymentVersion)
+    }
+
+    def qualifier = System.getProperty('qualifier');
+    if (qualifier != null) {
+        println "Using qualifier '" + qualifier + "' for deployment";
+        tmpDeploymentVersion = tmpDeploymentVersion + "-" + qualifier;
+    }
+    return tmpDeploymentVersion;
+}
+
+static def throwEnvSetupException(String msg) {
+    throw new RuntimeException("Wrongly configured environment. " + msg)
+}
+
+print "Verifying presence of deployment properties..."
+project.ext['SONATYPE.userName'] = System.getProperty('SONATYPE_USER') ?: System.getenv('SONATYPE_USER') ?: throwEnvSetupException("SONATYPE_USER variable must be set to deploy")
+project.ext['SONATYPE.password'] = System.getProperty('SONATYPE_PASSWORD') ?: System.getenv('SONATYPE_PASSWORD') ?: throwEnvSetupException("SONATYPE_PASSWORD variable must be set to deploy")
+
+project.ext['signing.keyId'] = System.getProperty("SIGNING-KEY-ID") ?: System.getenv("SIGNING-KEY-ID") ?: throwEnvSetupException("SIGNING-KEY-ID variable must be set to deploy")
+project.ext['signing.password'] = System.getProperty("SIGNING-KEY-PASSWORD") ?: System.getenv("SIGNING-KEY-PASSWORD") ?: throwEnvSetupException("SIGNING-KEY-PASSWORD variable must be set to deploy")
+project.ext['signing.secretKeyRingFile'] = System.getProperty("SIGNING-KEY-PATH") ?: System.getenv("SIGNING-KEY-PATH") ?: throwEnvSetupException("SIGNING-KEY-PATH variable must be set to deploy")
+println " ok"
+
+print "Verifying version to deploy ..."
+version = getDeploymentVersion(System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG') ?: throwEnvSetupException("TRAVIS_TAG variable must be set to deploy"))
+println " detected version is " + version
+
+archivesBaseName = project['POM.artifactId']
+
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://ASDs01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
+            }
+
+            snapshotRepository(url: "https://ASDs01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
+            }
+
+            pom.project {
+                name "${project['POM.groupId']}:${project['POM.artifactId']}"
+                packaging 'jar'
+                artifactId project['POM.artifactId']
+                description project['POM.description']
+                url project['INFO.url']
+
+                scm {
+                    connection "scm:git:${project['INFO.repo']}"
+                    developerConnection "scm:git:${project['INFO.repo']}"
+                    url project['INFO.repo']
+                }
+
+                licenses {
+                    license {
+                        name project['INFO.licenseName']
+                        url project['INFO.licenseUrl']
+                    }
+                }
+
+                developers {
+                    developer {
+                        name project['INFO.mainDeveloper']
+                        email project['INFO.mainDeveloperEmail']
+                        organization project['INFO.organization']
+                        organizationUrl project['INFO.github']
+                    }
+                }
+            }
+        }
+    }
+}

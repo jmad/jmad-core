@@ -23,9 +23,9 @@ print "Verifying presence of deployment properties..."
 project.ext['SONATYPE.userName'] = System.getProperty('SONATYPE_USER') ?: System.getenv('SONATYPE_USER') ?: throwEnvSetupException("SONATYPE_USER variable must be set to deploy")
 project.ext['SONATYPE.password'] = System.getProperty('SONATYPE_PASSWORD') ?: System.getenv('SONATYPE_PASSWORD') ?: throwEnvSetupException("SONATYPE_PASSWORD variable must be set to deploy")
 
-project.ext['signing.keyId'] = System.getProperty("SIGNING-KEY-ID") ?: System.getenv("SIGNING-KEY-ID") ?: throwEnvSetupException("SIGNING-KEY-ID variable must be set to deploy")
-project.ext['signing.password'] = System.getProperty("SIGNING-KEY-PASSWORD") ?: System.getenv("SIGNING-KEY-PASSWORD") ?: throwEnvSetupException("SIGNING-KEY-PASSWORD variable must be set to deploy")
-project.ext['signing.secretKeyRingFile'] = System.getProperty("SIGNING-KEY-PATH") ?: System.getenv("SIGNING-KEY-PATH") ?: throwEnvSetupException("SIGNING-KEY-PATH variable must be set to deploy")
+project.ext['signing.keyId'] = System.getProperty("SIGNING_KEY_ID") ?: System.getenv("SIGNING_KEY_ID") ?: throwEnvSetupException("SIGNING_KEY_ID variable must be set to deploy")
+project.ext['signing.password'] = System.getProperty("SIGNING_KEY_PASSWORD") ?: System.getenv("SIGNING_KEY_PASSWORD") ?: throwEnvSetupException("SIGNING_KEY_PASSWORD variable must be set to deploy")
+project.ext['signing.secretKeyRingFile'] = System.getProperty("SIGNING_KEY_PATH") ?: System.getenv("SIGNING_KEY_PATH") ?: throwEnvSetupException("SIGNING_KEY_PATH variable must be set to deploy")
 println " ok"
 
 print "Verifying version to deploy ..."
@@ -50,11 +50,11 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://ASDs01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            repository(url: "https://s01.oss.sonatype.orgDRY_RUN/service/local/staging/deploy/maven2/") {
                 authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
             }
 
-            snapshotRepository(url: "https://ASDs01.oss.sonatype.org/content/repositories/snapshots/") {
+            snapshotRepository(url: "https://s01.oss.sonatype.orgDRY_RUN/content/repositories/snapshots/") {
                 authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
             }
 

@@ -50,11 +50,11 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://s01.oss.sonatype.orgDRY_RUN/service/local/staging/deploy/maven2/") {
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
                 authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
             }
 
-            snapshotRepository(url: "https://s01.oss.sonatype.orgDRY_RUN/content/repositories/snapshots/") {
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
                 authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
             }
 

@@ -22,7 +22,7 @@ deploy:
     skip_cleanup: true
     script: ./gradlew uploadArchives -DDEPLOYMENT=true
     on:
-#      tags: true TEMPORARELY REMOVED
+      tags: true
       jdk: openjdk11
   - provider: pages
     skip_cleanup: true

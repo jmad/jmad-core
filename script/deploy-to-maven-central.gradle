@@ -29,21 +29,57 @@ project.ext['signing.secretKeyRingFile'] = System.getProperty("SIGNING_KEY_PATH"
 println " ok"
 
 print "Verifying version to deploy ..."
-version = getDeploymentVersion(System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG') ?: throwEnvSetupException("TRAVIS_TAG variable must be set to deploy"))
-println " detected version is " + version
+project.ext['versionToRelease'] = getDeploymentVersion(System.getProperty('TRAVIS_TAG') ?: System.getenv('TRAVIS_TAG') ?: throwEnvSetupException("TRAVIS_TAG variable must be set to deploy"))
+println " detected version is " + project.ext['versionToRelease']
 
-archivesBaseName = project['POM.artifactId']
-
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
-artifacts {
-    archives javadocJar, sourcesJar
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = project['POM.groupId']
+            artifactId = project['POM.artifactId']
+            version = project.ext['versionToRelease']
+
+            from(components.java)
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = "${project['POM.groupId']}:${project['POM.artifactId']}"
+                description = project['POM.description']
+                url = project['INFO.url']
+
+                scm {
+                    connection = "scm:git:${project['INFO.repo']}"
+                    developerConnection = "scm:git:${project['INFO.repo']}"
+                    url = project['INFO.repo']
+                }
+
+                licenses {
+                    license {
+                        name = project['INFO.licenseName']
+                        url = project['INFO.licenseUrl']
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = project['INFO.mainDeveloper']
+                        email = project['INFO.mainDeveloperEmail']
+                        organization = project['INFO.organization']
+                        organizationUrl = project['INFO.github']
+                    }
+                }
+            }
+        }
+    }
 }
 
 signing {
-    sign configurations.archives
+    sign publishing.publications.mavenJava
 }
 
 nexusPublishing {
@@ -53,52 +89,6 @@ nexusPublishing {
             password = project.ext['SONATYPE.password']
             nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-        }
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
-            }
-
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: project.ext['SONATYPE.userName'], password: project.ext['SONATYPE.password'])
-            }
-
-            pom.project {
-                name "${project['POM.groupId']}:${project['POM.artifactId']}"
-                packaging 'jar'
-                artifactId project['POM.artifactId']
-                description project['POM.description']
-                url project['INFO.url']
-
-                scm {
-                    connection "scm:git:${project['INFO.repo']}"
-                    developerConnection "scm:git:${project['INFO.repo']}"
-                    url project['INFO.repo']
-                }
-
-                licenses {
-                    license {
-                        name project['INFO.licenseName']
-                        url project['INFO.licenseUrl']
-                    }
-                }
-
-                developers {
-                    developer {
-                        name project['INFO.mainDeveloper']
-                        email project['INFO.mainDeveloperEmail']
-                        organization project['INFO.organization']
-                        organizationUrl project['INFO.github']
-                    }
-                }
-            }
         }
     }
 }

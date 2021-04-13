@@ -127,8 +127,8 @@ if (!project['CERN_VM']) {
     }
 }
 
-//if (project['DEPLOYMENT']) {
+if (project['DEPLOYMENT']) {
     println 'Applying deployment scripts'
     apply from: './script/deploy-to-maven-central.gradle'
 //    apply from: 'https://raw.githubusercontent.com/ossgang/gradle-scripts/master/deployment/bintray-deploy.gradle'
-//}
+}

@@ -36,6 +36,7 @@ archivesBaseName = project['POM.artifactId']
 
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
 artifacts {
     archives javadocJar, sourcesJar
@@ -43,6 +44,17 @@ artifacts {
 
 signing {
     sign configurations.archives
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {  //only for users registered in Sonatype after 24 Feb 2021
+            username = project.ext['SONATYPE.userName']
+            password = project.ext['SONATYPE.password']
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+        }
+    }
 }
 
 uploadArchives {

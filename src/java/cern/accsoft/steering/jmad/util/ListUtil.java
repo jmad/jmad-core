@@ -52,7 +52,7 @@ public final class ListUtil {
      * @return the new list.
      */
     public static <IN, OUT> List<OUT> map(List<IN> inlist, Mapper<IN, OUT> mapper) {
-        List<OUT> outlist = new ArrayList<OUT>(inlist.size());
+        List<OUT> outlist = new ArrayList<>(inlist.size());
         for (IN item : inlist) {
             outlist.add(mapper.map(item));
         }
@@ -82,7 +82,7 @@ public final class ListUtil {
      * @return the list of strings
      */
     public static List<String> toString(List<? extends Object> objects) {
-        List<String> strings = new ArrayList<String>();
+        List<String> strings = new ArrayList<>();
         for (Object object : objects) {
             strings.add(object.toString());
         }
@@ -97,8 +97,23 @@ public final class ListUtil {
      * @return a list containing the given element
      */
     public static <T> List<T> createOneElementList(T element) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         list.add(element);
+        return list;
+    }
+
+    /**
+     * creates an array list with the one given element, or an empty list if the element is null.
+     *
+     * @param <T> the type of objects for the list
+     * @param element the single element that shall be contained in the new list
+     * @return a list containing the given element, or an empty list
+     */
+    public static <T> List<T> createOneElementOrEmptyList(T element) {
+        List<T> list = new ArrayList<>();
+        if (element != null) {
+            list.add(element);
+        }
         return list;
     }
 
@@ -111,7 +126,7 @@ public final class ListUtil {
      * @return the new list, containing the defaultValue in all items
      */
     public static <T> List<T> createDefaultValueList(int size, T defaultValue) {
-        List<T> list = new ArrayList<T>(size);
+        List<T> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             list.add(defaultValue);
         }
@@ -129,7 +144,7 @@ public final class ListUtil {
         if (doublesA.size() != doublesB.size()) {
             throw new IllegalArgumentException("The two lists must be of same size!");
         }
-        List<Double> diff = new ArrayList<Double>(doublesA.size());
+        List<Double> diff = new ArrayList<>(doublesA.size());
         for (int i = 0; i < doublesA.size(); i++) {
             diff.add(doublesA.get(i) - doublesB.get(i));
         }
@@ -147,7 +162,7 @@ public final class ListUtil {
         if (doublesA.size() != doublesB.size()) {
             throw new IllegalArgumentException("The two lists must be of same size!");
         }
-        List<Double> divide = new ArrayList<Double>(doublesA.size());
+        List<Double> divide = new ArrayList<>(doublesA.size());
         for (int i = 0; i < doublesA.size(); i++) {
             divide.add(doublesA.get(i) / doublesB.get(i));
         }

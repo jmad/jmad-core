@@ -25,6 +25,15 @@
  */
 package cern.accsoft.steering.jmad.tools.response;
 
+import static java.util.Collections.newSetFromMap;
+import static java.util.Collections.singletonList;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+
 import Jama.Matrix;
 import cern.accsoft.steering.jmad.domain.elem.Element;
 import cern.accsoft.steering.jmad.domain.elem.JMadElementType;
@@ -42,15 +51,6 @@ import cern.accsoft.steering.jmad.model.JMadModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-
-import static java.util.Collections.newSetFromMap;
-import static java.util.Collections.singletonList;
-
 /**
  * This implementation of {@link ResponseMatrixTool} calculates the response matrix using the exact kick strengths given
  * in the request and calculates the response matrix by the use of two trajectories returned by the madx-model. It thus
@@ -66,8 +66,8 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
     private static final double KICK_ZERO_LIMIT = 1e-10;
     private static final double BEND_TILT_TOLERANCE = 1e-5;
 
-    private final Set<BiConsumer<ResponseRequest, Integer>> progressListeners =
-            newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<BiConsumer<ResponseRequest, Integer>> progressListeners = newSetFromMap(
+            new ConcurrentHashMap<>());
 
     @Override
     public Matrix calcResponseMatrix(JMadModel model, ResponseRequest request) throws JMadModelException {
@@ -88,8 +88,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
 
             Element element = model.getActiveRange().getElement(correctorName);
             if (element == null) {
-                throw new JMadModelException("Could not find element with name '" + correctorName
-                        + "' in active range.");
+                LOGGER.warn("Could not find element {} in model {} - ignoring!", correctorName, model.getDescription());
             }
 
             double deltaKick = 2 * strengthValue;
@@ -115,10 +114,15 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
                 JMadPlane monitorPlane = monitorPlanes.get(j);
 
                 Integer plusIndex = plus.getElementIndex(monitorName);
+                Integer minusIndex = minus.getElementIndex(monitorName);
+                if (minusIndex == null && plusIndex == null) {
+                    LOGGER.warn("No result for monitor {} {} in model {} - ignoring!", monitorName, monitorPlane,
+                            model.getDescription());
+                    continue;
+                }
                 if (plusIndex == null) {
                     throw new JMadModelException("No Data for monitor '" + monitorName + "' in plus-Result.");
                 }
-                Integer minusIndex = minus.getElementIndex(monitorName);
                 if (minusIndex == null) {
                     throw new JMadModelException("No Data for monitor '" + monitorName + "' in minus-Result.");
                 }
@@ -178,17 +182,17 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
     /**
      * calcs the response for one corrector
      *
-     * @param model the model from which to calc the response
-     * @param element the corrector for which to calc the response
-     * @param plane the plane in where to kick
-     * @param kick the value for the kick
-     * @param monitorNames the monitorNames to be included in the result
+     * @param model          the model from which to calc the response
+     * @param element        the corrector for which to calc the response
+     * @param plane          the plane in where to kick
+     * @param kick           the value for the kick
+     * @param monitorNames   the monitorNames to be included in the result
      * @param monitorRegexps regexpressions which represent all monitors (using this makes the twiss faster)
      * @return the result of the twiss
      * @throws JMadModelException if something goes wrong
      */
     private TfsResultImpl calcResponse(JMadModel model, Element element, JMadPlane plane, double kick,
-                                       List<String> monitorNames, List<String> monitorRegexps) throws JMadModelException {
+            List<String> monitorNames, List<String> monitorRegexps) throws JMadModelException {
 
         addKickToElement(model, element, plane, kick);
 
@@ -227,7 +231,8 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
         return tfsResult;
     }
 
-    private void addKickToElement(JMadModel model, Element element, JMadPlane plane, double kick) throws JMadModelException {
+    private void addKickToElement(JMadModel model, Element element, JMadPlane plane, double kick)
+            throws JMadModelException {
         if (JMadElementType.CORRECTOR.isTypeOf(element)) {
             Corrector corrector = (Corrector) element;
             double oldKick = corrector.getKick(plane);
@@ -256,8 +261,9 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
             tiltSign = 1;
         } else {
             String planeAngle = plane == JMadPlane.H ? "0 rad" : "pi/2 rad";
-            throw new JMadModelException("Element '" + element.getName() + "' is a BEND with tilt=" + elementTilt
-                    + " rad - can not kick in " + plane + " (= " + planeAngle + ", tol=" + BEND_TILT_TOLERANCE + ")");
+            throw new JMadModelException(
+                    "Element '" + element.getName() + "' is a BEND with tilt=" + elementTilt + " rad - can not kick in "
+                            + plane + " (= " + planeAngle + ", tol=" + BEND_TILT_TOLERANCE + ")");
         }
         return tiltSign;
     }

@@ -122,6 +122,10 @@ public class KnobManagerImpl implements KnobManager {
         String elementName = ElementAttribute.getElementNameFromKey(key);
         String attributeName = ElementAttribute.getAttributeNameFromKey(key);
         Element element = model.getActiveRange().getElement(elementName);
+        if (element == null) {
+            /* in case the element does not exist in the active range - we have no knob to create */
+            return null;
+        }
         return new ElementAttribute(element, attributeName);
     }
 

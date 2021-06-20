@@ -85,7 +85,7 @@ public class ElementAttribute extends AbstractKnob implements MadxParameter {
         return getKnobType();
     }
 
-    public static final KnobType getKnobType() {
+    public static KnobType getKnobType() {
         return KnobType.ELEMENT_ATTRIBUTE;
     }
 
@@ -96,7 +96,7 @@ public class ElementAttribute extends AbstractKnob implements MadxParameter {
      * @param attributeName the name of the attribute to use in the combined key
      * @return a key which can be used in maps
      */
-    public static final String createKey(Element element, String attributeName) {
+    public static String createKey(Element element, String attributeName) {
         return createMadxName(element, attributeName);
     }
 
@@ -107,7 +107,7 @@ public class ElementAttribute extends AbstractKnob implements MadxParameter {
      * @param attributeName the name of the attribute
      * @return a name representing this attribute in MadX
      */
-    private static final String createMadxName(Element element, String attributeName) {
+    private static String createMadxName(Element element, String attributeName) {
         return element.getName().toUpperCase() + Element.ATTR_SEPARATOR
                 + attributeName.toLowerCase(JMadConstants.DEFAULT_LOCALE);
     }
@@ -118,7 +118,7 @@ public class ElementAttribute extends AbstractKnob implements MadxParameter {
      * @param key the key used in maps for element-attributes
      * @return the name of the element which is contained in the attribute-key
      */
-    public static final String getElementNameFromKey(String key) {
+    public static String getElementNameFromKey(String key) {
         int index = key.indexOf(Element.ATTR_SEPARATOR);
         if (index >= 0) {
             return key.substring(0, index);
@@ -132,7 +132,7 @@ public class ElementAttribute extends AbstractKnob implements MadxParameter {
      * @param key the key from which to extract the attribute
      * @return the name of the attribute contained in the key
      */
-    public static final String getAttributeNameFromKey(String key) {
+    public static String getAttributeNameFromKey(String key) {
         int index = key.indexOf(Element.ATTR_SEPARATOR);
         if (index >= 0) {
             return key.substring(index + Element.ATTR_SEPARATOR.length());

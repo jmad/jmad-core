@@ -11,6 +11,8 @@
 
 package cern.accsoft.steering.jmad.domain.result.tfs;
 
+import static cern.accsoft.steering.jmad.domain.result.tfs.TfsDoubles.parseTfsDouble;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,16 +21,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.accsoft.steering.jmad.JMadConstants;
 import cern.accsoft.steering.jmad.domain.result.ResultType;
 import cern.accsoft.steering.jmad.domain.var.MadxVariable;
 import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
 import cern.accsoft.steering.jmad.util.MadxVarType;
-
-import static cern.accsoft.steering.jmad.domain.result.tfs.TfsDoubles.parseTfsDouble;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TfsResultImpl implements TfsResult {
 
@@ -196,7 +195,7 @@ public class TfsResultImpl implements TfsResult {
      * @param key the key to unify
      * @return the converted key.
      */
-    private static final String unifyKey(String key) {
+    private static String unifyKey(String key) {
         return key.toUpperCase(JMadConstants.DEFAULT_LOCALE);
     }
 
@@ -212,9 +211,6 @@ public class TfsResultImpl implements TfsResult {
     @Override
     public Integer getElementIndex(String elementName) {
         String key = elementName.toLowerCase();
-        if (!elementIndizes.containsKey(key)) {
-            LOGGER.warn("Result does not seem to contain values for element '" + elementName + "'");
-        }
         return elementIndizes.get(key);
     }
 

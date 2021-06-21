@@ -116,7 +116,7 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
                 Integer plusIndex = plus.getElementIndex(monitorName);
                 Integer minusIndex = minus.getElementIndex(monitorName);
                 if (minusIndex == null && plusIndex == null) {
-                    LOGGER.warn("No result for monitor {} {} in model {} - ignoring!", monitorName, monitorPlane,
+                    LOGGER.warn("No result for monitor {} {} in {} - ignoring!", monitorName, monitorPlane,
                             model.getDescription());
                     continue;
                 }

@@ -22,6 +22,8 @@
 
 package cern.accsoft.steering.jmad.tools.response;
 
+import static org.junit.Assert.assertEquals;
+
 import Jama.Matrix;
 import cern.accsoft.steering.jmad.JMadTestCase;
 import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
@@ -32,8 +34,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ResponseMatrixToolTest extends JMadTestCase {
 
@@ -83,7 +83,7 @@ public class ResponseMatrixToolTest extends JMadTestCase {
         // these pickups should return values:
         // TODO: rechecked manually with madx!
         assertEquals(90.86729324, responseMatrix.get(2, 0), 1e-4);
-        assertEquals(141.2689035, responseMatrix.get(2, 1), 1e-4);
+        assertEquals(-141.2689035, responseMatrix.get(2, 1), 1e-4);
 
     }
 

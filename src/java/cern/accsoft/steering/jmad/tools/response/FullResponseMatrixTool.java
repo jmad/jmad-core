@@ -252,13 +252,13 @@ public class FullResponseMatrixTool implements ResponseMatrixTool {
         double elementTilt = Optional.ofNullable(element.getAttribute("tilt")).orElse(0.0);
         int tiltSign;
         if (plane == JMadPlane.H && Math.abs(elementTilt) < BEND_TILT_TOLERANCE) {
-            tiltSign = -1;
+            tiltSign = 1;
         } else if (plane == JMadPlane.H && Math.abs(Math.abs(elementTilt) - Math.PI) < BEND_TILT_TOLERANCE) {
-            tiltSign = 1;
-        } else if (plane == JMadPlane.V && Math.abs(elementTilt - Math.PI / 2) < BEND_TILT_TOLERANCE) {
             tiltSign = -1;
-        } else if (plane == JMadPlane.V && Math.abs(elementTilt + Math.PI / 2) < BEND_TILT_TOLERANCE) {
+        } else if (plane == JMadPlane.V && Math.abs(elementTilt - Math.PI / 2) < BEND_TILT_TOLERANCE) {
             tiltSign = 1;
+        } else if (plane == JMadPlane.V && Math.abs(elementTilt + Math.PI / 2) < BEND_TILT_TOLERANCE) {
+            tiltSign = -1;
         } else {
             String planeAngle = plane == JMadPlane.H ? "0 rad" : "pi/2 rad";
             throw new JMadModelException(

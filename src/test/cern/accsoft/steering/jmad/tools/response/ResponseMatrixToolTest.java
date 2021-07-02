@@ -83,7 +83,7 @@ public class ResponseMatrixToolTest extends JMadTestCase {
         // these pickups should return values:
         // TODO: rechecked manually with madx!
         assertEquals(90.86729324, responseMatrix.get(2, 0), 1e-4);
-        assertEquals(-141.2689035, responseMatrix.get(2, 1), 1e-4);
+        assertEquals(141.2689035, responseMatrix.get(2, 1), 1e-4);
 
     }
 

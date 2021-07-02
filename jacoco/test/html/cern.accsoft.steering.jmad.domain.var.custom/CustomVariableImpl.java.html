@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomVariableImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.var.custom</a> &gt; <span class="el_source">CustomVariableImpl.java</span></div><h1>CustomVariableImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.var.custom;
+
+import cern.accsoft.steering.jmad.util.MadxVarType;
+
+/**
+ * This class is the basic implementation of a {@link CustomVariable}
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class CustomVariableImpl implements CustomVariable {
+
+    /** The name of the variable */
+    private final String name;
+
+    /** The expression-string of the variable */
+    private final String expression;
+
+    /** The comment for the variable */
+    private final String comment;
+
+    /** True if defined with &quot;:=&quot;, false if defined with &quot;=&quot; */
+    private final boolean lateAssigned;
+
+    /**
+     * The constructor which enforces to give a name and the expression.
+     * 
+     * @param name the name of the variable
+     * @param expression the expression defining the variable in madx.
+     * @param comment a simple description of the variable
+     * @param lateAssigned true, if assigned by &quot;:=&quot;, false if assigned by &quot;:&quot;.
+     */
+<span class="fc" id="L57">    public CustomVariableImpl(String name, String expression, String comment, boolean lateAssigned) {</span>
+<span class="fc" id="L58">        this.name = name;</span>
+<span class="fc" id="L59">        this.expression = expression;</span>
+<span class="fc" id="L60">        this.comment = comment;</span>
+<span class="fc" id="L61">        this.lateAssigned = lateAssigned;</span>
+<span class="fc" id="L62">    }</span>
+
+    @Override
+    public String getComment() {
+<span class="nc" id="L66">        return this.comment;</span>
+    }
+
+    @Override
+    public String getExpression() {
+<span class="nc" id="L71">        return this.expression;</span>
+    }
+
+    @Override
+    public String getMadxName() {
+<span class="fc" id="L76">        return this.name;</span>
+    }
+
+    @Override
+    public boolean isLateAssigned() {
+<span class="nc" id="L81">        return this.lateAssigned;</span>
+    }
+
+    @Override
+    public boolean isApertureVariable() {
+        /*
+         * this is just a primitive implementation. Maybe this shall become somehow selectable!?
+         */
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        return (getMadxName().toUpperCase().contains(&quot;APER&quot;) || ((getComment() != null) &amp;&amp; getComment().toUpperCase()</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                .contains(&quot;APERTURE&quot;)));</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L95">        return getMadxName();</span>
+    }
+
+    @Override
+    public boolean equals(Object other) {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (other instanceof CustomVariable) {</span>
+<span class="nc" id="L101">            return this.getMadxName().equals(((CustomVariable) other).getMadxName());</span>
+        } else {
+<span class="nc" id="L103">            return super.equals(other);</span>
+        }
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L109">        return this.getMadxName().hashCode();</span>
+    }
+
+    @Override
+    public String getKey() {
+<span class="fc" id="L114">        return getMadxName().trim().toLowerCase();</span>
+    }
+
+    @Override
+    public String getUnit() {
+<span class="nc" id="L119">        return null;</span>
+    }
+
+    @Override
+    public MadxVarType getVarType() {
+<span class="nc" id="L124">        return MadxVarType.DOUBLE;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L129">        return getMadxName();</span>
+    }
+
+    @Override
+    public Class&lt;?&gt; getValueClass() {
+<span class="nc" id="L134">        return getVarType().getValueClass();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

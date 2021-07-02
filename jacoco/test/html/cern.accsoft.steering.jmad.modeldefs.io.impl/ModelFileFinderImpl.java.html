@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelFileFinderImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.io.impl</a> &gt; <span class="el_source">ModelFileFinderImpl.java</span></div><h1>ModelFileFinderImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.modeldefs.io.impl;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation;
+import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
+import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
+import cern.accsoft.steering.jmad.kernel.JMadKernel;
+import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation;
+import cern.accsoft.steering.jmad.modeldefs.domain.SourceInformation.SourceType;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
+import cern.accsoft.steering.jmad.util.JMadPreferences;
+import cern.accsoft.steering.jmad.util.StreamUtil;
+import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import static cern.accsoft.steering.jmad.util.ResourceUtil.canonicalizePath;
+import static cern.accsoft.steering.jmad.util.ResourceUtil.prependPathOffset;
+
+/**
+ * This is the implementation of a class that finds model-files.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L60">public class ModelFileFinderImpl implements ModelFileFinder {</span>
+
+    private static final String DEFAULT_REPOSITORY_BASEPATH = &quot;.&quot;;
+
+    /** the logger for the class */
+<span class="fc" id="L65">    private static final Logger LOGGER = LoggerFactory.getLogger(ModelFileFinderImpl.class);</span>
+
+    /** The offsets for a specific model */
+<span class="fc" id="L68">    private ModelPathOffsets modelPathOffsets = new ModelPathOffsetsImpl();</span>
+
+    /** The paths from which the model definition was loaded */
+<span class="fc" id="L71">    private SourceInformation sourceInformation = null;</span>
+
+    /**
+     * The default strategy to search for repository files is to take them from the archive.
+     */
+<span class="fc" id="L76">    private RepositoryFilePriority repositoryFilePriority = RepositoryFilePriority.ARCHIVE;</span>
+
+    /** The preferences to find the resource path */
+    private JMadPreferences preferences;
+
+    /** The file util to create the temp-dirs. */
+    private TempFileUtil fileUtil;
+
+    /**
+     * the setter for the necessary offsets.
+     * 
+     * @param modelPathOffsets the offsets to use.
+     */
+    public void setModelFilePathOffsets(ModelPathOffsets modelPathOffsets) {
+<span class="fc" id="L90">        this.modelPathOffsets = modelPathOffsets;</span>
+<span class="fc" id="L91">    }</span>
+
+    @Override
+    public File getFile(ModelFile modelFile, JMadKernel kernel) {
+<span class="fc" id="L95">        return getFile(modelFile, path -&gt; this.fileUtil.getOutputFile(kernel, path));</span>
+    }
+
+    public File getFile(ModelFile modelFile, Function&lt;String, File&gt; tmpFileFunction) {
+<span class="fc" id="L99">        FileSource source = getFileSource(modelFile);</span>
+<span class="fc" id="L100">        File file = source.getFile(this, modelFile, tmpFileFunction);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (file == null) {</span>
+<span class="nc" id="L102">            LOGGER.warn(&quot;Could not get model file '&quot; + modelFile.getName() + &quot;' from source '&quot; + source + &quot;'&quot;);</span>
+        }
+<span class="fc" id="L104">        return file;</span>
+    }
+    
+    
+    @Override
+    public InputStream getStream(ModelFile modelFile) {
+<span class="fc" id="L110">        FileSource source = getFileSource(modelFile);</span>
+<span class="fc" id="L111">        return source.getStream(this, modelFile);</span>
+    }
+
+    @Override
+    public Optional&lt;File&gt; getLocalSourceFile(ModelFile modelFile) {
+<span class="nc" id="L116">        SourceType sourceType = getSource();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (SourceType.FILE == sourceType) {</span>
+<span class="nc" id="L118">            return Optional.of(getInputFile(getSourceInformation().getRootPath(), getArchivePath(modelFile)));</span>
+        }
+<span class="nc" id="L120">        return Optional.empty();</span>
+    }
+
+    /**
+     * get the stream for a file from the archive (JAR or ZIP)
+     * 
+     * @param modelFile the model file for which to get the stream
+     * @return the stream
+     */
+    private InputStream getArchiveStream(ModelFile modelFile) {
+<span class="fc" id="L130">        SourceType sourceType = getSource();</span>
+
+<span class="fc" id="L132">        String archivePath = getArchivePath(modelFile);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (SourceType.JAR == sourceType) {</span>
+<span class="fc" id="L134">            String path = prependPathOffset(archivePath, ModelDefinitionUtil.PACKAGE_OFFSET);</span>
+<span class="fc" id="L135">            return ModelDefinitionUtil.BASE_CLASS.getResourceAsStream(canonicalizePath(path));</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        } else if (SourceType.ZIP == sourceType) {</span>
+            /* 4) if there is an offset with in the archive, then also prepend this one */
+<span class="fc" id="L138">            String withinZipPath = prependPathOffset(archivePath, sourceInformation.getPathOffsetWithinArchive());</span>
+<span class="fc" id="L139">            return getZipInputStream(getSourceInformation().getRootPath(), canonicalizePath(withinZipPath));</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        } else if (SourceType.FILE == sourceType) {</span>
+<span class="nc" id="L141">            return getFileInputStream(getSourceInformation().getRootPath(), archivePath);</span>
+        } else {
+<span class="nc" id="L143">            LOGGER.warn(&quot;Unhandled source type '&quot; + sourceType + &quot;'.&quot;);</span>
+<span class="nc" id="L144">            return null;</span>
+        }
+
+    }
+
+    private SourceType getSource() {
+<span class="fc" id="L150">        SourceInformation sourceInfo = getSourceInformation();</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (sourceInfo == null) {</span>
+<span class="fc" id="L152">            return SourceType.JAR;</span>
+        } else {
+<span class="fc" id="L154">            return sourceInfo.getSourceType();</span>
+        }
+    }
+
+    private InputStream getFileInputStream(File baseDir, String relativePath) {
+<span class="nc" id="L159">        File file = getInputFile(baseDir, relativePath);</span>
+<span class="nc" id="L160">        LOGGER.debug(&quot;Fetching file '&quot; + file.getAbsolutePath() + &quot;'&quot;);</span>
+        try {
+<span class="nc" id="L162">            return new FileInputStream(file);</span>
+<span class="nc" id="L163">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L164">            LOGGER.warn(&quot;Could not open file '&quot; + file.getAbsolutePath() + &quot;'&quot;, e);</span>
+<span class="nc" id="L165">            return null;</span>
+        }
+    }
+
+    private File getInputFile(File baseDir, String relativePath) {
+<span class="nc" id="L170">        return new File(baseDir.getAbsolutePath() + File.separator + relativePath);</span>
+    }
+
+    private InputStream getZipInputStream(File file, String entryName) {
+<span class="fc" id="L174">        LOGGER.debug(&quot;Fetching file '&quot; + entryName + &quot;' from zip file '&quot; + file.getAbsolutePath() + &quot;'&quot;);</span>
+        ZipFile zipFile;
+        try {
+<span class="fc" id="L177">            zipFile = new ZipFile(file);</span>
+<span class="nc" id="L178">        } catch (IOException e) {</span>
+<span class="nc" id="L179">            LOGGER.error(&quot;Could not open zip file '&quot; + file.getAbsolutePath() + &quot;'&quot;);</span>
+<span class="nc" id="L180">            return null;</span>
+<span class="fc" id="L181">        }</span>
+<span class="fc" id="L182">        ZipEntry entry = zipFile.getEntry(entryName);</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        if (entry == null) {</span>
+<span class="nc" id="L184">            LOGGER.warn(&quot;Could not get entry '&quot; + entryName + &quot;' from zip file '&quot; + zipFile + &quot;'.&quot;);</span>
+<span class="nc" id="L185">            return null;</span>
+        }
+        try {
+<span class="fc" id="L188">            return zipFile.getInputStream(entry);</span>
+<span class="nc" id="L189">        } catch (IOException e) {</span>
+<span class="nc" id="L190">            LOGGER.error(&quot;Could not get input stream for entry '&quot; + entryName + &quot;'&quot;);</span>
+<span class="nc" id="L191">            return null;</span>
+        }
+    }
+
+    
+    /**
+     * returns an accessible file with the given name relative to the model - basepath from the resources in the
+     * classpath or zip file.
+     * 
+     * @param modelFile the {@link ModelFile} for which to get the rel file.
+     * @return the file
+     */
+    private File getArchiveFile(ModelFile modelFile, Function&lt;String, File&gt; tmpFileFunction) {
+<span class="fc" id="L204">        String filename = getArchivePath(modelFile);</span>
+<span class="fc" id="L205">        File file = tmpFileFunction.apply(filename);</span>
+
+        /*
+         * For the moment all 'Archive types' (ZIP, JAR, and FILE) are treated the same. Maybe change this at some point
+         * so that real files are not copied to the tmp path, but only extracted if necessary.
+         */
+<span class="fc" id="L211">        InputStream inputStream = getArchiveStream(modelFile);</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        if (StreamUtil.toFile(inputStream, file)) {</span>
+<span class="fc" id="L213">            return file;</span>
+        } else {
+<span class="nc" id="L215">            return null;</span>
+        }
+    }
+    
+    /**
+     * get the stream for a real file. (This only returns a valid stream if the file is a repository file)
+     * 
+     * @param modelFile the model file for which to get the stream
+     * @return the input stream from the file
+     */
+    private InputStream getRepositoryStream(ModelFile modelFile) {
+<span class="nc" id="L226">        File file = getRepositoryFile(modelFile);</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (file == null) {</span>
+<span class="nc" id="L228">            return null;</span>
+        } else {
+            try {
+<span class="nc" id="L231">                return new FileInputStream(file);</span>
+<span class="nc" id="L232">            } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L233">                return null;</span>
+            }
+        }
+    }
+
+    /**
+     * returns a file object that represents the real file in the repository. This only returns a non null value for a
+     * repository file
+     * 
+     * @param modelFile the model file for which
+     * @return the file
+     */
+    private File getRepositoryFile(ModelFile modelFile) {
+<span class="nc" id="L246">        String repoPath = getRepositoryPath(modelFile);</span>
+<span class="nc" id="L247">        return new File(repoPath);</span>
+    }
+
+    @Override
+    public String getArchivePath(ModelFile modelFile) {
+        /* 1) the name itself */
+<span class="fc" id="L253">        String resourcePath = modelFile.getName();</span>
+        /* 2) the model definition - dependent offset */
+<span class="fc" id="L255">        resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getPathOffset(this.modelPathOffsets));</span>
+        /* 3) the offset depending on the type (Resource or repo file; can be overridden by the model definition) */
+<span class="fc" id="L257">        resourcePath = prependPathOffset(resourcePath, modelFile.getLocation().getResourcePrefix(this.modelPathOffsets));</span>
+
+<span class="fc" id="L259">        return resourcePath;</span>
+    }
+
+    @Override
+    public String getRepositoryPath(ModelFile modelFile) {
+<span class="nc" id="L264">        String repoPath = modelFile.getName();</span>
+<span class="nc" id="L265">        repoPath = prependPathOffset(repoPath, getRepositoryPathOffset());</span>
+<span class="nc" id="L266">        repoPath = getRepositoryBasePath() + File.separator + repoPath;</span>
+<span class="nc" id="L267">        return repoPath;</span>
+    }
+
+    private String getRepositoryBasePath() {
+<span class="nc" id="L271">        String basePath = getPreferences().getModelRepositoryBasePath();</span>
+<span class="nc bnc" id="L272" title="All 4 branches missed.">        if ((basePath == null) &amp;&amp; (sourceInformation != null)</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                &amp;&amp; (SourceType.FILE.equals(sourceInformation.getSourceType()))) {</span>
+<span class="nc" id="L274">            basePath = sourceInformation.getRootPath().getAbsolutePath();</span>
+        }
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        if (basePath == null) {</span>
+<span class="nc" id="L277">            basePath = DEFAULT_REPOSITORY_BASEPATH;</span>
+        }
+<span class="nc" id="L279">        return basePath;</span>
+    }
+
+    private String getRepositoryPathOffset() {
+<span class="nc" id="L283">        return this.modelPathOffsets.getRepositoryOffset();</span>
+    }
+
+    public void setPreferences(JMadPreferences preferences) {
+<span class="fc" id="L287">        this.preferences = preferences;</span>
+<span class="fc" id="L288">    }</span>
+
+    private JMadPreferences getPreferences() {
+<span class="nc bnc" id="L291" title="All 2 branches missed.">        if (this.preferences == null) {</span>
+<span class="nc" id="L292">            LOGGER.warn(&quot;Preferences not set. Maybe config error.&quot;);</span>
+        }
+<span class="nc" id="L294">        return preferences;</span>
+    }
+
+    public void setFileUtil(TempFileUtil fileUtil) {
+<span class="fc" id="L298">        this.fileUtil = fileUtil;</span>
+<span class="fc" id="L299">    }</span>
+
+    private TempFileUtil getFileUtil() {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        if (this.fileUtil == null) {</span>
+<span class="nc" id="L303">            LOGGER.warn(&quot;FileUtil not set. Maybe config error.&quot;);</span>
+        }
+<span class="nc" id="L305">        return fileUtil;</span>
+    }
+
+    @Override
+    public RepositoryFilePriority getRepositoryFilePriority() {
+<span class="nc" id="L310">        return this.repositoryFilePriority;</span>
+    }
+
+    @Override
+    public void setRepositoryFilePriority(RepositoryFilePriority priority) {
+<span class="nc" id="L315">        this.repositoryFilePriority = priority;</span>
+<span class="nc" id="L316">    }</span>
+
+    /**
+     * decides from where the file will be finally taken.
+     * 
+     * @param modelFile the modelFile for which to decide
+     * @return the FileSource
+     */
+    private FileSource getFileSource(ModelFile modelFile) {
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">        if (ModelFileLocation.RESOURCE.equals(modelFile.getLocation())) {</span>
+<span class="fc" id="L326">            return FileSource.ARCHIVE;</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">        } else if (ModelFileLocation.REPOSITORY.equals(modelFile.getLocation())) {</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">            if (RepositoryFilePriority.ARCHIVE.equals(getRepositoryFilePriority())) {</span>
+                /*
+                 * If the file can be retrieved from the archive then the source shall be ARCHIVE
+                 */
+<span class="nc bnc" id="L332" title="All 2 branches missed.">                if (isAvailableInArchive(modelFile)) {</span>
+<span class="nc" id="L333">                    return FileSource.ARCHIVE;</span>
+                } else {
+<span class="nc" id="L335">                    return FileSource.REPOSITORY;</span>
+                }
+<span class="nc bnc" id="L337" title="All 2 branches missed.">            } else if (RepositoryFilePriority.REPOSITORY.equals(getRepositoryFilePriority())) {</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">                if (isAvailableInRepository(modelFile)) {</span>
+<span class="nc" id="L339">                    return FileSource.REPOSITORY;</span>
+                } else {
+<span class="nc" id="L341">                    return FileSource.ARCHIVE;</span>
+                }
+            } else {
+<span class="nc" id="L344">                LOGGER.warn(&quot;Unhandled RepositoryFilePriority '&quot; + getRepositoryFilePriority()</span>
+                        + &quot;'. Will try to get modelfile from archive.&quot;);
+<span class="nc" id="L346">                return FileSource.ARCHIVE;</span>
+            }
+        } else {
+<span class="nc" id="L349">            LOGGER.warn(&quot;Unhandled ModelFileLocation '&quot; + modelFile.getLocation()</span>
+                    + &quot;'. Will try to get modelfile from archive.&quot;);
+<span class="nc" id="L351">            return FileSource.ARCHIVE;</span>
+        }
+    }
+
+    /**
+     * checks if the file is available in the archive
+     * 
+     * @param modelFile the model file to check
+     * @return true if it exists, false if not
+     */
+    private boolean isAvailableInArchive(ModelFile modelFile) {
+<span class="nc" id="L362">        InputStream archiveStream = getArchiveStream(modelFile);</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (archiveStream != null) {</span>
+            try {
+<span class="nc" id="L365">                archiveStream.close();</span>
+<span class="nc" id="L366">            } catch (IOException e) {</span>
+<span class="nc" id="L367">                LOGGER.error(&quot;Error while closing input stream.&quot;, e);</span>
+<span class="nc" id="L368">            }</span>
+<span class="nc" id="L369">            return true;</span>
+        }
+<span class="nc" id="L371">        return false;</span>
+    }
+
+    /**
+     * checks if the file is available in the repository
+     * 
+     * @param modelFile the file to check
+     * @return true if it exists, false if not
+     */
+    private boolean isAvailableInRepository(ModelFile modelFile) {
+<span class="nc" id="L381">        File file = getRepositoryFile(modelFile);</span>
+<span class="nc bnc" id="L382" title="All 4 branches missed.">        if ((file != null) &amp;&amp; (file.exists())) {</span>
+<span class="nc" id="L383">            return true;</span>
+        }
+<span class="nc" id="L385">        return false;</span>
+    }
+
+    public void setSourceInformation(SourceInformation sourceInformation) {
+<span class="fc" id="L389">        this.sourceInformation = sourceInformation;</span>
+<span class="fc" id="L390">    }</span>
+
+    private SourceInformation getSourceInformation() {
+<span class="fc" id="L393">        return sourceInformation;</span>
+    }
+
+    
+    /**
+     * this enum indicates from where the repository-file is taken. It is the result of a combination of
+     * {@link ModelFileFinder.RepositoryFilePriority} and the availability.
+     * 
+     * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+     */
+<span class="fc" id="L403">    private static enum FileSource {</span>
+<span class="fc" id="L404">        ARCHIVE {</span>
+            @Override
+            public File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile,
+                    Function&lt;String, File&gt; tmpFileFunction) {
+<span class="fc" id="L408">                return fileFinder.getArchiveFile(modelFile, tmpFileFunction);</span>
+            }
+
+            @Override
+            public InputStream getStream(ModelFileFinderImpl fileFinder, ModelFile modelFile) {
+<span class="fc" id="L413">                return fileFinder.getArchiveStream(modelFile);</span>
+            }
+        },
+<span class="fc" id="L416">        REPOSITORY {</span>
+            @Override
+            public File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile,
+                    Function&lt;String, File&gt; tmpFileFunction) {
+<span class="nc" id="L420">                return fileFinder.getRepositoryFile(modelFile);</span>
+            }
+
+            @Override
+            public InputStream getStream(ModelFileFinderImpl fileFinder, ModelFile modelFile) {
+<span class="nc" id="L425">                return fileFinder.getRepositoryStream(modelFile);</span>
+            }
+        };
+
+        public abstract File getFile(ModelFileFinderImpl fileFinder, ModelFile modelFile,
+                Function&lt;String, File&gt; tmpFileFunction);
+
+        public abstract InputStream getStream(ModelFileFinderImpl fileFinder, ModelFile modelFile);
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

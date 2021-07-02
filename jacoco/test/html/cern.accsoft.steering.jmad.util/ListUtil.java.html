@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">ListUtil.java</span></div><h1>ListUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This class provides some utility-methods for generic lists.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class ListUtil {
+
+    /**
+     * private constructor to avoid instantiation
+     */
+    private ListUtil() {
+        /* only static methods */
+    }
+
+    /**
+     * converts a list of one tye into a list of another type using the provided mapper
+     * 
+     * @param &lt;IN&gt; the type of the input-list items
+     * @param &lt;OUT&gt; the type of the output-list items
+     * @param inlist the list of items to convert
+     * @param mapper the mapper which converts the types
+     * @return the new list.
+     */
+    public static &lt;IN, OUT&gt; List&lt;OUT&gt; map(List&lt;IN&gt; inlist, Mapper&lt;IN, OUT&gt; mapper) {
+<span class="fc" id="L55">        List&lt;OUT&gt; outlist = new ArrayList&lt;&gt;(inlist.size());</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (IN item : inlist) {</span>
+<span class="fc" id="L57">            outlist.add(mapper.map(item));</span>
+<span class="fc" id="L58">        }</span>
+<span class="fc" id="L59">        return outlist;</span>
+    }
+
+    /**
+     * this interface just defines one method to convert one object into another.
+     * 
+     * @param &lt;IN&gt; The type of object used as source for the conversion
+     * @param &lt;OUT&gt; The type of the resulting object
+     */
+    public interface Mapper&lt;IN, OUT&gt; {
+        /**
+         * converts the input object to the output
+         * 
+         * @param inobject the object to convert
+         * @return the converted object
+         */
+        public abstract OUT map(IN inobject);
+    }
+
+    /**
+     * this method converts any List to a list of strings.
+     * 
+     * @param objects the objects that shall be converted to strings
+     * @return the list of strings
+     */
+    public static List&lt;String&gt; toString(List&lt;? extends Object&gt; objects) {
+<span class="nc" id="L85">        List&lt;String&gt; strings = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (Object object : objects) {</span>
+<span class="nc" id="L87">            strings.add(object.toString());</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        return strings;</span>
+    }
+
+    /**
+     * creates an array list with the one given element.
+     * 
+     * @param &lt;T&gt; the type of objects for the list
+     * @param element the single element that shall be contained in the new list
+     * @return a list containing the given element
+     */
+    public static &lt;T&gt; List&lt;T&gt; createOneElementList(T element) {
+<span class="nc" id="L100">        List&lt;T&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L101">        list.add(element);</span>
+<span class="nc" id="L102">        return list;</span>
+    }
+
+    /**
+     * creates an array list with the one given element, or an empty list if the element is null.
+     *
+     * @param &lt;T&gt; the type of objects for the list
+     * @param element the single element that shall be contained in the new list
+     * @return a list containing the given element, or an empty list
+     */
+    public static &lt;T&gt; List&lt;T&gt; createOneElementOrEmptyList(T element) {
+<span class="nc" id="L113">        List&lt;T&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (element != null) {</span>
+<span class="nc" id="L115">            list.add(element);</span>
+        }
+<span class="nc" id="L117">        return list;</span>
+    }
+
+    /**
+     * creates a new list of the given size, containing the same element in every item
+     * 
+     * @param &lt;T&gt; the type of the list items
+     * @param size the size of the new list
+     * @param defaultValue the value that shall be contained in all items
+     * @return the new list, containing the defaultValue in all items
+     */
+    public static &lt;T&gt; List&lt;T&gt; createDefaultValueList(int size, T defaultValue) {
+<span class="nc" id="L129">        List&lt;T&gt; list = new ArrayList&lt;&gt;(size);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="nc" id="L131">            list.add(defaultValue);</span>
+        }
+<span class="nc" id="L133">        return list;</span>
+    }
+
+    /**
+     * returns a list with the values difference values doublesA-doublesB
+     * 
+     * @param doublesA the values from which to subtract
+     * @param doublesB the values which shall be subtracted
+     * @return a list of differences
+     */
+    public static List&lt;Double&gt; diff(List&lt;Double&gt; doublesA, List&lt;Double&gt; doublesB) {
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (doublesA.size() != doublesB.size()) {</span>
+<span class="nc" id="L145">            throw new IllegalArgumentException(&quot;The two lists must be of same size!&quot;);</span>
+        }
+<span class="nc" id="L147">        List&lt;Double&gt; diff = new ArrayList&lt;&gt;(doublesA.size());</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        for (int i = 0; i &lt; doublesA.size(); i++) {</span>
+<span class="nc" id="L149">            diff.add(doublesA.get(i) - doublesB.get(i));</span>
+        }
+<span class="nc" id="L151">        return diff;</span>
+    }
+
+    /**
+     * performs an element wise devision of the lists (doublesA / doublesB).
+     * 
+     * @param doublesA the list of values that act as dividends
+     * @param doublesB the list of values that act as divisors
+     * @return element wise doublesA / doublesB
+     */
+    public static List&lt;Double&gt; divide(List&lt;Double&gt; doublesA, List&lt;Double&gt; doublesB) {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (doublesA.size() != doublesB.size()) {</span>
+<span class="nc" id="L163">            throw new IllegalArgumentException(&quot;The two lists must be of same size!&quot;);</span>
+        }
+<span class="nc" id="L165">        List&lt;Double&gt; divide = new ArrayList&lt;&gt;(doublesA.size());</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        for (int i = 0; i &lt; doublesA.size(); i++) {</span>
+<span class="nc" id="L167">            divide.add(doublesA.get(i) / doublesB.get(i));</span>
+        }
+<span class="nc" id="L169">        return divide;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

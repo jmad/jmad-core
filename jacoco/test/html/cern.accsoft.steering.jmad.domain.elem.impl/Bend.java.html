@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bend.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.elem.impl</a> &gt; <span class="el_source">Bend.java</span></div><h1>Bend.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: Bend.java,v 1.1 2008-12-19 13:55:30 kfuchsbe Exp $
+ * 
+ * $Date: 2008-12-19 13:55:30 $ $Revision: 1.1 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.domain.elem.impl;
+
+import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
+
+/**
+ * Represents a bending-magnet of a general type. This is the substitute in JMad for both MadX elements, &lt;a
+ * href=&quot;http://mad.web.cern.ch/mad/Introduction/bend.html&quot;&gt;RBEND and SBEND&lt;/a&gt;.
+ * &lt;p&gt;
+ * possible attributes:
+ * &lt;p&gt;
+ * L=real,ANGLE=real,TILT=real,K0=real,K0S=real,K1=real,E1=real,E2=real,
+ * FINT=real,FINTX=real,HGAP=real,K2=real,H1=real,H2=real,K3=real;
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class Bend extends AbstractElement {
+
+    /** the bending angle. */
+    public static final String ATTR_ANGLE = &quot;angle&quot;;
+
+    /** the tilt of the element */
+    public static final String ATTR_TILT = &quot;tilt&quot;;
+
+    /** the dipole coeff. Should only be used to define relative field errors. */
+    public static final String ATTR_K0 = &quot;k0&quot;;
+
+    /**
+     * the skewed dipole coeff. Should only be used to define relative field errors.
+     */
+    public static final String ATTR_K0S = &quot;k0s&quot;;
+
+    /** the quadrupole coeff. */
+    public static final String ATTR_K1 = &quot;k1&quot;;
+
+    /** the rotation angle for the entrance pole face (default: 0 rad). */
+    public static final String ATTR_E1 = &quot;e1&quot;;
+
+    /** the rotation angle for the exit pole face (default: 0 rad). */
+    public static final String ATTR_E2 = &quot;e2&quot;;
+
+    /** The field integral whose default value is 0. */
+    public static final String ATTR_FINT = &quot;fint&quot;;
+
+    /**
+     * Allows ({@literal FINTX &gt; 0})to set FINT at the element exit different from its entry value.
+     * In particular useful to switch it off (FINTX=0).
+     */
+    public static final String ATTR_FINTX = &quot;fintx&quot;;
+
+    /** the half gap of the magnet (default: 0 m). */
+    public static final String ATTR_HGAP = &quot;hgap&quot;;
+
+    /** the sextupole coefficient K2 = (1 / B rho) (del2 By / del x2). */
+    public static final String ATTR_K2 = &quot;k2&quot;;
+
+    /** the curvature of the entrance pole face (default: 0 m-1). */
+    public static final String ATTR_H1 = &quot;h1&quot;;
+
+    /**
+     * the curvature of the exit pole face (default: 0 m-1). A positive pole face curvature induces a negative sextupole
+     * component; i.e. for positive H1 and H2 the centres of curvature of the pole faces are placed inside the magnet.
+     */
+    public static final String ATTR_H2 = &quot;h2&quot;;
+
+    /** the octupole coefficient */
+    public static final String ATTR_K3 = &quot;k3&quot;;
+
+    /**
+     * the constructor, which enforces that the element has a MadX element type and a name.
+     * 
+     * @param madxElementType the elementType which represents the element in MadX
+     * @param name the name of the element
+     */
+    public Bend(MadxElementType madxElementType, String name) {
+<span class="fc" id="L104">        super(madxElementType, name);</span>
+<span class="fc" id="L105">        addAttribute(ATTR_ANGLE);</span>
+<span class="fc" id="L106">        addAttribute(ATTR_E1);</span>
+<span class="fc" id="L107">        addAttribute(ATTR_E2);</span>
+<span class="fc" id="L108">        addAttribute(ATTR_FINT);</span>
+<span class="fc" id="L109">        addAttribute(ATTR_FINTX);</span>
+<span class="fc" id="L110">        addAttribute(ATTR_H1);</span>
+<span class="fc" id="L111">        addAttribute(ATTR_H2);</span>
+<span class="fc" id="L112">        addAttribute(ATTR_HGAP);</span>
+<span class="fc" id="L113">        addAttribute(ATTR_K0);</span>
+<span class="fc" id="L114">        addAttribute(ATTR_K0S);</span>
+<span class="fc" id="L115">        addAttribute(ATTR_K1);</span>
+<span class="fc" id="L116">        addAttribute(ATTR_K2);</span>
+<span class="fc" id="L117">        addAttribute(ATTR_K3);</span>
+<span class="fc" id="L118">        addAttribute(ATTR_TILT);</span>
+<span class="fc" id="L119">    }</span>
+
+    public double getAngle() {
+<span class="nc" id="L122">        return getAttribute(ATTR_ANGLE);</span>
+    }
+
+    public double getE1() {
+<span class="nc" id="L126">        return getAttribute(ATTR_E1);</span>
+    }
+
+    public double getE2() {
+<span class="nc" id="L130">        return getAttribute(ATTR_E2);</span>
+    }
+
+    public double getFint() {
+<span class="nc" id="L134">        return getAttribute(ATTR_FINT);</span>
+    }
+
+    public double getFintX() {
+<span class="nc" id="L138">        return getAttribute(ATTR_FINTX);</span>
+    }
+
+    public double getH1() {
+<span class="nc" id="L142">        return getAttribute(ATTR_H1);</span>
+    }
+
+    public double getH2() {
+<span class="nc" id="L146">        return getAttribute(ATTR_H2);</span>
+    }
+
+    public double getHGap() {
+<span class="nc" id="L150">        return getAttribute(ATTR_HGAP);</span>
+    }
+
+    public double getK0() {
+<span class="nc" id="L154">        return getAttribute(ATTR_K0);</span>
+    }
+
+    public double getK0S() {
+<span class="nc" id="L158">        return getAttribute(ATTR_K0S);</span>
+    }
+
+    public double getK1() {
+<span class="nc" id="L162">        return getAttribute(ATTR_K1);</span>
+    }
+
+    public double getK2() {
+<span class="nc" id="L166">        return getAttribute(ATTR_K2);</span>
+    }
+
+    public double getK3() {
+<span class="nc" id="L170">        return getAttribute(ATTR_K3);</span>
+    }
+
+    public double getTilt() {
+<span class="nc" id="L174">        return getAttribute(ATTR_TILT);</span>
+    }
+
+    public void setAngle(double angle) {
+<span class="nc" id="L178">        setAttribute(ATTR_ANGLE, angle);</span>
+<span class="nc" id="L179">    }</span>
+
+    /* short name (e1) to use same name as madx */
+    public void setE1(double e1) { // NOPMD by kaifox on 6/25/10 5:30 PM
+<span class="nc" id="L183">        setAttribute(ATTR_E1, e1);</span>
+<span class="nc" id="L184">    }</span>
+
+    /* short name (e2) to use same name as madx */
+    public void setE2(double e2) { // NOPMD by kaifox on 6/25/10 5:31 PM
+<span class="nc" id="L188">        setAttribute(ATTR_E2, e2);</span>
+<span class="nc" id="L189">    }</span>
+
+    public void setFint(double fint) {
+<span class="nc" id="L192">        setAttribute(ATTR_FINT, fint);</span>
+<span class="nc" id="L193">    }</span>
+
+    public void setFintX(double fintx) {
+<span class="nc" id="L196">        setAttribute(ATTR_FINTX, fintx);</span>
+<span class="nc" id="L197">    }</span>
+
+    public void setH1(double h1) { // NOPMD by kaifox on 6/25/10 5:32 PM
+<span class="nc" id="L200">        setAttribute(ATTR_H1, h1);</span>
+<span class="nc" id="L201">    }</span>
+
+    public void setH2(double h2) { // NOPMD by kaifox on 6/25/10 5:32 PM
+<span class="nc" id="L204">        setAttribute(ATTR_H2, h2);</span>
+<span class="nc" id="L205">    }</span>
+
+    public void setHGap(double hgap) {
+<span class="nc" id="L208">        setAttribute(ATTR_HGAP, hgap);</span>
+<span class="nc" id="L209">    }</span>
+
+    /* short name (k0) to use same name as madx */
+    public void setK0(double k0) { // NOPMD by kaifox on 6/25/10 5:33 PM
+<span class="nc" id="L213">        setAttribute(ATTR_K0, k0);</span>
+<span class="nc" id="L214">    }</span>
+
+    public void setK0S(double k0s) {
+<span class="nc" id="L217">        setAttribute(ATTR_K0S, k0s);</span>
+<span class="nc" id="L218">    }</span>
+
+    /* PMD: short name to be consistent with MadX */
+    public void setK1(double k1) { // NOPMD by kaifox on 10/6/10 6:47 PM
+<span class="nc" id="L222">        setAttribute(ATTR_K1, k1);</span>
+<span class="nc" id="L223">    }</span>
+
+    /* PMD: short name to be consistent with MadX */
+    public void setK2(double k2) { // NOPMD by kaifox on 10/6/10 6:47 PM
+<span class="nc" id="L227">        setAttribute(ATTR_K2, k2);</span>
+<span class="nc" id="L228">    }</span>
+
+    /* PMD: short name to be consistent with MadX */
+    public void setK3(double k3) { // NOPMD by kaifox on 10/6/10 6:47 PM
+<span class="nc" id="L232">        setAttribute(ATTR_K3, k3);</span>
+<span class="nc" id="L233">    }</span>
+
+    public void setTilt(double tilt) {
+<span class="nc" id="L236">        setAttribute(ATTR_TILT, tilt);</span>
+<span class="nc" id="L237">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnobManagerImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model</a> &gt; <span class="el_source">KnobManagerImpl.java</span></div><h1>KnobManagerImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.model;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.knob.Knob;
+import cern.accsoft.steering.jmad.domain.knob.KnobType;
+import cern.accsoft.steering.jmad.domain.knob.attribute.ElementAttribute;
+import cern.accsoft.steering.jmad.domain.knob.bean.BeanPropertyKnob;
+import cern.accsoft.steering.jmad.model.knob.ModelKnob;
+import cern.accsoft.steering.jmad.model.knob.MultiModelKnob;
+import cern.accsoft.steering.jmad.model.knob.StatefulKnob;
+
+/**
+ * The simplest implementation of a knob-manager
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class KnobManagerImpl implements KnobManager {
+
+    /** all the available knobs */
+<span class="fc" id="L48">    private final Map&lt;String, Knob&gt; customKnobs = new LinkedHashMap&lt;String, Knob&gt;();</span>
+
+    /**
+     * the already created element-attribute knobs are stored here to ensure, that we return the same ones, when they
+     * are needed.
+     */
+<span class="fc" id="L54">    private final Map&lt;String, Knob&gt; elementAttributes = new HashMap&lt;String, Knob&gt;();</span>
+
+    /**
+     * the already created initial-conditions knobs are stored here to ensure to return always the same.
+     */
+<span class="fc" id="L59">    private final Map&lt;String, Knob&gt; twissInitialConditions = new HashMap&lt;String, Knob&gt;();</span>
+
+    /** The model to which this {@link KnobManager} belongs to */
+    private final JMadModel model;
+
+<span class="fc" id="L64">    public KnobManagerImpl(JMadModel model) {</span>
+<span class="fc" id="L65">        this.model = model;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public void addCustomKnob(Knob knob) {
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (this.customKnobs.size() == 0) {</span>
+<span class="fc" id="L72">            this.model.addListener(new AbstractJMadModelListener() {</span>
+                @Override
+                public void opticsDefinitionChanged() {
+<span class="fc" id="L75">                    triggerOpticChanged();</span>
+<span class="fc" id="L76">                }</span>
+            });
+        }
+
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (knob instanceof ModelKnob) {</span>
+<span class="fc" id="L81">            ((ModelKnob) knob).setModel(this.model);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        } else if (knob instanceof MultiModelKnob) {</span>
+<span class="nc" id="L83">            ((MultiModelKnob) knob).addModel(this.model);</span>
+        }
+
+<span class="fc" id="L86">        this.customKnobs.put(knob.getKey(), knob);</span>
+<span class="fc" id="L87">    }</span>
+
+    @Override
+    public List&lt;Knob&gt; getCustomKnobs() {
+<span class="fc" id="L91">        return new ArrayList&lt;Knob&gt;(this.customKnobs.values());</span>
+    }
+
+    @Override
+    public Knob getKnob(KnobType type, String key) {
+<span class="nc" id="L96">        Knob knob = null;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (KnobType.STRENGTH.equals(type)) {</span>
+<span class="nc" id="L98">            knob = model.getStrengthsAndVars().getStrength(key);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        } else if (KnobType.CUSTOM.equals(type)) {</span>
+<span class="nc" id="L100">            return this.customKnobs.get(key);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        } else if (KnobType.ELEMENT_ATTRIBUTE.equals(type)) {</span>
+<span class="nc" id="L102">            knob = this.elementAttributes.get(key);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (knob == null) {</span>
+<span class="nc" id="L104">                knob = createElementAttributeKnob(key);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (knob != null) {</span>
+<span class="nc" id="L106">                    this.elementAttributes.put(knob.getKey(), knob);</span>
+                }
+            }
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        } else if (KnobType.TWISS_INITIAL_CONDITION.equals(type)) {</span>
+<span class="nc" id="L110">            knob = this.twissInitialConditions.get(key);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (knob == null) {</span>
+<span class="nc" id="L112">                knob = createTwissInitialConditionKnob(key);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (knob != null) {</span>
+<span class="nc" id="L114">                    this.twissInitialConditions.put(knob.getKey(), knob);</span>
+                }
+            }
+        }
+<span class="nc" id="L118">        return knob;</span>
+    }
+
+    private Knob createElementAttributeKnob(String key) {
+<span class="nc" id="L122">        String elementName = ElementAttribute.getElementNameFromKey(key);</span>
+<span class="nc" id="L123">        String attributeName = ElementAttribute.getAttributeNameFromKey(key);</span>
+<span class="nc" id="L124">        Element element = model.getActiveRange().getElement(elementName);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (element == null) {</span>
+            /* in case the element does not exist in the active range - we have no knob to create */
+<span class="nc" id="L127">            return null;</span>
+        }
+<span class="nc" id="L129">        return new ElementAttribute(element, attributeName);</span>
+    }
+
+    private Knob createTwissInitialConditionKnob(String key) {
+<span class="nc" id="L133">        String propertyName = BeanPropertyKnob.getPropertyNameFromKey(key);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (propertyName == null) {</span>
+            /*
+             * this may mean, that the key contains no &quot;.&quot;. We then assume, that the given key is only the attribute
+             * name
+             * 
+             * XXX this is of course inconsistent. For reference in the hashmap the real key of the knob shall be used.
+             */
+<span class="nc" id="L141">            propertyName = key;</span>
+        }
+<span class="nc" id="L143">        return new TwissInitialConditionKnob(model, propertyName);</span>
+    }
+
+    @Override
+    public void cleanup() {
+<span class="fc" id="L148">        this.elementAttributes.clear();</span>
+<span class="fc" id="L149">        this.twissInitialConditions.clear();</span>
+<span class="fc" id="L150">    }</span>
+
+    /**
+     * this call notifies the registered knobs that the optic in the assigned model has changed. This call is required,
+     * as after an optic change the components of custom knobs might be overridden in the model. The knob does not know
+     * about that and will always just add a delta in its knob strengths to the model, neglecting the total value of the
+     * knob. Under the assumption that loading of an optic overwrites all strengths the current solution is to trigger
+     * all custom knobs to write their current total values to the model.
+     */
+    final void triggerOpticChanged() {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        for (Knob knob : this.getCustomKnobs()) {</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (knob instanceof StatefulKnob) {</span>
+<span class="nc" id="L162">                StatefulKnob statefulKnob = (StatefulKnob) knob;</span>
+<span class="nc" id="L163">                statefulKnob.writeCurrentStateToModel(model);</span>
+            }
+<span class="fc" id="L165">        }</span>
+<span class="fc" id="L166">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

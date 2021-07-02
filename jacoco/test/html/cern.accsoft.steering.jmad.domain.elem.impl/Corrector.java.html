@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Corrector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.elem.impl</a> &gt; <span class="el_source">Corrector.java</span></div><h1>Corrector.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: Corrector.java,v 1.2 2008-09-25 08:03:04 kfuchsbe Exp $
+ * 
+ * $Date: 2008-09-25 08:03:04 $ $Revision: 1.2 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.domain.elem.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+
+/**
+ * Represents an orbit corrector in JMad. This represents all the element of the types &lt;a
+ * href=&quot;http://mad.web.cern.ch/mad/Introduction/kickers.html&quot;&gt;HKICKER, VKICKER, KICKER and TKICKER&lt;/a&gt; in MadX.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class Corrector extends AbstractElement {
+    /** the logger */
+<span class="fc" id="L46">    private static final Logger LOGGER = LoggerFactory.getLogger(Corrector.class);</span>
+
+    /** The kick angle for either horizontal or vertical correctors. [rad] */
+    public static final String ATTR_KICK = &quot;kick&quot;;
+
+    /** The horizontal kick angle for a corrector in both planes [rad] */
+    public static final String ATTR_HKICK = &quot;hkick&quot;;
+
+    /** The vertical kick angle for a corrector in both planes [rad] */
+    public static final String ATTR_VKICK = &quot;vkick&quot;;
+
+    /** The tilt of the kicker */
+    public static final String ATTR_TILT = &quot;tilt&quot;;
+
+    /**
+     * The constructor. It adds the specific attributes to the superclass.
+     * 
+     * @param madxElementType the type that represents this specific element in MadX
+     * @param name the Name of the kicker
+     */
+    public Corrector(MadxElementType madxElementType, String name) {
+<span class="fc" id="L67">        super(madxElementType, name);</span>
+
+<span class="fc" id="L69">        addAttribute(ATTR_KICK);</span>
+<span class="fc" id="L70">        addAttribute(ATTR_HKICK);</span>
+<span class="fc" id="L71">        addAttribute(ATTR_VKICK);</span>
+<span class="fc" id="L72">        addAttribute(ATTR_TILT);</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * set the tilt of the element
+     * 
+     * @param tilt the tilt to set
+     */
+    public void setTilt(double tilt) {
+<span class="nc" id="L81">        setAttribute(ATTR_TILT, tilt);</span>
+<span class="nc" id="L82">    }</span>
+
+    /**
+     * @return the tilt of the element
+     */
+    public double getTilt() {
+<span class="nc" id="L88">        return getAttribute(ATTR_TILT);</span>
+    }
+
+    /**
+     * set the kick for this corrector
+     * 
+     * @param kick the kick to set
+     */
+    public void setKick(double kick) {
+<span class="nc" id="L97">        setAttribute(ATTR_KICK, kick);</span>
+<span class="nc" id="L98">    }</span>
+
+    /**
+     * set the horizontal kick for this corrector
+     * 
+     * @param hKick the kick to set
+     */
+    public void setHKick(double hKick) {
+<span class="fc" id="L106">        setAttribute(ATTR_HKICK, hKick);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * set the vertical kick for this corrector
+     * 
+     * @param vKick the kick to set
+     */
+    public void setVKick(double vKick) {
+<span class="fc" id="L115">        setAttribute(ATTR_VKICK, vKick);</span>
+<span class="fc" id="L116">    }</span>
+
+    /**
+     * @return the kick for a one-plane corrector
+     */
+    public double getKick() {
+<span class="nc" id="L122">        return getAttribute(ATTR_KICK);</span>
+    }
+
+    /**
+     * @return the horizontal kick for a two-plane corrector
+     */
+    public double getHKick() {
+<span class="nc" id="L129">        return getAttribute(ATTR_HKICK);</span>
+    }
+
+    /**
+     * @return the vertical kick for a two-plane corrector
+     */
+    public double getVKick() {
+<span class="nc" id="L136">        return getAttribute(ATTR_VKICK);</span>
+    }
+
+    /**
+     * sets the corrector kick to the according attribute, depending on the plane
+     * 
+     * @param plane the plane in which to kick
+     * @param kickValue the value to set for the kick
+     */
+    public final void setKick(JMadPlane plane, double kickValue) {
+<span class="fc" id="L146">        String kickAttributeName = getKickAttributName(plane);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (kickAttributeName == null) {</span>
+<span class="nc" id="L148">            LOGGER.warn(&quot;cannot set kick in plane '&quot; + plane + &quot;' to corrector of type '&quot; + getMadxElementType().name()</span>
+                    + &quot;'.&quot;);
+        } else {
+<span class="fc" id="L151">            setAttribute(kickAttributeName, kickValue);</span>
+        }
+<span class="fc" id="L153">    }</span>
+
+    /**
+     * retrieve the current kick-value for given plane.
+     * 
+     * @param plane the {@link JMadPlane} for which to retrieve the value
+     * @return the current kick-value
+     */
+    public final double getKick(JMadPlane plane) {
+<span class="fc" id="L162">        String kickAttributeName = getKickAttributName(plane);</span>
+<span class="fc" id="L163">        Double kick = null;</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">        if (kickAttributeName != null) {</span>
+<span class="fc" id="L165">            kick = getAttribute(kickAttributeName);</span>
+        }
+
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (kick == null) {</span>
+<span class="nc" id="L169">            LOGGER.warn(&quot;cannot get kick in plane '&quot; + plane + &quot;' from corrector of type '&quot;</span>
+<span class="nc" id="L170">                    + getMadxElementType().name() + &quot;' -&gt; returning 0.&quot;);</span>
+<span class="nc" id="L171">            return 0.0;</span>
+        } else {
+<span class="fc" id="L173">            return kick.doubleValue();</span>
+        }
+    }
+
+    /**
+     * find out which attribute to use in order to get/set kicks in the given plane.
+     * 
+     * @param plane the plane for which to get/set the kick
+     * @return the name of the attribute or null, if this makes no sense.
+     */
+    private String getKickAttributName(JMadPlane plane) {
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (JMadPlane.H.equals(plane)) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (MadxElementType.HKICKER.equals(getMadxElementType())) {</span>
+<span class="nc" id="L186">                return ATTR_KICK;</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            } else if (MadxElementType.KICKER.equals(getMadxElementType())) {</span>
+<span class="nc" id="L188">                return ATTR_HKICK;</span>
+            } else {
+<span class="nc" id="L190">                return null;</span>
+            }
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">        } else if (JMadPlane.V.equals(plane)) {</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">            if (MadxElementType.VKICKER.equals(getMadxElementType())) {</span>
+<span class="fc" id="L194">                return ATTR_KICK;</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            } else if (MadxElementType.KICKER.equals(getMadxElementType())) {</span>
+<span class="nc" id="L196">                return ATTR_VKICK;</span>
+            } else {
+<span class="nc" id="L198">                return null;</span>
+            }
+        } else {
+<span class="nc" id="L201">            return null;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

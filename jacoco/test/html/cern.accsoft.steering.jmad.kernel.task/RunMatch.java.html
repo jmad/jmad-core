@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RunMatch.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.task</a> &gt; <span class="el_source">RunMatch.java</span></div><h1>RunMatch.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.kernel.task;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.domain.result.match.MatchResultRequest;
+import cern.accsoft.steering.jmad.domain.result.match.input.MadxVaryParameter;
+import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraint;
+import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraintGlobal;
+import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraintLocal;
+import cern.accsoft.steering.jmad.domain.result.match.methods.AbstractMatchMethod;
+import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethod;
+import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodLmdif;
+import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodMigrad;
+import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodSimplex;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
+import cern.accsoft.steering.jmad.io.MatchOutputParser.MatchingOutputTag;
+import cern.accsoft.steering.jmad.kernel.cmd.AssignCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.kernel.cmd.PrintCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.SetFormatCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.ValueCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchConstraintGlobalCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchConstraintLocalCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchEndCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchInitiateCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchMethodJacobianCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchMethodLmdifCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchMethodMigradCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchMethodSimplexCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.match.MatchVaryParameterCommand;
+
+public class RunMatch extends AbstractTask {
+
+    public static final double FINAL_PENALTY_FACTOR = 1.0e25;
+
+    private final MatchResultRequest request;
+    private final TwissInitialConditions twissFromModel;
+
+<span class="fc" id="L65">    public RunMatch(MatchResultRequest newReq, TwissInitialConditions twissFromModel) {</span>
+<span class="fc" id="L66">        this.request = newReq;</span>
+<span class="fc" id="L67">        this.twissFromModel = twissFromModel;</span>
+<span class="fc" id="L68">    }</span>
+
+    @Override
+    public ResultType getResultType() {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (this.request == null) {</span>
+<span class="nc" id="L73">            return ResultType.NO_RESULT;</span>
+        } else {
+<span class="fc" id="L75">            return ResultType.MATCH_RESULT;</span>
+        }
+    }
+
+    @Override
+    protected List&lt;Command&gt; getCommands() {
+<span class="fc" id="L81">        List&lt;Command&gt; commands = new ArrayList&lt;&gt;();</span>
+
+        // Initial Match Command (eventually SAVEBETA/InitialTwiss afterwards)
+<span class="fc" id="L84">        commands.add(new MatchInitiateCommand(this.request.getSequenceName(), twissToUse()));</span>
+
+        // Add Constraint Commands
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (MatchConstraint constraint : this.request.getMatchConstraints()) {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if (constraint.isGlobal()) {</span>
+<span class="fc" id="L89">                commands.add(new MatchConstraintGlobalCommand((MatchConstraintGlobal) constraint,</span>
+<span class="fc" id="L90">                        this.request.getSequenceName()));</span>
+            } else {
+<span class="nc" id="L92">                commands.add(new MatchConstraintLocalCommand((MatchConstraintLocal) constraint,</span>
+<span class="nc" id="L93">                        this.request.getSequenceName()));</span>
+            }
+
+<span class="fc" id="L96">        }</span>
+
+        // List of VaryParameters to read after the Matching Job
+<span class="fc" id="L99">        List&lt;String&gt; varyNames = new ArrayList&lt;String&gt;();</span>
+
+        // Add list of VaryParameters...
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (MadxVaryParameter vParam : this.request.getMadxVaryParameters()) {</span>
+<span class="fc" id="L103">            commands.add(new MatchVaryParameterCommand(vParam));</span>
+<span class="fc" id="L104">            varyNames.add(vParam.getName());</span>
+<span class="fc" id="L105">        }</span>
+
+        // Specify Matching Method...
+<span class="fc" id="L108">        MatchMethod actMethod = this.request.getMatchMethod();</span>
+<span class="pc bpc" id="L109" title="5 of 6 branches missed.">        switch (actMethod.getAlgorithmType()) {</span>
+        case LMDIF:
+<span class="fc" id="L111">            commands.add(new MatchMethodLmdifCommand((MatchMethodLmdif) actMethod));</span>
+<span class="fc" id="L112">            break;</span>
+        case JACOBIAN:
+<span class="nc" id="L114">            commands.add(new MatchMethodJacobianCommand((AbstractMatchMethod) actMethod));</span>
+<span class="nc" id="L115">            break;</span>
+        case SIMPLEX:
+<span class="nc" id="L117">            commands.add(new MatchMethodSimplexCommand((MatchMethodSimplex) actMethod));</span>
+<span class="nc" id="L118">            break;</span>
+        case MIGRAD:
+<span class="nc" id="L120">            commands.add(new MatchMethodMigradCommand((MatchMethodMigrad) actMethod));</span>
+<span class="nc" id="L121">            break;</span>
+        case NONE:
+            // TODO think about ErrorHandling...
+            // for now empty CmdArray --&gt; no action
+<span class="nc" id="L125">            return new ArrayList&lt;&gt;();</span>
+        }
+
+        // Append endMatch Command to CmdBlock/JMadTask
+<span class="fc" id="L129">        commands.add(new MatchEndCommand());</span>
+
+        // Append ReadOut Commands for Final Penalty and VaryParameter final
+        // Values
+<span class="fc" id="L133">        commands.add(new SetFormatCommand(SetFormatCommand.DEFAULT_FORMAT_FLOAT));</span>
+<span class="fc" id="L134">        commands.add(new AssignCommand(getOutputFile()));</span>
+
+        // Retrieve Final Penalty Function Value, value of 'TAR' multiplied by
+        // finalPenaltyFactor to even retrieve small numbers that might be
+        // omitted by the Madx SetFormat command...
+<span class="fc" id="L139">        commands.add(new PrintCommand(MatchingOutputTag.FINAL_PENALTY.toString()));</span>
+<span class="fc" id="L140">        commands.add(new ValueCommand(</span>
+<span class="fc" id="L141">                Collections.singletonList(FINAL_PENALTY_FACTOR + &quot;*&quot; + MatchingOutputTag.FINAL_PENALTY.toString())));</span>
+
+        // Issue command to read VaryParameters
+<span class="fc" id="L144">        commands.add(new PrintCommand(MatchingOutputTag.VARY_PARAMETERS.toString()));</span>
+<span class="fc" id="L145">        commands.add(new ValueCommand(varyNames));</span>
+
+<span class="fc" id="L147">        commands.add(new AssignCommand());</span>
+
+<span class="fc" id="L149">        return commands;</span>
+    }
+
+    /**
+     * Resembles the following priority:
+     * &lt;ol&gt;
+     * &lt;li&gt;If a savebeta is defined in the request, then this is used (the rest of initial conditions will be default)
+     * &lt;li&gt;if initial conditions are given in the request, they will be used
+     * &lt;li&gt;If none of them is given, then the twiss from the model is used
+     * &lt;/ol&gt;
+     * 
+     * @return the initial conditions to finally use for matching
+     * @deprecated It should be possible to remove this, as soon as the request does not rely on the according methods
+     *             anymore, and always the model initial conditions are used.
+     */
+    @Deprecated
+    private TwissInitialConditions twissToUse() {
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (this.request.getSaveBetaName() != null) {</span>
+<span class="nc" id="L167">            TwissInitialConditionsImpl tw = new TwissInitialConditionsImpl();</span>
+<span class="nc" id="L168">            tw.setSaveBetaName(this.request.getSaveBetaName());</span>
+<span class="nc" id="L169">            return tw;</span>
+        }
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (this.request.getInitialOpticsValues() != null) {</span>
+<span class="nc" id="L172">            return this.request.getInitialOpticsValues();</span>
+        }
+<span class="fc" id="L174">        return twissFromModel;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

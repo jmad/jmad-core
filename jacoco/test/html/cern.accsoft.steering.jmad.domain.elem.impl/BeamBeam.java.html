@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BeamBeam.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.elem.impl</a> &gt; <span class="el_source">BeamBeam.java</span></div><h1>BeamBeam.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.elem.impl;
+
+import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
+
+/**
+ * Represents a beambeam element in Madx possible attribute
+ * SIGX=real,SIGY=real,XMA=real,YMA=real,CHARGE=real,BBSHAPE=int,WIDTH=real,BBDIR=int A beam-beam element requires the
+ * particle energy (ENERGY) and the particle charge (CHARGE) as well as the number of particles per bunch (NPART) to be
+ * set by a BEAM command before any calculations are performed
+ * 
+ * @author xbuffat
+ */
+
+public class BeamBeam extends AbstractElement {
+    /* SIGX: The horizontal extent of the opposite beam (default: 1 m). Meaning depends on parameter BBSHAPE. */
+    private static final String ATTR_SIGX = &quot;sigx&quot;;
+    /* SIGY: The vertical extent of the opposite beam (default: 1 m). Meaning depends on parameter BBSHAPE. */
+    private static final String ATTR_SIGY = &quot;sigy&quot;;
+    /* XMA: The horizontal displacement of the opposite beam with respect to the ideal orbit (default: 0 m). */
+    private static final String ATTR_XMA = &quot;xma&quot;;
+    /* YMA: The vertical displacement of the opposite beam with respect to the ideal orbit (default: 0 m). */
+    private static final String ATTR_YMA = &quot;yma&quot;;
+    /* CHARGE: The charge of particles in the opposite beam in elementary charges. It is set by (default CHARGE=1). */
+    private static final String ATTR_CHARGE = &quot;charge&quot;;
+    /*
+     * BBSHAPE: The parameter to choose the radial density shape of the opposite beam (default: 1) BBSHAPE=1: Gaussian
+     * shape (default), SIGX/SIGY: standard deviation in vertical/horizontal direction. BBSHAPE=2: trapezoidal shape,
+     * SIGX/SIGY: half width of density profile. BBSHAPE=3: hollow-parabolic shape, SIGX/SIGY: distance from the centre
+     * to the maximum of the parabolic density profile in vertical/horizontal direction.
+     */
+    private static final String ATTR_BBSHAPE = &quot;bbshape&quot;;
+    /* WIDTH: The relative extent of the edge region */
+    private static final String ATTR_WIDTH = &quot;width&quot;;
+    /*
+     * BBDIR: The parameter to choose the direction of motion of the opposite beam relative to the beam considered.
+     * (default: -1). BBDIR=-1: Beams move in the opposite direction BBDIR=0: Opposite beam does not move BBDIR=1: Beams
+     * move in the same direction
+     */
+    private static final String ATTR_BBDIR = &quot;bbdir&quot;;
+
+    public BeamBeam(MadxElementType madxElementType, String name) {
+<span class="fc" id="L64">        super(madxElementType, name);</span>
+<span class="fc" id="L65">        this.addAttribute(ATTR_SIGX);</span>
+<span class="fc" id="L66">        this.addAttribute(ATTR_SIGY);</span>
+<span class="fc" id="L67">        this.addAttribute(ATTR_XMA);</span>
+<span class="fc" id="L68">        this.addAttribute(ATTR_YMA);</span>
+<span class="fc" id="L69">        this.addAttribute(ATTR_CHARGE);</span>
+<span class="fc" id="L70">        this.addAttribute(ATTR_BBSHAPE);</span>
+<span class="fc" id="L71">        this.addAttribute(ATTR_WIDTH);</span>
+<span class="fc" id="L72">        this.addAttribute(ATTR_BBDIR);</span>
+<span class="fc" id="L73">    }</span>
+
+    public double getSigX() {
+<span class="nc" id="L76">        return this.getAttribute(ATTR_SIGX);</span>
+    }
+
+    public double getSigY() {
+<span class="nc" id="L80">        return this.getAttribute(ATTR_SIGY);</span>
+    }
+
+    public double getDisplacementX() {
+<span class="nc" id="L84">        return this.getAttribute(ATTR_XMA);</span>
+    }
+
+    public double getDisplacementY() {
+<span class="nc" id="L88">        return this.getAttribute(ATTR_YMA);</span>
+    }
+
+    public double getCharge() {
+<span class="nc" id="L92">        return this.getAttribute(ATTR_CHARGE);</span>
+    }
+
+    public double getShape() {
+<span class="nc" id="L96">        return this.getAttribute(ATTR_BBSHAPE);</span>
+    }
+
+    public double getWidth() {
+<span class="nc" id="L100">        return this.getAttribute(ATTR_WIDTH);</span>
+    }
+
+    public double getDirection() {
+<span class="nc" id="L104">        return this.getAttribute(ATTR_BBDIR);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

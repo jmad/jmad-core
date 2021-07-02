@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Beam.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.beam</a> &gt; <span class="el_source">Beam.java</span></div><h1>Beam.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.beam; // NOPMD by kaifox on 6/25/10 5:26 PM
+
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+import cern.accsoft.steering.jmad.domain.types.MadxValue;
+
+/**
+ * Represents all the attributes a particle beam in MadX can have. Detailed information can be found &lt;a
+ * href=&quot;http://mad.web.cern.ch/mad/Introduction/beam.html&quot;&gt;here&lt;/a&gt;.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+@XStreamAlias(&quot;beam&quot;)
+/*
+ * Many fields. This is an intrinsic fact, which results from the MadX beam-command and can not be changed.
+ */
+<span class="fc" id="L40">public class Beam { // NOPMD by kaifox on 6/25/10 5:26 PM</span>
+
+    /*
+     * Parameter names and their member-fields:
+     */
+
+    /** (predefined) Particle type */
+<span class="fc" id="L47">    @XStreamAlias(&quot;particle&quot;)</span>
+    @XStreamAsAttribute
+    private Particle particle = null;
+
+    /**
+     * if no predefined particle is set, then the following otions are allowed:
+     */
+<span class="fc" id="L54">    @XStreamAlias(&quot;particle-name&quot;)</span>
+    @XStreamAsAttribute
+    private String particleName = null;
+
+    /** mass of particle, if not predefined */
+<span class="fc" id="L59">    @XStreamAlias(&quot;mass&quot;)</span>
+    @XStreamAsAttribute
+    private Double mass = null;
+
+    /** charge of particle, if not predefined */
+<span class="fc" id="L64">    @XStreamAlias(&quot;charge&quot;)</span>
+    @XStreamAsAttribute
+    private Double charge = null;
+
+    /**
+     * ENERGY: The total energy per particle in GeV. If given, it must be greater then the particle restmass.
+     */
+<span class="fc" id="L71">    @XStreamAlias(&quot;energy&quot;)</span>
+    @XStreamAsAttribute
+    private Double energy = null;
+
+    /**
+     * PC: The momentum per particle in GeV/c. If given, it must be greater than zero.
+     */
+<span class="fc" id="L78">    @XStreamAlias(&quot;pc&quot;)</span>
+    @XStreamAsAttribute
+    private Double momentum = null;
+
+    /**
+     * GAMMA: The ratio between total energy and rest energy of the particles: GAMMA = E / m0. If given, it must be
+     * greater than one. If the restmass is changed a new value for the energy should be entered. Otherwise the energy
+     * remains unchanged, and the momentum PC and the quantity GAMMA are recalculated.
+     */
+<span class="fc" id="L87">    @XStreamAlias(&quot;gamma&quot;)</span>
+    @XStreamAsAttribute
+    private Double gamma = null;
+
+    /*
+     * The emittances are defined by:
+     */
+    /**
+     * EX: The horizontal emittance Ex (default: 1 m).
+     */
+<span class="fc" id="L97">    @XStreamAlias(&quot;ex&quot;)</span>
+    @XStreamAsAttribute
+    private Double horizontalEmittance = null;
+
+    /** EY: The vertical emittance Ey (default: 1 m). */
+<span class="fc" id="L102">    @XStreamAlias(&quot;ey&quot;)</span>
+    @XStreamAsAttribute
+    private Double verticalEmittance = null;
+
+    /** ET: The longitudinal emittance Et (default: 1 m). */
+<span class="fc" id="L107">    @XStreamAlias(&quot;et&quot;)</span>
+    @XStreamAsAttribute
+    private Double longitudinalEmittance = null;
+
+    /*
+     * The emittances can be replaced by the normalised emittances and the energy spread:
+     */
+    /**
+     * EXN: The normalised horizontal emittance [m]: Exn = 4 (GAMMA2 - 1)1/2 Ex (ignored if Ex is given).
+     */
+<span class="fc" id="L117">    @XStreamAlias(&quot;exn&quot;)</span>
+    @XStreamAsAttribute
+    private Double normalisedHorizontalEmittance = null;
+
+    /**
+     * EYN: The normalised vertical emittance [m]: Eyn = 4 (GAMMA2 - 1)1/2 Ey (ignored if Ex is given).
+     */
+<span class="fc" id="L124">    @XStreamAlias(&quot;eyn&quot;)</span>
+    @XStreamAsAttribute
+    private Double normalisedVerticalEmittance = null;
+
+    /** SIGT: The bunch length c sigma(t) in [m]. */
+<span class="fc" id="L129">    @XStreamAlias(&quot;sigt&quot;)</span>
+    @XStreamAsAttribute
+    private Double bunchLength = null;
+
+    /** SIGE: The relative energy spread sigma(E)/E in [1]. */
+<span class="fc" id="L134">    @XStreamAlias(&quot;sige&quot;)</span>
+    @XStreamAsAttribute
+    private Double relativeEnergySpread = null;
+
+    /*
+     * further parameters:
+     */
+    /** KBUNCH: The number of particle bunches in the machine (default: 1). */
+<span class="fc" id="L142">    @XStreamAlias(&quot;kbunch&quot;)</span>
+    @XStreamAsAttribute
+    private Integer bunchNumber = null;
+
+    /** NPART: The number of particles per bunch (default: 0). */
+<span class="fc" id="L147">    @XStreamAlias(&quot;npart&quot;)</span>
+    @XStreamAsAttribute
+    private Double particleNumber = null;
+
+    /** BCURRENT: The bunch current (default: 0 A). */
+<span class="fc" id="L152">    @XStreamAlias(&quot;bcurrent&quot;)</span>
+    @XStreamAsAttribute
+    private Double bunchCurrent = null;
+
+    /**
+     * BUNCHED: A logical flag. If set, the beam is treated as bunched whenever this makes sense.
+     */
+<span class="fc" id="L159">    @XStreamAlias(&quot;bunched&quot;)</span>
+    @XStreamAsAttribute
+    private Boolean bunched = null;
+
+    /**
+     * RADIATE: A logical flag. If set, synchrotron radiation is considered in all bipolar magnets.
+     */
+<span class="fc" id="L166">    @XStreamAlias(&quot;radiate&quot;)</span>
+    @XStreamAsAttribute
+    private Boolean radiate = null;
+
+    /**
+     * BV: an integer specifying the direction of the particle movement in a beam line; either +1 (default), or -1. For
+     * a detailed explanation see under bv flag.
+     */
+<span class="fc" id="L174">    @XStreamAlias(&quot;bv&quot;)</span>
+    @XStreamAsAttribute
+    private Direction direction = null;
+
+    /**
+     * SEQUENCE: this attaches the beam command to a specific sequence; if the name is omitted, the BEAM command refers
+     * to the default beam always present. Sequences without attached beam use this default beam. When updating a beam,
+     * the corresponding sequence name, if any, must always be mentioned.
+     */
+<span class="fc" id="L183">    @XStreamAlias(&quot;sequence&quot;)</span>
+    @XStreamAsAttribute
+    private String sequence = null;
+
+    /**
+     * Represents the direction of the beam in MadX. This is the java equivalent to the &lt;a
+     * href=&quot;http://mad.web.cern.ch/mad/Introduction/bv_flag.html&quot;&gt;bv flag&lt;/a&gt; in MadX. It was introduced in MadX
+     * especially for the needs of LHC design in order to cope with two beams circulating in opposite directions.
+     * 
+     * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+     */
+<span class="fc" id="L194">    public enum Direction implements MadxValue {</span>
+        /**
+         * Represents a beam going in the direction of as the sequence is defined. (e.g. LHC beam 1)
+         */
+<span class="fc" id="L198">        PLUS(1),</span>
+        /**
+         * Represents a beam going in the opposite direction as the sequence is defined. (e.g.LHC beam 2)
+         */
+<span class="fc" id="L202">        MINUS(-1);</span>
+
+        private Integer direction;
+
+<span class="fc" id="L206">        private Direction(Integer direction) {</span>
+<span class="fc" id="L207">            this.direction = direction;</span>
+<span class="fc" id="L208">        }</span>
+
+        @Override
+        public String getMadxString() {
+<span class="fc" id="L212">            return direction.toString();</span>
+        }
+    }
+
+    /**
+     * represents one of the possible particles that can be used to define a MadX beam.
+     * 
+     * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+     */
+<span class="fc" id="L221">    public enum Particle implements MadxValue {</span>
+<span class="fc" id="L222">        POSITRON(&quot;positron&quot;), ELECTRON(&quot;electron&quot;), PROTON(&quot;proton&quot;), ANTIPROTON(&quot;antiproton&quot;), POSMUON(&quot;posmuon&quot;), NEGMUON(</span>
+<span class="fc" id="L223">                &quot;negmuon&quot;), HMINUS(&quot;Hminus&quot;);</span>
+
+        private String name;
+
+<span class="fc" id="L227">        private Particle(String name) {</span>
+<span class="fc" id="L228">            this.name = name;</span>
+<span class="fc" id="L229">        }</span>
+
+        public String getName() {
+<span class="fc" id="L232">            return name;</span>
+        }
+
+        @Override
+        public String getMadxString() {
+<span class="fc" id="L237">            return getName();</span>
+        }
+    }
+
+    public Particle getParticle() {
+<span class="fc" id="L242">        return particle;</span>
+    }
+
+    public void setParticle(Particle particle) {
+<span class="fc" id="L246">        this.particle = particle;</span>
+<span class="fc" id="L247">    }</span>
+
+    public String getParticleName() {
+<span class="fc" id="L250">        return particleName;</span>
+    }
+
+    public void setParticleName(String particleName) {
+<span class="fc" id="L254">        this.particleName = particleName;</span>
+<span class="fc" id="L255">    }</span>
+
+    public Double getMass() {
+<span class="fc" id="L258">        return mass;</span>
+    }
+
+    public void setMass(Double mass) {
+<span class="fc" id="L262">        this.mass = mass;</span>
+<span class="fc" id="L263">    }</span>
+
+    public Double getCharge() {
+<span class="fc" id="L266">        return charge;</span>
+    }
+
+    public void setCharge(Double charge) {
+<span class="fc" id="L270">        this.charge = charge;</span>
+<span class="fc" id="L271">    }</span>
+
+    public Double getEnergy() {
+<span class="fc" id="L274">        return energy;</span>
+    }
+
+    public void setEnergy(Double energy) {
+<span class="fc" id="L278">        this.energy = energy;</span>
+<span class="fc" id="L279">    }</span>
+
+    public Double getMomentum() {
+<span class="fc" id="L282">        return momentum;</span>
+    }
+
+    public void setMomentum(Double momentum) {
+<span class="fc" id="L286">        this.momentum = momentum;</span>
+<span class="fc" id="L287">    }</span>
+
+    public Double getGamma() {
+<span class="fc" id="L290">        return gamma;</span>
+    }
+
+    public void setGamma(Double gamma) {
+<span class="fc" id="L294">        this.gamma = gamma;</span>
+<span class="fc" id="L295">    }</span>
+
+    public Double getHorizontalEmittance() {
+<span class="fc" id="L298">        return horizontalEmittance;</span>
+    }
+
+    public void setHorizontalEmittance(Double horizontalEmittance) {
+<span class="fc" id="L302">        this.horizontalEmittance = horizontalEmittance;</span>
+<span class="fc" id="L303">    }</span>
+
+    public Double getVerticalEmittance() {
+<span class="fc" id="L306">        return verticalEmittance;</span>
+    }
+
+    public void setVerticalEmittance(Double verticalEmittance) {
+<span class="fc" id="L310">        this.verticalEmittance = verticalEmittance;</span>
+<span class="fc" id="L311">    }</span>
+
+    public Double getLongitudinalEmittance() {
+<span class="fc" id="L314">        return longitudinalEmittance;</span>
+    }
+
+    public void setLongitudinalEmittance(Double longitudinalEmittance) {
+<span class="fc" id="L318">        this.longitudinalEmittance = longitudinalEmittance;</span>
+<span class="fc" id="L319">    }</span>
+
+    public Double getNormalisedHorizontalEmittance() {
+<span class="fc" id="L322">        return normalisedHorizontalEmittance;</span>
+    }
+
+    public void setNormalisedHorizontalEmittance(Double normalisedHorizontalEmittance) {
+<span class="fc" id="L326">        this.normalisedHorizontalEmittance = normalisedHorizontalEmittance;</span>
+<span class="fc" id="L327">    }</span>
+
+    public Double getNormalisedVerticalEmittance() {
+<span class="fc" id="L330">        return normalisedVerticalEmittance;</span>
+    }
+
+    public void setNormalisedVerticalEmittance(Double normalisedVerticalEmittance) {
+<span class="fc" id="L334">        this.normalisedVerticalEmittance = normalisedVerticalEmittance;</span>
+<span class="fc" id="L335">    }</span>
+
+    public Double getBunchLength() {
+<span class="fc" id="L338">        return bunchLength;</span>
+    }
+
+    public void setBunchLength(Double bunchLength) {
+<span class="fc" id="L342">        this.bunchLength = bunchLength;</span>
+<span class="fc" id="L343">    }</span>
+
+    public Double getRelativeEnergySpread() {
+<span class="fc" id="L346">        return relativeEnergySpread;</span>
+    }
+
+    public void setRelativeEnergySpread(Double relativeEnergySpread) {
+<span class="fc" id="L350">        this.relativeEnergySpread = relativeEnergySpread;</span>
+<span class="fc" id="L351">    }</span>
+
+    public Integer getBunchNumber() {
+<span class="fc" id="L354">        return bunchNumber;</span>
+    }
+
+    public void setBunchNumber(Integer bunchNumber) {
+<span class="fc" id="L358">        this.bunchNumber = bunchNumber;</span>
+<span class="fc" id="L359">    }</span>
+
+    public Double getParticleNumber() {
+<span class="fc" id="L362">        return particleNumber;</span>
+    }
+
+    public void setParticleNumber(Double particleNumber) {
+<span class="fc" id="L366">        this.particleNumber = particleNumber;</span>
+<span class="fc" id="L367">    }</span>
+
+    public Double getBunchCurrent() {
+<span class="fc" id="L370">        return bunchCurrent;</span>
+    }
+
+    public void setBunchCurrent(Double bunchCurrent) {
+<span class="fc" id="L374">        this.bunchCurrent = bunchCurrent;</span>
+<span class="fc" id="L375">    }</span>
+
+    public Boolean getBunched() {
+<span class="fc" id="L378">        return bunched;</span>
+    }
+
+    public void setBunched(Boolean bunched) {
+<span class="fc" id="L382">        this.bunched = bunched;</span>
+<span class="fc" id="L383">    }</span>
+
+    public Boolean getRadiate() {
+<span class="fc" id="L386">        return radiate;</span>
+    }
+
+    public void setRadiate(Boolean radiate) {
+<span class="fc" id="L390">        this.radiate = radiate;</span>
+<span class="fc" id="L391">    }</span>
+
+    public Direction getDirection() {
+<span class="fc" id="L394">        return direction;</span>
+    }
+
+    public void setDirection(Direction direction) {
+<span class="fc" id="L398">        this.direction = direction;</span>
+<span class="fc" id="L399">    }</span>
+
+    public String getSequence() {
+<span class="fc" id="L402">        return sequence;</span>
+    }
+
+    public void setSequence(String sequence) {
+<span class="fc" id="L406">        this.sequence = sequence;</span>
+<span class="fc" id="L407">    }</span>
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L411">		final int prime = 31;</span>
+<span class="nc" id="L412">		int result = 1;</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">		result = prime * result + ((bunchCurrent == null) ? 0 : bunchCurrent.hashCode());</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">		result = prime * result + ((bunchLength == null) ? 0 : bunchLength.hashCode());</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">		result = prime * result + ((bunchNumber == null) ? 0 : bunchNumber.hashCode());</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">		result = prime * result + ((bunched == null) ? 0 : bunched.hashCode());</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">		result = prime * result + ((charge == null) ? 0 : charge.hashCode());</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">		result = prime * result + ((direction == null) ? 0 : direction.hashCode());</span>
+<span class="nc bnc" id="L419" title="All 2 branches missed.">		result = prime * result + ((energy == null) ? 0 : energy.hashCode());</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">		result = prime * result + ((gamma == null) ? 0 : gamma.hashCode());</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">		result = prime * result + ((horizontalEmittance == null) ? 0 : horizontalEmittance.hashCode());</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">		result = prime * result + ((longitudinalEmittance == null) ? 0 : longitudinalEmittance.hashCode());</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">		result = prime * result + ((mass == null) ? 0 : mass.hashCode());</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">		result = prime * result + ((momentum == null) ? 0 : momentum.hashCode());</span>
+<span class="nc" id="L425">		result = prime * result</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">				+ ((normalisedHorizontalEmittance == null) ? 0 : normalisedHorizontalEmittance.hashCode());</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">		result = prime * result + ((normalisedVerticalEmittance == null) ? 0 : normalisedVerticalEmittance.hashCode());</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">		result = prime * result + ((particle == null) ? 0 : particle.hashCode());</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">		result = prime * result + ((particleName == null) ? 0 : particleName.hashCode());</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">		result = prime * result + ((particleNumber == null) ? 0 : particleNumber.hashCode());</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">		result = prime * result + ((radiate == null) ? 0 : radiate.hashCode());</span>
+<span class="nc bnc" id="L432" title="All 2 branches missed.">		result = prime * result + ((relativeEnergySpread == null) ? 0 : relativeEnergySpread.hashCode());</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">		result = prime * result + ((sequence == null) ? 0 : sequence.hashCode());</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">		result = prime * result + ((verticalEmittance == null) ? 0 : verticalEmittance.hashCode());</span>
+<span class="nc" id="L435">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L440" title="All 2 branches missed.">		if (this == obj) {</span>
+<span class="nc" id="L441">			return true;</span>
+		}
+<span class="nc bnc" id="L443" title="All 2 branches missed.">		if (obj == null) {</span>
+<span class="nc" id="L444">			return false;</span>
+		}
+<span class="nc bnc" id="L446" title="All 2 branches missed.">		if (!(obj instanceof Beam)) {</span>
+<span class="nc" id="L447">			return false;</span>
+		}
+<span class="nc" id="L449">		Beam other = (Beam) obj;</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">		if (bunchCurrent == null) {</span>
+<span class="nc bnc" id="L451" title="All 2 branches missed.">			if (other.bunchCurrent != null) {</span>
+<span class="nc" id="L452">				return false;</span>
+			}
+<span class="nc bnc" id="L454" title="All 2 branches missed.">		} else if (!bunchCurrent.equals(other.bunchCurrent)) {</span>
+<span class="nc" id="L455">			return false;</span>
+		}
+<span class="nc bnc" id="L457" title="All 2 branches missed.">		if (bunchLength == null) {</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">			if (other.bunchLength != null) {</span>
+<span class="nc" id="L459">				return false;</span>
+			}
+<span class="nc bnc" id="L461" title="All 2 branches missed.">		} else if (!bunchLength.equals(other.bunchLength)) {</span>
+<span class="nc" id="L462">			return false;</span>
+		}
+<span class="nc bnc" id="L464" title="All 2 branches missed.">		if (bunchNumber == null) {</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">			if (other.bunchNumber != null) {</span>
+<span class="nc" id="L466">				return false;</span>
+			}
+<span class="nc bnc" id="L468" title="All 2 branches missed.">		} else if (!bunchNumber.equals(other.bunchNumber)) {</span>
+<span class="nc" id="L469">			return false;</span>
+		}
+<span class="nc bnc" id="L471" title="All 2 branches missed.">		if (bunched == null) {</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">			if (other.bunched != null) {</span>
+<span class="nc" id="L473">				return false;</span>
+			}
+<span class="nc bnc" id="L475" title="All 2 branches missed.">		} else if (!bunched.equals(other.bunched)) {</span>
+<span class="nc" id="L476">			return false;</span>
+		}
+<span class="nc bnc" id="L478" title="All 2 branches missed.">		if (charge == null) {</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">			if (other.charge != null) {</span>
+<span class="nc" id="L480">				return false;</span>
+			}
+<span class="nc bnc" id="L482" title="All 2 branches missed.">		} else if (!charge.equals(other.charge)) {</span>
+<span class="nc" id="L483">			return false;</span>
+		}
+<span class="nc bnc" id="L485" title="All 2 branches missed.">		if (direction != other.direction) {</span>
+<span class="nc" id="L486">			return false;</span>
+		}
+<span class="nc bnc" id="L488" title="All 2 branches missed.">		if (energy == null) {</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">			if (other.energy != null) {</span>
+<span class="nc" id="L490">				return false;</span>
+			}
+<span class="nc bnc" id="L492" title="All 2 branches missed.">		} else if (!energy.equals(other.energy)) {</span>
+<span class="nc" id="L493">			return false;</span>
+		}
+<span class="nc bnc" id="L495" title="All 2 branches missed.">		if (gamma == null) {</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">			if (other.gamma != null) {</span>
+<span class="nc" id="L497">				return false;</span>
+			}
+<span class="nc bnc" id="L499" title="All 2 branches missed.">		} else if (!gamma.equals(other.gamma)) {</span>
+<span class="nc" id="L500">			return false;</span>
+		}
+<span class="nc bnc" id="L502" title="All 2 branches missed.">		if (horizontalEmittance == null) {</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">			if (other.horizontalEmittance != null) {</span>
+<span class="nc" id="L504">				return false;</span>
+			}
+<span class="nc bnc" id="L506" title="All 2 branches missed.">		} else if (!horizontalEmittance.equals(other.horizontalEmittance)) {</span>
+<span class="nc" id="L507">			return false;</span>
+		}
+<span class="nc bnc" id="L509" title="All 2 branches missed.">		if (longitudinalEmittance == null) {</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">			if (other.longitudinalEmittance != null) {</span>
+<span class="nc" id="L511">				return false;</span>
+			}
+<span class="nc bnc" id="L513" title="All 2 branches missed.">		} else if (!longitudinalEmittance.equals(other.longitudinalEmittance)) {</span>
+<span class="nc" id="L514">			return false;</span>
+		}
+<span class="nc bnc" id="L516" title="All 2 branches missed.">		if (mass == null) {</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">			if (other.mass != null) {</span>
+<span class="nc" id="L518">				return false;</span>
+			}
+<span class="nc bnc" id="L520" title="All 2 branches missed.">		} else if (!mass.equals(other.mass)) {</span>
+<span class="nc" id="L521">			return false;</span>
+		}
+<span class="nc bnc" id="L523" title="All 2 branches missed.">		if (momentum == null) {</span>
+<span class="nc bnc" id="L524" title="All 2 branches missed.">			if (other.momentum != null) {</span>
+<span class="nc" id="L525">				return false;</span>
+			}
+<span class="nc bnc" id="L527" title="All 2 branches missed.">		} else if (!momentum.equals(other.momentum)) {</span>
+<span class="nc" id="L528">			return false;</span>
+		}
+<span class="nc bnc" id="L530" title="All 2 branches missed.">		if (normalisedHorizontalEmittance == null) {</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">			if (other.normalisedHorizontalEmittance != null) {</span>
+<span class="nc" id="L532">				return false;</span>
+			}
+<span class="nc bnc" id="L534" title="All 2 branches missed.">		} else if (!normalisedHorizontalEmittance.equals(other.normalisedHorizontalEmittance)) {</span>
+<span class="nc" id="L535">			return false;</span>
+		}
+<span class="nc bnc" id="L537" title="All 2 branches missed.">		if (normalisedVerticalEmittance == null) {</span>
+<span class="nc bnc" id="L538" title="All 2 branches missed.">			if (other.normalisedVerticalEmittance != null) {</span>
+<span class="nc" id="L539">				return false;</span>
+			}
+<span class="nc bnc" id="L541" title="All 2 branches missed.">		} else if (!normalisedVerticalEmittance.equals(other.normalisedVerticalEmittance)) {</span>
+<span class="nc" id="L542">			return false;</span>
+		}
+<span class="nc bnc" id="L544" title="All 2 branches missed.">		if (particle != other.particle) {</span>
+<span class="nc" id="L545">			return false;</span>
+		}
+<span class="nc bnc" id="L547" title="All 2 branches missed.">		if (particleName == null) {</span>
+<span class="nc bnc" id="L548" title="All 2 branches missed.">			if (other.particleName != null) {</span>
+<span class="nc" id="L549">				return false;</span>
+			}
+<span class="nc bnc" id="L551" title="All 2 branches missed.">		} else if (!particleName.equals(other.particleName)) {</span>
+<span class="nc" id="L552">			return false;</span>
+		}
+<span class="nc bnc" id="L554" title="All 2 branches missed.">		if (particleNumber == null) {</span>
+<span class="nc bnc" id="L555" title="All 2 branches missed.">			if (other.particleNumber != null) {</span>
+<span class="nc" id="L556">				return false;</span>
+			}
+<span class="nc bnc" id="L558" title="All 2 branches missed.">		} else if (!particleNumber.equals(other.particleNumber)) {</span>
+<span class="nc" id="L559">			return false;</span>
+		}
+<span class="nc bnc" id="L561" title="All 2 branches missed.">		if (radiate == null) {</span>
+<span class="nc bnc" id="L562" title="All 2 branches missed.">			if (other.radiate != null) {</span>
+<span class="nc" id="L563">				return false;</span>
+			}
+<span class="nc bnc" id="L565" title="All 2 branches missed.">		} else if (!radiate.equals(other.radiate)) {</span>
+<span class="nc" id="L566">			return false;</span>
+		}
+<span class="nc bnc" id="L568" title="All 2 branches missed.">		if (relativeEnergySpread == null) {</span>
+<span class="nc bnc" id="L569" title="All 2 branches missed.">			if (other.relativeEnergySpread != null) {</span>
+<span class="nc" id="L570">				return false;</span>
+			}
+<span class="nc bnc" id="L572" title="All 2 branches missed.">		} else if (!relativeEnergySpread.equals(other.relativeEnergySpread)) {</span>
+<span class="nc" id="L573">			return false;</span>
+		}
+<span class="nc bnc" id="L575" title="All 2 branches missed.">		if (sequence == null) {</span>
+<span class="nc bnc" id="L576" title="All 2 branches missed.">			if (other.sequence != null) {</span>
+<span class="nc" id="L577">				return false;</span>
+			}
+<span class="nc bnc" id="L579" title="All 2 branches missed.">		} else if (!sequence.equals(other.sequence)) {</span>
+<span class="nc" id="L580">			return false;</span>
+		}
+<span class="nc bnc" id="L582" title="All 2 branches missed.">		if (verticalEmittance == null) {</span>
+<span class="nc bnc" id="L583" title="All 2 branches missed.">			if (other.verticalEmittance != null) {</span>
+<span class="nc" id="L584">				return false;</span>
+			}
+<span class="nc bnc" id="L586" title="All 2 branches missed.">		} else if (!verticalEmittance.equals(other.verticalEmittance)) {</span>
+<span class="nc" id="L587">			return false;</span>
+		}
+<span class="nc" id="L589">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

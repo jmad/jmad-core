@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DynapOutputParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.io</a> &gt; <span class="el_source">DynapOutputParser.java</span></div><h1>DynapOutputParser.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.io;
+
+import java.io.File;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.result.track.DynapResult;
+import cern.accsoft.steering.jmad.domain.result.track.DynapResultImpl;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxDynapVariable;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
+
+/**
+ * This class provide methods to parse a dynap output. Information in the summary part are discarded.
+ * 
+ * @author xbuffat
+ */
+public class DynapOutputParser {
+
+    private DynapResult dynapResult;
+    private File file;
+
+<span class="fc" id="L45">    public DynapOutputParser(File file) {</span>
+<span class="fc" id="L46">        this.dynapResult = new DynapResultImpl();</span>
+<span class="fc" id="L47">        this.file = file;</span>
+<span class="fc" id="L48">    }</span>
+
+    public void parse() throws DynapParserException {
+<span class="fc" id="L51">        TextFileParser parser = new TextFileParserImpl();</span>
+
+        List&lt;String&gt; lines;
+        try {
+<span class="fc" id="L55">            lines = parser.parse(file);</span>
+<span class="nc" id="L56">        } catch (TextFileParserException e) {</span>
+<span class="nc" id="L57">            throw new DynapParserException(&quot;Error while parsing MadX - Output file '&quot; + file.getAbsolutePath() + &quot;'&quot;, e);</span>
+<span class="fc" id="L58">        }</span>
+
+<span class="fc" id="L60">        this.dynapResult.clear();</span>
+
+<span class="fc" id="L62">        List&lt;String&gt; keys = null;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (int i = 0; i &lt; lines.size(); ++i) {</span>
+<span class="fc" id="L64">            String line = lines.get(i);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (!line.contains(&quot;@&quot;)) {</span>
+<span class="fc" id="L66">                List&lt;String&gt; tokens = null;</span>
+                try {
+<span class="fc" id="L68">                    tokens = TfsFileParser.splitString(line);</span>
+<span class="nc" id="L69">                } catch (TfsFileParserException e) {</span>
+<span class="nc" id="L70">                    throw new DynapParserException(&quot;Error while spliting line&quot;, e);</span>
+<span class="fc" id="L71">                }</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">                if (tokens.get(0).equalsIgnoreCase(&quot;*&quot;)) {</span>
+<span class="fc" id="L73">                    keys = tokens.subList(1, tokens.size());</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">                } else if (keys != null &amp;&amp; !tokens.get(0).equalsIgnoreCase(&quot;$&quot;)) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">                    for (int j = 0; j &lt; tokens.size(); ++j) {</span>
+                    	try{
+<span class="fc" id="L77">                    		this.dynapResult.add(MadxDynapVariable.getVariableFromName(keys.get(j)),</span>
+<span class="fc" id="L78">                    				Double.parseDouble(tokens.get(j)));</span>
+<span class="nc" id="L79">                    	}catch (NumberFormatException exception) {</span>
+<span class="nc" id="L80">                    		throw new DynapParserException(&quot;Error while parsing dynap output : &quot;+exception.getMessage(), exception);</span>
+<span class="fc" id="L81">                    	}</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L86">    }</span>
+
+    public DynapResult getResult() {
+<span class="fc" id="L89">        return this.dynapResult;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

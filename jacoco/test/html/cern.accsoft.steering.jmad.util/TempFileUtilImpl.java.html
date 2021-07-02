@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TempFileUtilImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">TempFileUtilImpl.java</span></div><h1>TempFileUtilImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: FileUtil.java,v 1.3 2008-09-09 23:41:42 kfuchsbe Exp $
+ *
+ * $Date: 2008-09-09 23:41:42 $ $Revision: 1.3 $ $Author: kfuchsbe $
+ *
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.util;
+
+import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This Class provides some methods to simply access output-files
+ *
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L42">public class TempFileUtilImpl implements TempFileUtil {</span>
+
+    /**
+     * the name of the dir which is created below the basepath
+     */
+    public static final String TMPDIR_NAME = &quot;jmad-tmp&quot;;
+
+    /**
+     * the logger for the class
+     */
+<span class="fc" id="L52">    private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtilImpl.class);</span>
+
+    /**
+     * the output-path including username and host
+     */
+<span class="fc" id="L57">    private String outputPath = null;</span>
+
+    /**
+     * The preferences object, to be injected
+     */
+    private JMadPreferences preferences;
+
+    /**
+     * init - method called by spring
+     */
+    public void init() {
+<span class="fc" id="L68">        this.outputPath = createDirTree();</span>
+<span class="fc" id="L69">    }</span>
+
+    @Override
+    public final File getOutputFile(String relativePath) {
+<span class="fc" id="L73">        return createFile(outputPath + File.separator + stripDirectoryTraversal(relativePath));</span>
+    }
+
+    @Override
+    public File getOutputDir(String relativePath) {
+<span class="nc" id="L78">        return createDir(outputPath + File.separator + stripDirectoryTraversal(relativePath));</span>
+    }
+
+    @Override
+    public final File getOutputFile(Object object, String relativePath) {
+<span class="fc" id="L83">        return createFile(getObjectPath(object) + File.separator + stripDirectoryTraversal(relativePath));</span>
+    }
+
+    private static String stripDirectoryTraversal(String relativePath) {
+<span class="fc" id="L87">        return relativePath.replace(&quot;../&quot;, &quot;/&quot;);</span>
+    }
+
+    @Override
+    public final void cleanup(Object object) {
+<span class="fc" id="L92">        File dir = new File(getObjectPath(object));</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (!FileUtil.deleteDir(dir)) {</span>
+<span class="nc" id="L94">            LOGGER.error(&quot;Could not delete directory '&quot; + dir.getAbsolutePath() + &quot;'&quot;);</span>
+        }
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * @param object the object the temp-path belongs to
+     * @return the path as string for the object
+     */
+    private final String getObjectPath(Object object) {
+<span class="fc" id="L103">        return outputPath + File.separator + object.hashCode();</span>
+    }
+
+    /**
+     * creates a file object with the given path and takes care that all dirs up to the file exist.
+     *
+     * @param fullPath the full path to the file
+     * @return the file
+     */
+    private static final File createFile(String fullPath) {
+<span class="fc" id="L113">        File file = new File(fullPath);</span>
+
+        /* create the parent dirs, if necessary */
+<span class="fc" id="L116">        File parentDir = file.getAbsoluteFile().getParentFile();</span>
+<span class="fc" id="L117">        FileUtil.createDir(parentDir, false);</span>
+
+<span class="fc" id="L119">        return file;</span>
+    }
+
+    /**
+     * Creates a file objecte representing the directory of the given path and creates it if it does not exist.
+     *
+     * @param fullPath the full path of the directory
+     * @return a file representing the directory
+     */
+    private static final File createDir(String fullPath) {
+<span class="nc" id="L129">        File dir = new File(fullPath);</span>
+<span class="nc" id="L130">        FileUtil.createDir(dir, false);</span>
+<span class="nc" id="L131">        return dir;</span>
+    }
+
+    /**
+     * creates the output - dir tree with the correct user - rights
+     *
+     * @return the final output - dir
+     */
+    private final String createDirTree() {
+<span class="fc" id="L140">        JMadPreferences prefs = getPreferences();</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (prefs == null) {</span>
+<span class="nc" id="L142">            return null;</span>
+        }
+<span class="fc" id="L144">        String outPath = prefs.getOutputPath();</span>
+
+        /* the base dir must be writable by all users */
+<span class="fc" id="L147">        outPath = outPath + File.separator + TMPDIR_NAME;</span>
+<span class="fc" id="L148">        FileUtil.createDir(new File(outPath), true);</span>
+
+        /* the sub dirs only have to be accessible by the user */
+<span class="fc" id="L151">        outPath = outPath + File.separator + SystemUtil.getUserName() + File.separator + SystemUtil.getHostName();</span>
+<span class="fc" id="L152">        FileUtil.createDir(new File(outPath), false);</span>
+
+<span class="fc" id="L154">        return outPath;</span>
+    }
+
+    public void setPreferences(JMadPreferences preferences) {
+<span class="fc" id="L158">        this.preferences = preferences;</span>
+<span class="fc" id="L159">    }</span>
+
+    private JMadPreferences getPreferences() {
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        if (this.preferences == null) {</span>
+<span class="nc" id="L163">            LOGGER.warn(&quot;Preferences not set. Maybe config error.&quot;);</span>
+        }
+<span class="fc" id="L165">        return preferences;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

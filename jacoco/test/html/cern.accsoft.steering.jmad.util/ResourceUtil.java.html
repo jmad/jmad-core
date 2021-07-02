@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResourceUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">ResourceUtil.java</span></div><h1>ResourceUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: ResourceUtil.java,v 1.5 2009-02-25 18:48:27 kfuchsbe Exp $
+ *
+ * $Date: 2009-02-25 18:48:27 $ $Revision: 1.5 $ $Author: kfuchsbe $
+ *
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
+
+/**
+ * This class provides methods to handle resource files
+ *
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class ResourceUtil {
+    /**
+     * the logger for the class
+     */
+<span class="fc" id="L56">    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUtil.class);</span>
+
+    private ResourceUtil() {
+        /* only static methods */
+    }
+
+    /**
+     * searches all the resources in the classpath to get a list of all the resources in the given package.
+     *
+     * @param packageName the package name in which to search for the resources.
+     * @return the names of the resources (without leading package names)
+     */
+    public static Collection&lt;String&gt; getResourceNames(String packageName) {
+<span class="fc" id="L69">        String patternString = &quot;.*&quot; + packageName.replaceAll(&quot;\\/&quot;, &quot;\\\\/&quot;).replaceAll(&quot;\\.&quot;, &quot;\\\\/&quot;) + &quot;\\/[^\\/]+&quot;;</span>
+<span class="fc" id="L70">        LOGGER.debug(&quot;Searching for pattern:&quot; + patternString);</span>
+<span class="fc" id="L71">        Pattern pattern = Pattern.compile(patternString);</span>
+<span class="fc" id="L72">        Collection&lt;String&gt; resources = getResources(pattern);</span>
+<span class="fc" id="L73">        List&lt;String&gt; names = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        for (String resource : resources) {</span>
+<span class="fc" id="L75">            File file = new File(resource);</span>
+<span class="fc" id="L76">            names.add(file.getName());</span>
+<span class="fc" id="L77">        }</span>
+<span class="fc" id="L78">        return names;</span>
+    }
+
+    /**
+     * just adds a prefix to the path
+     *
+     * @param filepath the path to which to add the prefix
+     * @param offset   the offset to add as prefix
+     * @return the whole path
+     */
+    public static String prependPathOffset(String filepath, String offset) {
+<span class="pc bpc" id="L89" title="1 of 4 branches missed.">        if ((offset != null) &amp;&amp; (offset.length() &gt; 0)) {</span>
+            /*
+             * IMPORTANT: Do NOT use File.separator here, since this is also used for resource-paths!
+             */
+<span class="fc" id="L93">            return offset + &quot;/&quot; + filepath;</span>
+        } else {
+<span class="fc" id="L95">            return filepath;</span>
+        }
+    }
+
+    /**
+     * Canonicalize a resource-path name by resolving &quot;./&quot; and &quot;../&quot;, and replacing backslashes with slashes.
+     *
+     * @param path the path
+     * @return a canonical representation of the path
+     */
+    public static String canonicalizePath(String path) {
+<span class="fc" id="L106">        return Paths.get(path).normalize().toString().replace(&quot;\\&quot;, &quot;/&quot;);</span>
+    }
+
+    /**
+     * Converts the given package name into a path like string (e.g. &quot;a.java.pkg&quot; is converted to &quot;a/java/pkg&quot;). Hereby
+     * always slashes (&quot;/&quot;) are used and not the system file separator.
+     *
+     * @param packageName the package name to convert
+     * @return the converted package name as path represention
+     */
+    public static String packageToPath(String packageName) {
+<span class="fc" id="L117">        return packageName.replaceAll(&quot;\\.&quot;, &quot;/&quot;);</span>
+    }
+
+    /*
+     * The following code was found on the net at http://forums.devx.com/showthread.php?t=153784
+     */
+
+    /**
+     * for all elements of java.class.path get a Collection of resources. All ressources can be found with:
+     * &lt;p&gt;
+     * &lt;code&gt;
+     * Pattern pattern = Pattern.compile(&quot;.*&quot;);
+     * &lt;/code&gt;
+     *
+     * @param pattern the pattern to match
+     * @return the resources in the order they are found
+     */
+    public static Collection&lt;String&gt; getResources(Pattern pattern) {
+<span class="fc" id="L135">        ArrayList&lt;String&gt; retval = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L136">        retval.addAll(getResourcesFromClassPath(pattern));</span>
+<span class="fc" id="L137">        return retval;</span>
+    }
+
+    /**
+     * @param pattern a regular expression pattern to search
+     * @return all names of the resources included in the class-path (jars and directories)
+     */
+    private static Collection&lt;String&gt; getResourcesFromClassPath(Pattern pattern) {
+<span class="fc" id="L145">        List&lt;String&gt; retval = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc" id="L147">        Set&lt;String&gt; classPathElements = ClassPathUtil.getAllClassPathEntries();</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (String element : classPathElements) {</span>
+<span class="fc" id="L149">            LOGGER.debug(&quot;Processing classpath entry '&quot; + element + &quot;'&quot;);</span>
+<span class="fc" id="L150">            retval.addAll(getResources(element, pattern));</span>
+<span class="fc" id="L151">        }</span>
+<span class="fc" id="L152">        return retval;</span>
+    }
+
+    private static Collection&lt;String&gt; getResources(String element, Pattern pattern) {
+<span class="fc" id="L156">        ArrayList&lt;String&gt; retval = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (JarUtil.isJarName(element)) {</span>
+<span class="fc" id="L158">            retval.addAll(getResourcesFromJarFile(element, pattern));</span>
+        } else {
+<span class="fc" id="L160">            File file = getFileFromUrlString(element);</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (file == null) {</span>
+<span class="nc" id="L162">                LOGGER.warn(&quot;Could not correctly associate '&quot; + element + &quot;' to a file!?&quot;);</span>
+            } else {
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                if (file.isDirectory()) {</span>
+<span class="fc" id="L165">                    retval.addAll(getResourcesFromDirectory(file, pattern));</span>
+                } else {
+<span class="nc" id="L167">                    LOGGER.warn(&quot;Do not know how to process classpath entry '&quot; + element + &quot;'&quot;);</span>
+                }
+            }
+        }
+<span class="fc" id="L171">        return retval;</span>
+    }
+
+    private static Collection&lt;String&gt; getResourcesFromJarFile(String fileName, Pattern pattern) {
+<span class="fc" id="L175">        Collection&lt;String&gt; retvals = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L176">        JarFile jarFile = null;</span>
+        try {
+<span class="fc" id="L178">            jarFile = JarUtil.getJarFile(fileName);</span>
+<span class="fc" id="L179">            retvals = ZipUtil.getFileNames(jarFile, pattern);</span>
+<span class="nc" id="L180">        } catch (IOException e) {</span>
+<span class="nc" id="L181">            LOGGER.warn(&quot;Unable to open jar '&quot; + fileName + &quot;'. Ignoring it.&quot;);</span>
+        } finally {
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">            if (jarFile != null) {</span>
+                try {
+<span class="fc" id="L185">                    jarFile.close();</span>
+<span class="nc" id="L186">                } catch (IOException e) {</span>
+<span class="nc" id="L187">                    LOGGER.error(&quot;Erro while closing jar file.&quot;, e);</span>
+<span class="fc" id="L188">                }</span>
+            }
+        }
+<span class="fc" id="L191">        return retvals;</span>
+    }
+
+    private static Collection&lt;String&gt; getResourcesFromDirectory(File directory, Pattern pattern) {
+<span class="fc" id="L195">        ArrayList&lt;String&gt; retval = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L196">        File[] fileList = directory.listFiles();</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">        for (File file : fileList) {</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            if (file.isDirectory()) {</span>
+<span class="fc" id="L199">                retval.addAll(getResourcesFromDirectory(file, pattern));</span>
+            } else {
+                try {
+<span class="fc" id="L202">                    String fileName = file.getCanonicalPath().replaceAll(&quot;\\\\&quot;, &quot;/&quot;);</span>
+<span class="fc" id="L203">                    boolean accept = pattern.matcher(fileName).matches();</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">                    if (accept) {</span>
+<span class="fc" id="L205">                        retval.add(fileName);</span>
+                    }
+<span class="nc" id="L207">                } catch (IOException e) {</span>
+<span class="nc" id="L208">                    throw new Error(e);</span>
+<span class="fc" id="L209">                }</span>
+            }
+        }
+<span class="fc" id="L212">        return retval;</span>
+    }
+
+    private static final File getFileFromUrlString(String urlString) {
+        URL url;
+        try {
+<span class="fc" id="L218">            url = new URL(urlString);</span>
+<span class="nc" id="L219">        } catch (MalformedURLException e1) {</span>
+<span class="nc" id="L220">            return null;</span>
+<span class="fc" id="L221">        }</span>
+<span class="fc" id="L222">        File f = null;</span>
+<span class="fc" id="L223">        f = new File(url.getPath());</span>
+<span class="fc" id="L224">        return f;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

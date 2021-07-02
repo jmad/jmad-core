@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TfsSummaryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.tfs</a> &gt; <span class="el_source">TfsSummaryImpl.java</span></div><h1>TfsSummaryImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.result.tfs;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.JMadConstants;
+import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+
+import static cern.accsoft.steering.jmad.domain.result.tfs.TfsDoubles.parseTfsDouble;
+
+<span class="fc" id="L38">public class TfsSummaryImpl implements TfsSummary {</span>
+
+    /** the logger for this class */
+<span class="fc" id="L41">    private static final Logger LOGGER = LoggerFactory.getLogger(TfsSummaryImpl.class);</span>
+
+    /** All the values in their String representation */
+<span class="fc" id="L44">    private final Map&lt;String, String&gt; stringValues = new HashMap&lt;String, String&gt;();</span>
+
+    /** The valuetypes for each key */
+<span class="fc" id="L47">    private final Map&lt;String, MadxVarType&gt; valueTypes = new HashMap&lt;String, MadxVarType&gt;();</span>
+
+    /** The calculated double values for those variables who are of type double. */
+<span class="fc" id="L50">    private final Map&lt;String, Double&gt; doubleValues = new HashMap&lt;String, Double&gt;();</span>
+
+    /**
+     * adds a value to the summary
+     * 
+     * @param madxName the key of the value
+     * @param value the value as string
+     * @param varType the type of the value
+     */
+    public void addValue(String madxName, String value, MadxVarType varType) {
+<span class="fc" id="L60">        String key = unifyKey(madxName);</span>
+<span class="fc" id="L61">        this.stringValues.put(key, value);</span>
+<span class="fc" id="L62">        this.valueTypes.put(key, varType);</span>
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * converts all the values that have VarType Double to double values, so that they can be retrieved quickly
+     * afterwards.
+     * 
+     * @throws TfsResultException if the conversion fails
+     */
+    public void convert() throws TfsResultException {
+<span class="fc" id="L72">        this.doubleValues.clear();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        for (String key : getKeys()) {</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if (MadxVarType.DOUBLE.equals(getVarType(key))) {</span>
+<span class="fc" id="L75">                String strValue = getStringValue(key);</span>
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">                if (strValue == null) {</span>
+<span class="nc" id="L78">                    throw new TfsResultException(&quot;Data contains no value for key '&quot; + key + &quot;'.&quot;);</span>
+                }
+
+                try {
+<span class="fc" id="L82">                    this.doubleValues.put(unifyKey(key), parseTfsDouble(strValue));</span>
+<span class="nc" id="L83">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L84">                    throw new TfsResultException(&quot;Error while converting value '&quot; + strValue + &quot;' to Double&quot;, e);</span>
+<span class="fc" id="L85">                }</span>
+            }
+<span class="fc" id="L87">        }</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * ensures that all keys are the same case.
+     * 
+     * @param key the key to unify
+     * @return the converted key.
+     */
+    private static final String unifyKey(String key) {
+<span class="fc" id="L97">        return key.toUpperCase(JMadConstants.DEFAULT_LOCALE);</span>
+    }
+
+    @Override
+    public Double getDoubleValue(String key) {
+<span class="fc" id="L102">        Double value = this.doubleValues.get(unifyKey(key));</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (value == null) {</span>
+<span class="nc" id="L104">            LOGGER.warn(&quot;TwissSummary seems not to contain a double value for key '&quot; + key + &quot;'&quot;);</span>
+        }
+<span class="fc" id="L106">        return value;</span>
+    }
+
+    @Override
+    public Double getDoubleValue(GlobalVariable variable) {
+<span class="fc" id="L111">        return getDoubleValue(variable.getMadxName());</span>
+    }
+
+    @Override
+    public Collection&lt;String&gt; getKeys() {
+<span class="fc" id="L116">        return this.stringValues.keySet();</span>
+    }
+
+    @Override
+    public String getStringValue(String key) {
+<span class="fc" id="L121">        String value = this.stringValues.get(unifyKey(key));</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (value == null) {</span>
+<span class="nc" id="L123">            LOGGER.warn(&quot;TwissSummary seems not to contain a string value for key '&quot; + key + &quot;'&quot;);</span>
+        }
+<span class="fc" id="L125">        return value;</span>
+    }
+
+    @Override
+    public String getStringValue(GlobalVariable variable) {
+<span class="nc" id="L130">        return getStringValue(variable.getMadxName());</span>
+    }
+
+    @Override
+    public MadxVarType getVarType(String key) {
+<span class="fc" id="L135">        MadxVarType value = this.valueTypes.get(unifyKey(key));</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (value == null) {</span>
+<span class="nc" id="L137">            LOGGER.warn(&quot;TwissSummary seems not to contain a value type for key '&quot; + key + &quot;'&quot;);</span>
+        }
+<span class="fc" id="L139">        return value;</span>
+    }
+
+    @Override
+    public MadxVarType getVarType(GlobalVariable variable) {
+<span class="nc" id="L144">        return getVarType(variable.getMadxName());</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L149">        return &quot;TfsSummaryImpl [stringValues=&quot; + stringValues + &quot;, valueTypes=&quot; + valueTypes + &quot;, doubleValues=&quot;</span>
+                + doubleValues + &quot;]&quot;;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinearKnob.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model.knob.custom</a> &gt; <span class="el_source">LinearKnob.java</span></div><h1>LinearKnob.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id $
+ * 
+ * $Date$ $Revision$ $Author$
+ * 
+ * Copyright CERN ${year}, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.model.knob.custom;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
+import cern.accsoft.steering.jmad.domain.knob.KnobType;
+import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
+import cern.accsoft.steering.jmad.model.JMadModel;
+import cern.accsoft.steering.jmad.model.knob.AbstractMultiModelKnob;
+import cern.accsoft.steering.jmad.model.knob.StatefulKnob;
+
+/**
+ * @author ${user}
+ * @version $Revision$, $Date$, $Author$
+ */
+public class LinearKnob extends AbstractMultiModelKnob implements StatefulKnob {
+
+    /** the logger of the class */
+<span class="fc" id="L55">    private static final Logger LOGGER = LoggerFactory.getLogger(LinearKnob.class);</span>
+
+    /** defines one factor for each strength */
+<span class="fc" id="L58">    private Map&lt;String, Double&gt; strengthFactors = new HashMap&lt;String, Double&gt;();</span>
+
+    /** the actual value of the knob */
+<span class="fc" id="L61">    private double actualValue = 0.0;</span>
+
+    /** the name of this knob */
+    private String name;
+
+<span class="fc" id="L66">    public LinearKnob(String name) {</span>
+<span class="fc" id="L67">        this.name = name;</span>
+<span class="fc" id="L68">    }</span>
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L72">        return &quot;Knob with linear factors, setting only increments.&quot;;</span>
+    }
+
+    @Override
+    protected synchronized void doSetTotalValue(double value) {
+<span class="fc" id="L77">        double oldKnobValue = getTotalValue();</span>
+<span class="fc" id="L78">        double knobDeltaValue = value - oldKnobValue;</span>
+
+        /* avoid unnecessary read/write operations to the model */
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (knobDeltaValue == 0.0) {</span>
+<span class="nc" id="L82">            return;</span>
+        }
+
+        /* we loop over all connected Models */
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        for (JMadModel model : super.getConnectedModels()) {</span>
+<span class="fc" id="L87">            this.writeDeltaValueToModel(model, knobDeltaValue);</span>
+<span class="fc" id="L88">        }</span>
+
+<span class="fc" id="L90">        this.actualValue = value;</span>
+<span class="fc" id="L91">    }</span>
+
+    @Override
+    public void writeCurrentStateToModel(JMadModel model) {
+        /* this approach assumes that a optics load overwrites all defined strengths!! */
+<span class="nc" id="L96">        this.writeDeltaValueToModel(model, getTotalValue());</span>
+<span class="nc" id="L97">    }</span>
+
+    /**
+     * Write a delta knob value to a {@link JMadModel}. For each strength (str) used by the knob, the model will have an
+     * updated value:
+     * &lt;p&gt;
+     * &lt;code&gt;str = old_str + delta_knob * str_factor&lt;/code&gt;
+     * 
+     * @param model the {@link JMadModel} to write the delta value to
+     * @param knobDeltaValue the amount of delta to write
+     */
+    private synchronized void writeDeltaValueToModel(JMadModel model, double knobDeltaValue) {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        for (Entry&lt;String, Double&gt; strengthEntry : this.strengthFactors.entrySet()) {</span>
+
+            /*
+             * we only do incremental change of the parameters. This is necessary to allow several knobs acting on the
+             * same strengths.
+             */
+<span class="fc" id="L115">            String strengthName = strengthEntry.getKey();</span>
+<span class="fc" id="L116">            double factor = strengthEntry.getValue();</span>
+            try {
+<span class="fc" id="L118">                double oldStrengthValue = getStrengthValue(model, strengthName);</span>
+<span class="fc" id="L119">                double newStrengthValue = (oldStrengthValue + knobDeltaValue * factor);</span>
+
+<span class="fc" id="L121">                setStrengthValue(model, strengthName, newStrengthValue);</span>
+<span class="nc" id="L122">            } catch (JMadModelException e) {</span>
+<span class="nc" id="L123">                LOGGER.error(&quot;Could not set strength [&quot; + strengthName + &quot;] in model [&quot; + model + &quot;]&quot;, e);</span>
+<span class="fc" id="L124">            }</span>
+<span class="fc" id="L125">        }</span>
+<span class="fc" id="L126">    }</span>
+
+    /**
+     * tries to find the strength of the given name in the model and retrieve the value from it. If the strength is not
+     * available (maybe not parsed, since not in a strength file) it tries to get it directly from the model.
+     * 
+     * @param model the {@link JMadModel} to get the strength from
+     * @param strengthName the name of the strength.
+     * @return the value
+     * @throws JMadModelException if the retrieval of the value fails
+     */
+    private double getStrengthValue(JMadModel model, String strengthName) throws JMadModelException {
+<span class="fc" id="L138">        Strength strength = getStrength(model, strengthName);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (strength != null) {</span>
+<span class="nc" id="L140">            return strength.getValue();</span>
+        } else {
+<span class="fc" id="L142">            return model.getValue(strengthName);</span>
+        }
+    }
+
+    /**
+     * Sets the value to the strength of the given name, if the strength exists. This is preferable, because this way
+     * the strengths stay consistent. If it does not exist, then it calls directly the setValue method of the model.
+     * 
+     * @param model the {@link JMadModel} to set the strength in
+     * @param value the value to set for the strength
+     * @throws JMadModelException if the setting of the value fails
+     */
+    private void setStrengthValue(JMadModel model, String strengthName, double value) throws JMadModelException {
+<span class="fc" id="L155">        double rdValue = roundToDecimalPlaces(value, MAX_DEC_PLACES);</span>
+<span class="fc" id="L156">        Strength strength = getStrength(model, strengthName);</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (strength != null) {</span>
+<span class="nc" id="L158">            strength.setValue(rdValue);</span>
+        } else {
+<span class="fc" id="L160">            model.setValue(strengthName, rdValue);</span>
+        }
+<span class="fc" id="L162">    }</span>
+
+    /**
+     * searches the strength in the model
+     * 
+     * @param model the {@link JMadModel} to search the strength in
+     * @param strengthName the name of the strength
+     * @return the strength or &lt;code&gt;null&lt;/code&gt; if the named strength does not exist in the model
+     */
+    private Strength getStrength(JMadModel model, String strengthName) {
+<span class="fc" id="L172">        return model.getStrengthsAndVars().getStrength(strengthName);</span>
+    }
+
+    @Override
+    public String getKey() {
+<span class="nc" id="L177">        return this.name;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L182">        return this.name;</span>
+    }
+
+    @Override
+    public double getTotalValue() {
+<span class="fc" id="L187">        return this.actualValue;</span>
+    }
+
+    /**
+     * adds a factor for a strength
+     * 
+     * @param strengthName the name of the strength
+     * @param factor the scaling factor for this strength
+     */
+    public void addStrengthFactor(String strengthName, double factor) {
+<span class="fc" id="L197">        this.strengthFactors.put(strengthName, Double.valueOf(factor));</span>
+<span class="fc" id="L198">    }</span>
+
+    /**
+     * update the knob definition to the given strength name value mapping. Strengths that are not contained in the
+     * mapping are 'trimmed' back to zero. And new strengths are added to the knob. After this call, the knob is defined
+     * with exactly the given strength-factor combinations and the strengths involved are trimmed to the value resulting
+     * from the current knob value.
+     * 
+     * @param strengthFactorMapping the mapping between strength name and factor which defines the knob.
+     */
+    protected synchronized void updateAllStrengthFactor(Map&lt;String, Double&gt; strengthFactorMapping) {
+<span class="nc" id="L209">        List&lt;String&gt; processStrengths = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        for (Entry&lt;String, Double&gt; entry : strengthFactorMapping.entrySet()) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (!this.strengthFactors.containsKey(entry.getKey())) {</span>
+<span class="nc" id="L212">                this.strengthFactors.put(entry.getKey(), 0.0);</span>
+<span class="nc" id="L213">                LOGGER.warn(&quot;Added factor [&quot; + entry.getKey() + &quot; = &quot; + entry.getValue() + &quot;] during update of knob [&quot;</span>
+<span class="nc" id="L214">                        + this.getName() + &quot;]&quot;);</span>
+            }
+
+            /* update the strength factor to the model(s) */
+<span class="nc" id="L218">            this.updateStrengthFactor(entry.getKey(), entry.getValue().doubleValue());</span>
+<span class="nc" id="L219">            processStrengths.add(entry.getKey());</span>
+<span class="nc" id="L220">        }</span>
+
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (processStrengths.size() != this.strengthFactors.size()) {</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            for (String strengthName : new ArrayList&lt;String&gt;(this.strengthFactors.keySet())) {</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">                if (!processStrengths.contains(strengthName)) {</span>
+<span class="nc" id="L225">                    double value = this.strengthFactors.get(strengthName);</span>
+<span class="nc" id="L226">                    this.removeStrengthFactor(strengthName);</span>
+<span class="nc" id="L227">                    LOGGER.warn(&quot;Removed factor [&quot; + strengthName + &quot; = &quot; + value + &quot;] during update of knob [&quot;</span>
+<span class="nc" id="L228">                            + this.getName() + &quot;]&quot;);</span>
+                }
+<span class="nc" id="L230">            }</span>
+        }
+<span class="nc" id="L232">    }</span>
+
+    /**
+     * Remove the factor for the strength with the given name from the linear knob. This call will ensure, that the
+     * impact of the strength factor is removed from the underlying models. After this call the strength is not longer
+     * available in the linear knob.
+     * 
+     * @param strengthName the name of the strength to remove from the linear knob
+     */
+    protected void removeStrengthFactor(String strengthName) {
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (!this.strengthFactors.containsKey(strengthName)) {</span>
+<span class="nc" id="L243">            throw new IllegalArgumentException(&quot;Knob does not contain a factor for strength [&quot; + strengthName + &quot;]&quot;);</span>
+        }
+
+        try {
+<span class="nc" id="L247">            double oldFactor = this.strengthFactors.get(strengthName).doubleValue();</span>
+<span class="nc" id="L248">            double totalValue = getTotalValue();</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            for (JMadModel model : super.getConnectedModels()) {</span>
+<span class="nc" id="L250">                double actStrength = this.getStrengthValue(model, strengthName);</span>
+
+                /* remove the impact of the old strength factor from the strength */
+<span class="nc" id="L253">                double newStrength = actStrength - (oldFactor * totalValue);</span>
+<span class="nc" id="L254">                this.setStrengthValue(model, strengthName, newStrength);</span>
+<span class="nc" id="L255">            }</span>
+
+<span class="nc" id="L257">            this.strengthFactors.remove(strengthName);</span>
+
+<span class="nc" id="L259">        } catch (JMadModelException e) {</span>
+<span class="nc" id="L260">            LOGGER.error(&quot;Could not remove strength factor for [&quot; + strengthName + &quot;] from knob [&quot; + getName() + &quot;]&quot;, e);</span>
+<span class="nc" id="L261">        }</span>
+<span class="nc" id="L262">    }</span>
+
+    /**
+     * update one of the knobs strength factors. During update the old strength factors impact on the model is reset and
+     * the new factors resulting value written to the model. If the old factor and the new factor are equal, nothing is
+     * done.
+     * 
+     * @param strengthName the name of the the strength whose factor to update
+     * @param factor the new value of the scaling factor for this strength
+     */
+    protected synchronized void updateStrengthFactor(String strengthName, double factor) {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        if (!this.strengthFactors.containsKey(strengthName)) {</span>
+<span class="nc" id="L274">            throw new IllegalArgumentException(&quot;Knob does not contain a factor for strength [&quot; + strengthName + &quot;]&quot;);</span>
+        }
+
+        try {
+<span class="nc" id="L278">            double oldFactor = this.strengthFactors.get(strengthName).doubleValue();</span>
+
+<span class="nc bnc" id="L280" title="All 2 branches missed.">            if (oldFactor == factor) {</span>
+                /* nothing to do here */
+<span class="nc" id="L282">                return;</span>
+            }
+
+<span class="nc" id="L285">            double totalValue = getTotalValue();</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">            for (JMadModel model : super.getConnectedModels()) {</span>
+
+<span class="nc" id="L288">                double actStrength = this.getStrengthValue(model, strengthName);</span>
+
+                /* remove the impact of the old strength factor from the strength */
+                /* and add the contribution of the new factor to the strength */
+<span class="nc" id="L292">                double newStrength = actStrength + ((factor - oldFactor) * totalValue);</span>
+
+<span class="nc" id="L294">                this.setStrengthValue(model, strengthName, newStrength);</span>
+<span class="nc" id="L295">            }</span>
+
+            /* overwrite the current factor in the factor map */
+<span class="nc" id="L298">            this.addStrengthFactor(strengthName, factor);</span>
+
+<span class="nc" id="L300">        } catch (JMadModelException e) {</span>
+<span class="nc" id="L301">            LOGGER.error(&quot;Could not update strength factor for [&quot; + strengthName + &quot;] in Knob [&quot; + getName() + &quot;]&quot;, e);</span>
+<span class="nc" id="L302">        }</span>
+<span class="nc" id="L303">    }</span>
+
+    @Override
+    public KnobType getType() {
+<span class="nc" id="L307">        return KnobType.CUSTOM;</span>
+    }
+
+    public static final int MAX_DEC_PLACES = 14;
+
+    public static final double roundToDecimalPlaces(double value, int decPlaces) {
+<span class="fc" id="L313">        return Math.round(value * Math.pow(10, decPlaces)) / Math.pow(10, decPlaces);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

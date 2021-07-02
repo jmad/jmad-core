@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd</a> &gt; <span class="el_source">OptionCommand.java</span></div><h1>OptionCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.kernel.cmd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class OptionCommand extends AbstractCommand {
+
+    /** the name of the command */
+    private static final String CMD_NAME = &quot;option&quot;;
+
+    private final Option option;
+    private final Boolean value;
+
+<span class="nc" id="L45">    public OptionCommand(Option option, Boolean value) {</span>
+<span class="nc" id="L46">        this.option = option;</span>
+<span class="nc" id="L47">        this.value = value;</span>
+<span class="nc" id="L48">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L52">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L57">        List&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L58" title="All 4 branches missed.">        if ((option != null) &amp;&amp; (value != null)) {</span>
+<span class="nc" id="L59">            parameters.add(new GenericParameter&lt;&gt;(option.getName(), value.toString()));</span>
+        }
+<span class="nc" id="L61">        return parameters;</span>
+    }
+
+    /**
+     * this enum represents the possible option commands
+     * 
+     * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+     */
+<span class="nc" id="L69">    public enum Option {</span>
+        // default | meaning if true
+<span class="nc" id="L71">        BBORBIT, // false the closed orbit is modified by beam-beam kicks</span>
+<span class="nc" id="L72">        SYMPL, // false all element matrices are symplectified in Twiss</span>
+<span class="nc" id="L73">        ECHO, // true echoes the input on the standard output file</span>
+<span class="nc" id="L74">        TRACE, // false prints the system time after each command</span>
+<span class="nc" id="L75">        VERIFY, // false issues a warning if an undefined variable is used</span>
+<span class="nc" id="L76">        WARN, // true issues warnings</span>
+<span class="nc" id="L77">        INFO, // true issues informations</span>
+<span class="nc" id="L78">        TELL, // false prints the current value of all options</span>
+<span class="nc" id="L79">        RESET, // false resets all options to their defaults</span>
+<span class="nc" id="L80">        RBARC, // true converts the RBEND straight length into the arc length</span>
+<span class="nc" id="L81">        THIN_FOC, // true if false suppresses the 1(rho**2) focusing of thin</span>
+        // dipoles
+<span class="nc" id="L83">        NO_FATAL_STOP; // false Prevents madx from stopping in case of a fatal</span>
+        // error. Use at your own risk.
+
+        private String getName() {
+<span class="nc" id="L87">            return toString().toLowerCase();</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddFieldErrors.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.task</a> &gt; <span class="el_source">AddFieldErrors.java</span></div><h1>AddFieldErrors.java</h1><pre class="source lang-java linenums">package cern.accsoft.steering.jmad.kernel.task;
+
+import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.kernel.cmd.EOptionCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.EfcompCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.SelectCommand;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
+import static cern.accsoft.steering.jmad.kernel.cmd.SelectCommand.SELECT_FLAG_ERROR;
+
+/**
+ * Task to add absolute field errors to a single element. The provided field errors are ADDED to any field errors
+ * already present by the means of an &quot;eoption,add=true&quot; MAD-X command.
+ */
+public class AddFieldErrors extends AbstractTask {
+
+    private final String elementName;
+    private final List&lt;Double&gt; absoluteErrors;
+    private final List&lt;Double&gt; absoluteSkewErrors;
+
+<span class="fc" id="L23">    public AddFieldErrors(String element, List&lt;Double&gt; absoluteErrors) {</span>
+<span class="fc" id="L24">        this.elementName = element;</span>
+<span class="fc" id="L25">        this.absoluteErrors = ImmutableList.copyOf(absoluteErrors);</span>
+<span class="fc" id="L26">        absoluteSkewErrors = null;</span>
+<span class="fc" id="L27">    }</span>
+
+<span class="nc" id="L29">    public AddFieldErrors(String element, List&lt;Double&gt; absoluteErrors, List&lt;Double&gt; absoluteSkewErrors) {</span>
+<span class="nc" id="L30">        this.elementName = element;</span>
+<span class="nc" id="L31">        this.absoluteErrors = ImmutableList.copyOf(absoluteErrors);</span>
+<span class="nc" id="L32">        this.absoluteSkewErrors = ImmutableList.copyOf(absoluteSkewErrors);</span>
+<span class="nc" id="L33">    }</span>
+
+    @Override
+    protected List&lt;Command&gt; getCommands() {
+<span class="fc" id="L37">        return ImmutableList.of(</span>
+<span class="fc" id="L38">                new EOptionCommand(null, true),</span>
+<span class="fc" id="L39">                clearErrorSelect(),</span>
+<span class="fc" id="L40">                selectErrorElement(elementName),</span>
+<span class="fc" id="L41">                efcomp()</span>
+        );
+    }
+
+    private static SelectCommand clearErrorSelect() {
+<span class="fc" id="L46">        SelectCommand select = new SelectCommand();</span>
+<span class="fc" id="L47">        select.setFlag(SELECT_FLAG_ERROR);</span>
+<span class="fc" id="L48">        select.setClear(true);</span>
+<span class="fc" id="L49">        return select;</span>
+    }
+
+    private static SelectCommand selectErrorElement(String elementName) {
+<span class="fc" id="L53">        SelectCommand select = new SelectCommand();</span>
+<span class="fc" id="L54">        select.setFlag(SELECT_FLAG_ERROR);</span>
+<span class="fc" id="L55">        select.setPattern(elementName);</span>
+<span class="fc" id="L56">        return select;</span>
+    }
+
+    private EfcompCommand efcomp() {
+<span class="fc" id="L60">        EfcompCommand efcomp = new EfcompCommand();</span>
+<span class="fc" id="L61">        efcomp.setAbsoluteErrors(absoluteErrors);</span>
+<span class="fc" id="L62">        efcomp.setAbsoluteSkewErrors(absoluteSkewErrors);</span>
+<span class="fc" id="L63">        return efcomp;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

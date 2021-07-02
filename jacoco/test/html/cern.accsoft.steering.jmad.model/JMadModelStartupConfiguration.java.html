@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelStartupConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model</a> &gt; <span class="el_source">JMadModelStartupConfiguration.java</span></div><h1>JMadModelStartupConfiguration.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.model;
+
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
+
+<span class="fc" id="L29">public class JMadModelStartupConfiguration {</span>
+
+<span class="fc" id="L31">    private boolean loadDefaultRange = true;</span>
+<span class="fc" id="L32">    private OpticsDefinition initialOpticsDefinition = null;</span>
+<span class="fc" id="L33">    private RangeDefinition initialRangeDefinition = null;</span>
+
+    /**
+     * @return true, if the default optics shall be loaded on startup
+     * @deprecated Cannot be set separately anymore
+     */
+    @Deprecated
+    public boolean isLoadDefaultOptics() {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        return (this.initialOpticsDefinition == null);</span>
+    }
+
+    /**
+     * @return true, if the default range shall be loaded on startup
+     */
+    public boolean isLoadDefaultRange() {
+<span class="fc" id="L48">        return this.loadDefaultRange;</span>
+    }
+
+    /**
+     * If {@link #isLoadDefaultRange()} returns false and this returns non null then the range-definition returned by
+     * this method is used to start the model. If this is null, then no range is loaded (which is not advisable since it
+     * results in an unusable model.).
+     * 
+     * @return a valid range definition or null
+     */
+    public RangeDefinition getInitialRangeDefinition() {
+<span class="fc" id="L59">        return this.initialRangeDefinition;</span>
+    }
+
+    /**
+     * If {@link #isLoadDefaultOptics()} returns false then the {@link OpticsDefinition} returned by this method is
+     * loaded when initializing the model. If this is null then no optics is loaded (which is not advisable, since it
+     * results in an unusable model)
+     * 
+     * @return a valid optics definition
+     */
+    public OpticsDefinition getInitialOpticsDefinition() {
+<span class="fc" id="L70">        return this.initialOpticsDefinition;</span>
+    }
+
+    /*
+     * setters
+     */
+
+    public void setLoadDefaultRange(boolean loadDefaultRange) {
+<span class="nc" id="L78">        this.loadDefaultRange = loadDefaultRange;</span>
+<span class="nc" id="L79">    }</span>
+
+    public void setInitialOpticsDefinition(OpticsDefinition initialOpticsDefinition) {
+<span class="nc" id="L82">        this.initialOpticsDefinition = initialOpticsDefinition;</span>
+<span class="nc" id="L83">    }</span>
+
+    public void setInitialRangeDefinition(RangeDefinition initialRangeDefinition) {
+<span class="nc" id="L86">        this.initialRangeDefinition = initialRangeDefinition;</span>
+<span class="nc" id="L87">    }</span>
+
+    /**
+     * @deprecated does nothing!!!!
+     */
+    @Deprecated
+    public void setLoadDefaultOptics(boolean b) {
+        /* does nothing */
+<span class="nc" id="L95">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L99">        return &quot;JMadModelStartupConfiguration [loadDefaultRange=&quot; + loadDefaultRange + &quot;, initialOpticsDefinition=&quot;</span>
+<span class="nc" id="L100">                + initialOpticsDefinition + &quot;, initialRangeDefinition=&quot; + initialRangeDefinitionString() + &quot;]&quot;;</span>
+    }
+
+    private String initialRangeDefinitionString() {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (initialRangeDefinition == null) {</span>
+<span class="nc" id="L105">            return null;</span>
+        }
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (initialRangeDefinition instanceof RangeDefinitionImpl) {</span>
+<span class="nc" id="L108">            return ((RangeDefinitionImpl) initialRangeDefinition).toStringFull();</span>
+        }
+<span class="nc" id="L110">        return initialRangeDefinition.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

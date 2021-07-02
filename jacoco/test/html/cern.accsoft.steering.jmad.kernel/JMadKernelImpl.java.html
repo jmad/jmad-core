@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadKernelImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel</a> &gt; <span class="el_source">JMadKernelImpl.java</span></div><h1>JMadKernelImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ * This file is part of JMad. Copyright (c) 2008-2011, CERN. All rights reserved. Licensed under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.kernel;
+
+import static com.google.common.base.Preconditions.checkState;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import cern.accsoft.steering.jmad.JMadException;
+import cern.accsoft.steering.jmad.bin.MadxBin;
+import cern.accsoft.steering.jmad.domain.result.Result;
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.io.DynapOutputParser;
+import cern.accsoft.steering.jmad.io.MatchOutputParser;
+import cern.accsoft.steering.jmad.io.StrengthFileParser;
+import cern.accsoft.steering.jmad.io.TfsFileParser;
+import cern.accsoft.steering.jmad.io.TrackOutputParser;
+import cern.accsoft.steering.jmad.util.FileMonitor;
+import cern.accsoft.steering.jmad.util.FileMonitor.ProcessTerminatedUnexpectedlyException;
+import cern.accsoft.steering.jmad.util.FileUtil;
+import cern.accsoft.steering.jmad.util.JMadPreferences;
+import cern.accsoft.steering.jmad.util.ProcTools;
+import cern.accsoft.steering.jmad.util.ProcessTerminationMonitor;
+import cern.accsoft.steering.jmad.util.StringUtil;
+import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * this is the implementation of the {@link JMadKernel} which controls one MadX-Process.
+ *
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L52">public class JMadKernelImpl implements JMadKernel, JMadKernelConfig {</span>
+
+    private static final int MAX_REPORTED_OUTPUT_LINES = 10;
+    private static final int MAX_REPORTED_ERROR_LINES = 10;
+
+    /**
+     * the logger for the class
+     */
+<span class="fc" id="L60">    private static final Logger LOGGER = LoggerFactory.getLogger(JMadKernelImpl.class);</span>
+
+    /**
+     * This value is returned by the waitUntilReady - method. It is only used internally.
+     */
+    private static final int EXIT_VALUE_DESTROYED = -9999;
+
+    /**
+     * the command which is used to stop madx.
+     */
+    private static final String CMD_STOP = &quot;stop;&quot;;
+
+    /*
+     * various file names which are used to communicate with MadX and for logging
+     */
+    private static final String FILENAME_READY = &quot;madx-ready.out&quot;;
+    private static final String FILENAME_RESULT = &quot;madx-result.out&quot;;
+    private static final String FILENAME_LOG_IN = &quot;madx-input.log&quot;;
+    private static final String FILENAME_LOG_OUT = &quot;madx-output.log&quot;;
+    private static final String FILENAME_LOG_ERROR = &quot;madx-error.log&quot;;
+
+<span class="fc" id="L81">    private File readyFile = null;</span>
+<span class="fc" id="L82">    private File resultFile = null;</span>
+<span class="fc" id="L83">    private File madxInputLogFile = null;</span>
+<span class="fc" id="L84">    private File madxOutputLogFile = null;</span>
+<span class="fc" id="L85">    private File madxErrorLogFile = null;</span>
+
+    /**
+     * wait this amount of ms, when deletion failed and retry
+     */
+    private static final int RETRY_DELAY_IN_MILLISECONDS = 100;
+
+    /**
+     * how often to retry deleting a file before throwing an exception?
+     */
+    private static final int RETRY_ATTEMPTS = 3;
+
+    /**
+     * the (optional) timeout in ms which the kernel waits until Madx finishes the command/task. If the timeout is set
+     * to null, then the kernel waits forever. Null is the default.
+     */
+<span class="fc" id="L101">    private Long timeout = null;</span>
+
+    /**
+     * the process for madx
+     */
+<span class="fc" id="L106">    private Process process = null;</span>
+
+    /**
+     * the stream for providing madx with input
+     */
+<span class="fc" id="L111">    private PrintWriter input = null;</span>
+
+    /**
+     * the logger, where the inputs to madx are logged
+     */
+<span class="fc" id="L116">    private BufferedWriter inputLogWriter = null;</span>
+
+    /**
+     * The preferences to be injected
+     */
+    private JMadPreferences preferences;
+
+    /**
+     * the file util to be injected
+     */
+    private TempFileUtil fileUtil;
+
+    /**
+     * the class which takes care of the madx-binary
+     */
+    private MadxBin madxBin;
+
+    /**
+     * does not delete the outputFile after executing a command/task. Keeping the output-file is especially useful for
+     * debugging.
+     */
+<span class="fc" id="L137">    private boolean keepOutputFile = true;</span>
+
+    /**
+     * if true, then the temp dirs are deleted when cleaning up, if false they are kept. If this is null (default) then
+     * the settings are taken from the preferences.
+     */
+<span class="fc" id="L143">    private Boolean cleanupDirs = null;</span>
+
+    /**
+     * the listeners to the kernel
+     */
+<span class="fc" id="L148">    private final List&lt;JMadKernelListener&gt; listeners = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L150">    private final ExecutorService logFileWriteExecutor = Executors.newCachedThreadPool();</span>
+
+    @Override
+    public void start() throws JMadException {
+
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        checkState(fileUtil != null, &quot;fileUtil not injected. Fix Spring configuration&quot;);</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        checkState(madxBin != null, &quot;madxBin not injected. Fix Spring configuration&quot;);</span>
+        /*
+         * First we have to get temp-files related to this kernel
+         */
+<span class="fc" id="L160">        readyFile = fileUtil.getOutputFile(this, FILENAME_READY);</span>
+<span class="fc" id="L161">        resultFile = fileUtil.getOutputFile(this, FILENAME_RESULT);</span>
+<span class="fc" id="L162">        madxInputLogFile = fileUtil.getOutputFile(this, FILENAME_LOG_IN);</span>
+<span class="fc" id="L163">        madxOutputLogFile = fileUtil.getOutputFile(this, FILENAME_LOG_OUT);</span>
+<span class="fc" id="L164">        madxErrorLogFile = fileUtil.getOutputFile(this, FILENAME_LOG_ERROR);</span>
+
+<span class="fc" id="L166">        deleteReadyFile();</span>
+
+<span class="fc" id="L168">        madxInputLogFile.delete();</span>
+
+        try {
+<span class="fc" id="L171">            process = madxBin.execute();</span>
+<span class="fc" id="L172">            input = new PrintWriter(process.getOutputStream());</span>
+<span class="fc" id="L173">            inputLogWriter = new BufferedWriter(new FileWriter(madxInputLogFile));</span>
+<span class="fc" id="L174">            logFileWriteExecutor.submit(() -&gt; Files.copy(process.getInputStream(), madxOutputLogFile.toPath()));</span>
+<span class="fc" id="L175">            logFileWriteExecutor.submit(() -&gt; Files.copy(process.getErrorStream(), madxErrorLogFile.toPath()));</span>
+<span class="fc" id="L176">            fireStartedKernel();</span>
+<span class="nc" id="L177">        } catch (IOException e) {</span>
+<span class="nc" id="L178">            throw new JMadException(&quot;Error while executing madx.&quot;, e);</span>
+<span class="fc" id="L179">        }</span>
+<span class="fc" id="L180">    }</span>
+
+    @Override
+    public int stop() throws JMadException {
+<span class="fc" id="L184">        int exitValue = 0;</span>
+<span class="fc" id="L185">        writeCommand(CMD_STOP);</span>
+        try {
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            if (timeout == null) {</span>
+<span class="fc" id="L188">                LOGGER.debug(&quot;No timeout set. Waiting until madx-process terminates.&quot;);</span>
+<span class="fc" id="L189">                exitValue = process.waitFor();</span>
+            } else {
+<span class="fc" id="L191">                ProcessTerminationMonitor processTerminationMonitor = new ProcessTerminationMonitor(process);</span>
+<span class="fc" id="L192">                processTerminationMonitor.start();</span>
+<span class="fc" id="L193">                processTerminationMonitor.join(timeout);</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">                if (processTerminationMonitor.isAlive()) {</span>
+<span class="nc" id="L195">                    processTerminationMonitor.interrupt();</span>
+<span class="nc" id="L196">                    process.destroy();</span>
+<span class="nc" id="L197">                    exitValue = EXIT_VALUE_DESTROYED;</span>
+<span class="nc" id="L198">                    LOGGER.warn(&quot;Waiting for terminating madx timed out! (timeout={} ms)&quot;, timeout);</span>
+                } else {
+<span class="fc" id="L200">                    exitValue = process.exitValue();</span>
+                }
+            }
+
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">            if (exitValue == 0) {</span>
+<span class="fc" id="L205">                LOGGER.debug(&quot;madx terminated correctly with exit-value {}.&quot;, exitValue);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            } else if (exitValue == EXIT_VALUE_DESTROYED) {</span>
+<span class="nc" id="L207">                LOGGER.debug(&quot;Tried to destroy madx-process. -&gt; set exitValue to {}&quot;, exitValue);</span>
+            } else {
+<span class="nc" id="L209">                LOGGER.warn(&quot;madx terminated with exit-value {}.&quot;, exitValue);</span>
+            }
+
+<span class="fc" id="L212">            deleteReadyFile();</span>
+<span class="fc" id="L213">            closeInputLogger();</span>
+<span class="nc" id="L214">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L215">            throw new JMadException(&quot;Error while trying to stop MadX&quot;, e);</span>
+<span class="fc" id="L216">        }</span>
+
+        /* delete the dir corresponding to the kernel. */
+<span class="pc bpc" id="L219" title="2 of 4 branches missed.">        if (isCleanupDirs() &amp;&amp; (fileUtil != null)) {</span>
+<span class="fc" id="L220">            fileUtil.cleanup(this);</span>
+        }
+
+<span class="fc" id="L223">        fireStoppedKernel();</span>
+<span class="fc" id="L224">        return exitValue;</span>
+    }
+
+    private void deleteReadyFile() {
+<span class="fc" id="L228">        readyFile.delete();</span>
+<span class="fc" id="L229">    }</span>
+
+    private void closeInputLogger() {
+        try {
+<span class="fc" id="L233">            inputLogWriter.flush();</span>
+<span class="fc" id="L234">            inputLogWriter.close();</span>
+<span class="nc" id="L235">        } catch (IOException e) {</span>
+<span class="nc" id="L236">            LOGGER.error(&quot;Error while flushing input logger.&quot;, e);</span>
+<span class="fc" id="L237">        }</span>
+<span class="fc" id="L238">    }</span>
+
+    @Override
+    public Result execute(JMadExecutable executable) throws JMadException {
+<span class="fc" id="L242">        resultFile.delete();</span>
+<span class="fc" id="L243">        executable.setOutputFile(resultFile);</span>
+
+        /* execute the commands and wait. */
+<span class="fc" id="L246">        writeCommand(executable.compose());</span>
+<span class="fc" id="L247">        waitUntilReady();</span>
+
+        /* parse result */
+<span class="fc" id="L250">        Result result = null;</span>
+<span class="pc bpc" id="L251" title="1 of 4 branches missed.">        if ((executable.getResultType() != null) &amp;&amp; (ResultType.NO_RESULT != executable.getResultType())) {</span>
+<span class="fc" id="L252">            LOGGER.debug(&quot;parsing madx output-file ({})&quot;, resultFile.getAbsolutePath());</span>
+            try {
+<span class="fc bfc" id="L254" title="All 2 branches covered.">                if (ResultType.TFS_RESULT == executable.getResultType()) {</span>
+<span class="fc" id="L255">                    TfsFileParser parser = new TfsFileParser(resultFile);</span>
+<span class="fc" id="L256">                    parser.parse();</span>
+<span class="fc" id="L257">                    result = parser.getResult();</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">                } else if (ResultType.VALUES_RESULT == executable.getResultType()) {</span>
+<span class="fc" id="L259">                    StrengthFileParser parser = new StrengthFileParser(resultFile);</span>
+<span class="fc" id="L260">                    parser.parse(false);</span>
+<span class="fc" id="L261">                    result = parser.getResult();</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                } else if (ResultType.MATCH_RESULT == executable.getResultType()) {</span>
+<span class="fc" id="L263">                    MatchOutputParser parser = new MatchOutputParser(executable.getOutputFile());</span>
+<span class="fc" id="L264">                    parser.parse();</span>
+<span class="fc" id="L265">                    result = parser.getResult();</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                } else if (ResultType.TRACK_RESULT == executable.getResultType()) {</span>
+<span class="fc" id="L267">                    TrackOutputParser parser = new TrackOutputParser(executable.getOutputFile());</span>
+<span class="fc" id="L268">                    parser.parse();</span>
+<span class="fc" id="L269">                    result = parser.getResult();</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">                } else if (ResultType.DYNAP_RESULT == executable.getResultType()) {</span>
+<span class="fc" id="L271">                    DynapOutputParser parser = new DynapOutputParser(executable.getOutputFile());</span>
+<span class="fc" id="L272">                    parser.parse();</span>
+<span class="fc" id="L273">                    result = parser.getResult();</span>
+                }
+<span class="nc" id="L275">            } catch (Exception e) {</span>
+<span class="nc" id="L276">                throw new JMadException(&quot;File '&quot; + resultFile.getAbsolutePath() + &quot;' could not be parsed.&quot;</span>
+<span class="nc" id="L277">                        + &quot;\nProbably madx did not produce it?&quot; + &quot;\n\n&quot; + madxOutputMessage());</span>
+<span class="fc" id="L278">            }</span>
+
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">            if (!this.keepOutputFile) {</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">                if (!resultFile.delete()) {</span>
+<span class="nc" id="L282">                    throw new JMadException(&quot;Could not delete result file '&quot; + resultFile.getAbsolutePath());</span>
+                }
+<span class="nc" id="L284">                LOGGER.debug(&quot;deleted madx output file ({})&quot;, resultFile.getAbsolutePath());</span>
+            }
+        }
+
+<span class="fc" id="L288">        return result;</span>
+    }
+
+    /**
+     * writes the command(s) as String to MadX-input. This method does not wait for the end of the execution and does
+     * not return any result. Use with care!
+     *
+     * @param command the command to be executed by madx
+     * @throws JMadException
+     */
+    /* package visibility for testing! */
+    void writeCommand(String command) throws JMadException { // NOPMD by kaifox on 6/25/10 4:01 PM
+<span class="fc" id="L300">        String commandString = command + &quot;\n&quot;;</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">        if (!isMadxRunning()) {</span>
+<span class="nc" id="L302">            throw new JMadException(&quot;MadX is not running -&gt; cannot write commands.&quot;);</span>
+        }
+
+<span class="fc" id="L305">        LOGGER.debug(&quot;writing command(s) to madx:\n{}&quot;, commandString);</span>
+<span class="fc" id="L306">        input.println(commandString);</span>
+<span class="fc" id="L307">        input.flush();</span>
+
+        /* also log in separate file for simple executing in madx */
+        try {
+<span class="fc" id="L311">            inputLogWriter.write(commandString);</span>
+<span class="fc" id="L312">            inputLogWriter.flush();</span>
+<span class="nc" id="L313">        } catch (IOException e) {</span>
+<span class="nc" id="L314">            LOGGER.warn(&quot;Error while logging commands!&quot;, e);</span>
+<span class="fc" id="L315">        }</span>
+<span class="fc" id="L316">    }</span>
+
+    @Override
+    public boolean isMadxRunning() {
+<span class="fc" id="L320">        return ProcTools.isRunning(process);</span>
+    }
+
+    /**
+     * writes a file through madx and waits until it exists or reaching timeout (if set).
+     *
+     * @throws JMadException
+     * @see #getTimeout()
+     * @see #setTimeout(Long)
+     */
+    /* package visibility for testing! */
+    void waitUntilReady() throws JMadException {
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">        if (!isMadxRunning()) {</span>
+<span class="nc" id="L333">            throw new JMadException(&quot;MadX is not running!&quot;);</span>
+        }
+
+<span class="fc" id="L336">        writeCommand(&quot;\nsystem, \&quot;echo &gt; &quot; + readyFile.getAbsolutePath() + &quot;\&quot;; // wait until ready\n&quot;);</span>
+
+        /* wait for the file, which tells us, that madx finished */
+<span class="fc" id="L339">        FileMonitor fileMonitor = new FileMonitor(readyFile, process);</span>
+
+<span class="fc" id="L341">        boolean fileCreated = false;</span>
+        try {
+<span class="fc" id="L343">            fileCreated = fileMonitor.waitForFile(timeout);</span>
+<span class="nc" id="L344">        } catch (ProcessTerminatedUnexpectedlyException e) {</span>
+<span class="nc" id="L345">            closeInputLogger();</span>
+<span class="nc" id="L346">            throwTerminatedException(e);</span>
+<span class="fc" id="L347">        }</span>
+
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        if (!fileCreated) {</span>
+<span class="fc" id="L350">            throw new WaitForMadxTimedOutException(&quot;madx command timed out! (timeout=&quot; + timeout + &quot;ms).&quot;);</span>
+        }
+
+<span class="fc" id="L353">        deleteReadyFileWithRetries();</span>
+<span class="fc" id="L354">    }</span>
+
+    private void throwTerminatedException(ProcessTerminatedUnexpectedlyException e) throws MadxTerminatedException {
+<span class="nc" id="L357">        throw new MadxTerminatedException(&quot;Madx terminated unexpectedly.\n\n&quot; + madxOutputMessage(), e);</span>
+    }
+
+    private String madxOutputMessage() {
+<span class="nc" id="L361">        return fileSnippet(&quot;output&quot;, madxOutputLogFile, MAX_REPORTED_OUTPUT_LINES) //</span>
+<span class="nc" id="L362">                + fileSnippet(&quot;error output&quot;, madxErrorLogFile, MAX_REPORTED_ERROR_LINES) //</span>
+<span class="nc" id="L363">                + &quot;\nFull MadX Input Log: '&quot; + madxInputLogFile.getAbsolutePath() + &quot;'&quot; //</span>
+<span class="nc" id="L364">                + &quot;\nFull MadX Output Log: '&quot; + madxOutputLogFile.getAbsolutePath() + &quot;'&quot; //</span>
+<span class="nc" id="L365">                + &quot;\nFull MadX Error Log: '&quot; + madxErrorLogFile.getAbsolutePath() + &quot;'\n&quot;;</span>
+    }
+
+    private String fileSnippet(String fileQualifier, File file, int maxLines) {
+<span class="nc" id="L369">        List&lt;String&gt; lastMadxErrorLines = FileUtil.tail(file, maxLines);</span>
+<span class="nc" id="L370">        return &quot;MadX &quot; + fileQualifier + &quot;(Max last &quot; + maxLines + &quot; lines):\n---\n'&quot; + StringUtil</span>
+<span class="nc" id="L371">                .join(lastMadxErrorLines, &quot;\n&quot;) + &quot;'.\n---\n&quot;;</span>
+    }
+
+    private void deleteReadyFileWithRetries() throws JMadException {
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">        if (!readyFile.delete()) {</span>
+<span class="nc" id="L376">            boolean deleted = false;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">            for (int i = 0; i &lt; RETRY_ATTEMPTS; i++) {</span>
+<span class="nc" id="L378">                LOGGER.debug(&quot;deletion of file '&quot; + readyFile.getAbsolutePath() + &quot;' failed. Retrying again in &quot;</span>
+                        + RETRY_DELAY_IN_MILLISECONDS + &quot;ms&quot;);
+                try {
+<span class="nc" id="L381">                    Thread.sleep(RETRY_DELAY_IN_MILLISECONDS);</span>
+<span class="nc" id="L382">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L383">                    LOGGER.error(&quot;Error while waiting for retry ...&quot;, e);</span>
+<span class="nc" id="L384">                }</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">                if (readyFile.delete()) {</span>
+<span class="nc" id="L386">                    deleted = true;</span>
+<span class="nc" id="L387">                    break;</span>
+                }
+            }
+<span class="nc bnc" id="L390" title="All 2 branches missed.">            if (!deleted) {</span>
+<span class="nc" id="L391">                throw new JMadException(&quot;error while deleting file '&quot; + readyFile.getAbsolutePath() + &quot;'&quot;);</span>
+            }
+        }
+<span class="fc" id="L394">    }</span>
+
+    /**
+     * When the class is destroyed it takes care, that MadX is closed in a proper way.
+     *
+     * @throws Throwable if the finalization fails
+     */
+    @Override
+    protected void finalize() throws Throwable {
+<span class="pc bpc" id="L403" title="1 of 2 branches missed.">        if (isMadxRunning()) {</span>
+<span class="nc" id="L404">            LOGGER.warn(&quot;Madx is still running! - trying to stop...&quot;);</span>
+            try {
+<span class="nc" id="L406">                stop();</span>
+<span class="nc" id="L407">            } catch (JMadException e) {</span>
+<span class="nc" id="L408">                LOGGER.error(&quot;Error while trying to stop MadX.&quot;, e);</span>
+<span class="nc" id="L409">            }</span>
+        }
+<span class="fc" id="L411">        super.finalize();</span>
+<span class="fc" id="L412">    }</span>
+
+    @Override
+    public void addListener(JMadKernelListener listener) {
+<span class="nc" id="L416">        this.listeners.add(listener);</span>
+<span class="nc" id="L417">    }</span>
+
+    @Override
+    public void removeListener(JMadKernelListener listener) {
+<span class="nc" id="L421">        this.listeners.remove(listener);</span>
+<span class="nc" id="L422">    }</span>
+
+    /**
+     * notifies the listeners, that the kernel has started
+     */
+    private void fireStartedKernel() {
+<span class="pc bpc" id="L428" title="1 of 2 branches missed.">        for (JMadKernelListener listener : this.listeners) {</span>
+<span class="nc" id="L429">            listener.startedKernel(this.process);</span>
+<span class="nc" id="L430">        }</span>
+<span class="fc" id="L431">    }</span>
+
+    /**
+     * notifies all listeners, that the kernel has stopped.
+     */
+    private void fireStoppedKernel() {
+<span class="pc bpc" id="L437" title="1 of 2 branches missed.">        for (JMadKernelListener listener : this.listeners) {</span>
+<span class="nc" id="L438">            listener.stoppedKernel();</span>
+<span class="nc" id="L439">        }</span>
+<span class="fc" id="L440">    }</span>
+
+    //
+    // Methods which allow special configuration
+    //
+
+    /**
+     * @return the actual set timeout
+     */
+    @Override
+    public Long getTimeout() {
+<span class="nc" id="L451">        return timeout;</span>
+    }
+
+    /**
+     * sets the actual timeout in ms. If null then the kernel waits forever for Madx.
+     *
+     * @param timeout the timeout to set
+     */
+    @Override
+    public void setTimeout(Long timeout) {
+<span class="fc" id="L461">        this.timeout = timeout;</span>
+<span class="fc" id="L462">    }</span>
+
+    /**
+     * sets the flag, if the output-file shall be kept or deleted after task/command execution.
+     *
+     * @param keepOutputFile true if the output-file shall be kept, false otherwise
+     */
+    @Override
+    public void setKeepOutputFile(boolean keepOutputFile) {
+<span class="nc" id="L471">        this.keepOutputFile = keepOutputFile;</span>
+<span class="nc" id="L472">    }</span>
+
+    /**
+     * @return true, if the outputfile shall be kept or false if it shall be deleted after command/task execution.
+     */
+    @Override
+    public boolean isKeepOutputFile() {
+<span class="nc" id="L479">        return keepOutputFile;</span>
+    }
+
+    @Override
+    public void setCleanupDirs(boolean cleanupDirs) {
+<span class="nc" id="L484">        this.cleanupDirs = cleanupDirs;</span>
+<span class="nc" id="L485">    }</span>
+
+    @Override
+    public boolean isCleanupDirs() {
+<span class="pc bpc" id="L489" title="1 of 2 branches missed.">        if (this.cleanupDirs != null) {</span>
+<span class="nc" id="L490">            return cleanupDirs;</span>
+        }
+<span class="fc" id="L492">        return preferences.isCleanupKernelFiles();</span>
+    }
+
+    @Override
+    public File getOutputFile() {
+<span class="nc" id="L497">        return this.resultFile;</span>
+    }
+
+    public void setPreferences(JMadPreferences preferences) {
+<span class="fc" id="L501">        this.preferences = preferences;</span>
+<span class="fc" id="L502">    }</span>
+
+    public void setFileUtil(TempFileUtil fileUtil) {
+<span class="fc" id="L505">        this.fileUtil = fileUtil;</span>
+<span class="fc" id="L506">    }</span>
+
+    public void setMadxBin(MadxBin madxBin) {
+<span class="fc" id="L509">        this.madxBin = madxBin;</span>
+<span class="fc" id="L510">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

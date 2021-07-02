@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxTwissVariable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.var.enums</a> &gt; <span class="el_source">MadxTwissVariable.java</span></div><h1>MadxTwissVariable.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.var.enums;
+
+import java.util.Set;
+
+import cern.accsoft.steering.jmad.domain.var.TwissVariable;
+import cern.accsoft.steering.jmad.domain.var.VariableUtil;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+
+<span class="fc" id="L31">public enum MadxTwissVariable implements TwissVariable {</span>
+
+    // generic stuff
+<span class="fc" id="L34">    NAME(&quot;name&quot;, MadxVarType.STRING), //</span>
+<span class="fc" id="L35">    KEYWORD(&quot;keyword&quot;, MadxVarType.STRING), //</span>
+<span class="fc" id="L36">    PARENT(&quot;parent&quot;, MadxVarType.STRING),</span>
+
+    // canonical variables
+<span class="fc" id="L39">    X(&quot;x&quot;, &quot;m&quot;), PX(&quot;px&quot;, &quot;rad&quot;), Y(&quot;y&quot;, &quot;m&quot;), PY(&quot;py&quot;, &quot;rad&quot;), T(&quot;t&quot;), PT(&quot;pt&quot;), DELTAP(&quot;deltap&quot;),</span>
+
+    // independent variable
+<span class="fc" id="L42">    S(&quot;s&quot;, &quot;m&quot;), L(&quot;l&quot;, &quot;m&quot;),</span>
+
+    // normalized variables and other derived quantities
+<span class="fc" id="L45">    XN(&quot;xn&quot;), PXN(&quot;pxn&quot;), WX(&quot;wx&quot;), PHIX(&quot;phix&quot;), YN(&quot;yn&quot;), PYN(&quot;pyn&quot;), WY(&quot;wy&quot;), PHIY(&quot;phiy&quot;), TN(&quot;tn&quot;), PTN(&quot;ptn&quot;), WT(</span>
+<span class="fc" id="L46">            &quot;wt&quot;), PHIT(&quot;phit&quot;),</span>
+
+    // linear lattice functions
+<span class="fc" id="L49">    BETX(&quot;betx&quot;, &quot;m&quot;), ALFX(&quot;alfx&quot;), MUX(&quot;mux&quot;, &quot;2pi&quot;), DX(&quot;dx&quot;, &quot;m&quot;), DPX(&quot;dpx&quot;), BETY(&quot;bety&quot;, &quot;m&quot;), ALFY(&quot;alfy&quot;), MUY(</span>
+<span class="fc" id="L50">            &quot;muy&quot;, &quot;2pi&quot;), DY(&quot;dy&quot;, &quot;m&quot;), DPY(&quot;dpy&quot;),</span>
+
+    // additional for twiss table:
+<span class="fc" id="L53">    GAMX(&quot;gamx&quot;), GAMY(&quot;gamy&quot;), SIGX(&quot;sigx&quot;), SIGY(&quot;sigy&quot;),</span>
+
+    // chromatic functions
+<span class="fc" id="L56">    DMUX(&quot;dmux&quot;), DDX(&quot;ddx&quot;), DDPX(&quot;ddpx&quot;), DMUY(&quot;dmuy&quot;), DDY(&quot;ddy&quot;), DDPY(&quot;ddpy&quot;), DBX(&quot;dbx&quot;), DBY(&quot;dby&quot;),</span>
+
+    // k-values
+<span class="fc" id="L59">    K0L(&quot;k0l&quot;), // dipole</span>
+<span class="fc" id="L60">    K1L(&quot;k1l&quot;), // quad</span>
+<span class="fc" id="L61">    K2L(&quot;k2l&quot;), // sextupole</span>
+<span class="fc" id="L62">    K3L(&quot;k3l&quot;), // ocupole</span>
+<span class="fc" id="L63">    K4L(&quot;k4l&quot;), // decapole</span>
+<span class="fc" id="L64">    K5L(&quot;k5l&quot;), // dodecapole</span>
+    // skew k-values
+<span class="fc" id="L66">    K0SL(&quot;k0sl&quot;), // dipole</span>
+<span class="fc" id="L67">    K1SL(&quot;k1sl&quot;), // quad</span>
+<span class="fc" id="L68">    K2SL(&quot;k2sl&quot;), // sextupole</span>
+<span class="fc" id="L69">    K3SL(&quot;k3sl&quot;), // ocupole</span>
+<span class="fc" id="L70">    K4SL(&quot;k4sl&quot;), // decapole</span>
+    
+<span class="fc" id="L72">    ANGLE(&quot;angle&quot;), //the angle = K0L</span>
+
+<span class="fc" id="L74">    HKICK(&quot;hkick&quot;), VKICK(&quot;vkick&quot;), // kickers...</span>
+<span class="fc" id="L75">    POLARITY(&quot;polarity&quot;), // and the assigned polarity</span>
+
+    // 2x2 coupling matrix coefficients
+<span class="fc" id="L78">    R11(&quot;r11&quot;), R12(&quot;r12&quot;), R21(&quot;r21&quot;), R22(&quot;r22&quot;),</span>
+
+    // if something wrong:
+<span class="fc" id="L81">    UNKNOWN(&quot;jmad_unknown&quot;, MadxVarType.UNKNOWN);</span>
+
+    private String name;
+<span class="fc" id="L84">    private String unit = null;</span>
+    private MadxVarType type;
+
+<span class="fc" id="L87">    private MadxTwissVariable(String tag, MadxVarType type) {</span>
+<span class="fc" id="L88">        this.name = tag;</span>
+<span class="fc" id="L89">        this.type = type;</span>
+<span class="fc" id="L90">    }</span>
+
+    private MadxTwissVariable(String tag) {
+<span class="fc" id="L93">        this(tag, MadxVarType.DOUBLE);</span>
+<span class="fc" id="L94">    }</span>
+
+    private MadxTwissVariable(String tag, String unit) {
+<span class="fc" id="L97">        this(tag, MadxVarType.DOUBLE);</span>
+<span class="fc" id="L98">        this.unit = unit;</span>
+<span class="fc" id="L99">    }</span>
+
+    @Override
+    public String getMadxName() {
+<span class="fc" id="L103">        return name;</span>
+    }
+
+    @Override
+    public MadxVarType getVarType() {
+<span class="nc" id="L108">        return type;</span>
+    }
+
+    /**
+     * Determine the correct Value of Variable for a given tag.
+     * 
+     * @param madxName the tag for which to get the VarType - Value.
+     * @return The VarType corresponding to the given tag.
+     */
+    public static final MadxTwissVariable fromMadxName(String madxName) {
+<span class="fc" id="L118">        return VariableUtil.findFromMadxName(MadxTwissVariable.class, madxName, MadxTwissVariable.UNKNOWN);</span>
+    }
+
+    /**
+     * returns a set of variables of a given type.
+     * 
+     * @param type which variables to retrieve
+     * @return the variables.
+     */
+    public static final Set&lt;MadxTwissVariable&gt; allOfType(MadxVarType type) {
+<span class="nc" id="L128">        return VariableUtil.findFromVarType(MadxTwissVariable.class, type);</span>
+    }
+
+    @Override
+    public boolean isApertureVariable() {
+<span class="nc" id="L133">        return false;</span>
+    }
+
+    @Override
+    public String getUnit() {
+<span class="nc" id="L138">        return this.unit;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L143">        return getMadxName();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L148">        return VariableUtil.toString(this);</span>
+    }
+
+    @Override
+    public Class&lt;?&gt; getValueClass() {
+<span class="nc" id="L153">        return getVarType().getValueClass();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TfsResultImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.tfs</a> &gt; <span class="el_source">TfsResultImpl.java</span></div><h1>TfsResultImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ * This file is part of JMad. Copyright (c) 2008-2011, CERN. All rights reserved. Licensed under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.result.tfs;
+
+import static cern.accsoft.steering.jmad.domain.result.tfs.TfsDoubles.parseTfsDouble;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import cern.accsoft.steering.jmad.JMadConstants;
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.domain.var.MadxVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+<span class="fc" id="L32">public class TfsResultImpl implements TfsResult {</span>
+
+    /** the class logger */
+<span class="fc" id="L35">    private static final Logger LOGGER = LoggerFactory.getLogger(TfsResultImpl.class);</span>
+
+    /** The representation of the summary table for this result */
+    private TfsSummary tfsSummary;
+
+    /**
+     * If the result includes the elementnames, then we store the index of the element-names for fast access.
+     */
+<span class="fc" id="L43">    private final Map&lt;String, Integer&gt; elementIndizes = new HashMap&lt;String, Integer&gt;();</span>
+
+    /** here the Lists of values are stored. */
+<span class="fc" id="L46">    private final Map&lt;String, List&lt;String&gt;&gt; valueLists = new LinkedHashMap&lt;String, List&lt;String&gt;&gt;();</span>
+
+    /** also the double values are stored to improve performance */
+<span class="fc" id="L49">    private final Map&lt;String, List&lt;Double&gt;&gt; doubleValueLists = new LinkedHashMap&lt;String, List&lt;Double&gt;&gt;();</span>
+
+    /**
+     * In order to be able to work with simple array-list we additionly store the keys seperately:
+     */
+<span class="fc" id="L54">    private final List&lt;String&gt; keys = new ArrayList&lt;String&gt;();</span>
+
+    /** The types of the variables (columns in the file) */
+<span class="fc" id="L57">    private final Map&lt;String, MadxVarType&gt; varTypes = new HashMap&lt;String, MadxVarType&gt;();</span>
+
+    //
+    // public methods needed for filling the result
+    //
+
+    /**
+     * clears all internal variables.
+     */
+    public void clear() {
+<span class="fc" id="L67">        elementIndizes.clear();</span>
+<span class="fc" id="L68">        varTypes.clear();</span>
+<span class="fc" id="L69">        valueLists.clear();</span>
+<span class="fc" id="L70">        doubleValueLists.clear();</span>
+<span class="fc" id="L71">        keys.clear();</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * adds an empty column to the internal data.
+     * 
+     * @param key the key for this column.
+     */
+    public void createColumn(String key) {
+<span class="fc" id="L80">        keys.add(unifyKey(key));</span>
+<span class="fc" id="L81">        valueLists.put(unifyKey(key), new ArrayList&lt;String&gt;());</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * sets the Type of the column corresponding to the given key
+     * 
+     * @param key the key for which to set the type
+     * @param varType the type for the key
+     */
+    public void setVarType(String key, MadxVarType varType) {
+<span class="fc" id="L91">        varTypes.put(unifyKey(key), varType);</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * adds a new line of data to the dataset.
+     * 
+     * @param values the values to set as Strings.
+     */
+    public void addRow(List&lt;String&gt; values) {
+<span class="fc" id="L100">        int columnNumber = 0;</span>
+<span class="fc" id="L101">        Collection&lt;List&lt;String&gt;&gt; lists = valueLists.values();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (List&lt;String&gt; list : lists) {</span>
+<span class="fc" id="L103">            list.add(values.get(columnNumber));</span>
+
+            // if this is the column with element-name, then store the index
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            if (unifyKey(MadxTwissVariable.NAME.getMadxName()).equalsIgnoreCase(keys.get(columnNumber))) {</span>
+<span class="fc" id="L107">                elementIndizes.put(values.get(columnNumber).toLowerCase(), list.size() - 1);</span>
+            }
+<span class="fc" id="L109">            columnNumber++;</span>
+<span class="fc" id="L110">        }</span>
+<span class="fc" id="L111">    }</span>
+
+    /**
+     * converts the data to Double and returns as ArrayList.
+     * 
+     * @param key the key for which to get the data
+     * @return the ArrayList with values for one key (column in file)
+     * @throws TfsResultException if the calculation of the data fails
+     */
+    private List&lt;Double&gt; calcDoubleData(String key) throws TfsResultException {
+<span class="fc" id="L121">        ArrayList&lt;Double&gt; doubleList = new ArrayList&lt;Double&gt;();</span>
+<span class="fc" id="L122">        List&lt;String&gt; valueList = valueLists.get(key);</span>
+
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (!valueLists.containsKey(key)) {</span>
+<span class="nc" id="L125">            LOGGER.error(&quot;No Data for key '&quot; + key + &quot;'&quot;);</span>
+<span class="nc" id="L126">            return null;</span>
+        }
+
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (!getVarType(key).equals(MadxVarType.DOUBLE)) {</span>
+<span class="nc" id="L130">            LOGGER.error(&quot;Data for key '&quot; + key + &quot;' is not of type Double!&quot;);</span>
+<span class="nc" id="L131">            return null;</span>
+        }
+
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (String value : valueList) {</span>
+            try {
+<span class="fc" id="L136">                doubleList.add(parseTfsDouble(value));</span>
+<span class="nc" id="L137">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L138">                throw new TfsResultException(&quot;Error while converting value '&quot; + value + &quot;' to Double&quot;, e);</span>
+<span class="fc" id="L139">            }</span>
+<span class="fc" id="L140">        }</span>
+
+<span class="fc" id="L142">        return doubleList;</span>
+    }
+
+    /**
+     * Validates, if all values can be correctly retrieved. If not, it throws an exception.
+     * 
+     * @throws TfsResultException if the verification fails.
+     */
+    public void verify() throws TfsResultException {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (String key : keys) {</span>
+<span class="fc" id="L152">            MadxVarType varType = getVarType(key);</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">            if (varType == null) {</span>
+<span class="nc" id="L154">                throw new TfsResultException(&quot;Could not determine vartype vor key &quot; + key.toString()</span>
+                        + &quot;. Dont know how to verify!&quot;);
+            }
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            if (varType == MadxVarType.STRING) {</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">                if (getStringData(key) == null) {</span>
+<span class="nc" id="L159">                    throw new TfsResultException(&quot;Some String-data is null!&quot;);</span>
+                }
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            } else if (varType == MadxVarType.DOUBLE) {</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                if (getDoubleData(key) == null) {</span>
+<span class="nc" id="L163">                    throw new TfsResultException(&quot;Some Double-data is null!&quot;);</span>
+                }
+            } else {
+<span class="nc" id="L166">                throw new TfsResultException(&quot;Result contains Data of type &quot; + varType.toString()</span>
+                        + &quot;. Dont know how to verify!&quot;);
+            }
+<span class="fc" id="L169">        }</span>
+<span class="fc" id="L170">    }</span>
+
+    /**
+     * Converts all double data for fast retrieval.
+     * 
+     * @throws TfsResultException if the conversion from string to double values is not possible
+     */
+    public void convert() throws TfsResultException {
+<span class="fc" id="L178">        doubleValueLists.clear();</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        for (String key : keys) {</span>
+<span class="fc" id="L180">            MadxVarType varType = getVarType(key);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (MadxVarType.DOUBLE.equals(varType)) {</span>
+                try {
+<span class="fc" id="L183">                    List&lt;Double&gt; doubleValues = calcDoubleData(key);</span>
+<span class="fc" id="L184">                    doubleValueLists.put(key, doubleValues);</span>
+<span class="nc" id="L185">                } catch (TfsResultException e) {</span>
+<span class="nc" id="L186">                    throw new TfsResultException(&quot;Double-data cannot be calculated!&quot;, e);</span>
+<span class="fc" id="L187">                }</span>
+            }
+<span class="fc" id="L189">        }</span>
+<span class="fc" id="L190">    }</span>
+
+    /**
+     * ensures that all keys are the same case.
+     * 
+     * @param key the key to unify
+     * @return the converted key.
+     */
+    private static String unifyKey(String key) {
+<span class="fc" id="L199">        return key.toUpperCase(JMadConstants.DEFAULT_LOCALE);</span>
+    }
+
+    //
+    // methods of interface TfsResult
+    //
+
+    @Override
+    public int getColumnCount() {
+<span class="fc" id="L208">        return valueLists.size();</span>
+    }
+
+    @Override
+    public Integer getElementIndex(String elementName) {
+<span class="fc" id="L213">        String key = elementName.toLowerCase();</span>
+<span class="fc" id="L214">        return elementIndizes.get(key);</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getDoubleData(MadxVariable resultVariable) {
+<span class="fc" id="L219">        return getDoubleData(resultVariable.getMadxName());</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getDoubleData(String key) {
+<span class="fc" id="L224">        return this.createImmutableList(doubleValueLists.get(unifyKey(key)));</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getStringData(MadxVariable resultVariable) {
+<span class="fc" id="L229">        return getStringData(resultVariable.getMadxName());</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getStringData(String key) {
+<span class="fc" id="L234">        return this.createImmutableList(valueLists.get(unifyKey(key)));</span>
+    }
+
+    /**
+     * make the input list unmodifiable. checks if the input list is &lt;code&gt;null&lt;/code&gt; and returns &lt;code&gt;null&lt;/code&gt; in
+     * this case.
+     * 
+     * @param &lt;T&gt; the generic type of the list elements
+     * @param input the input list
+     * @return the immutable list or &lt;code&gt;null&lt;/code&gt; if input was &lt;code&gt;null&lt;/code&gt;
+     */
+    private &lt;T&gt; List&lt;T&gt; createImmutableList(List&lt;T&gt; input) {
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        if (input == null) {</span>
+<span class="fc" id="L247">            return null;</span>
+        } else {
+<span class="fc" id="L249">            return Collections.unmodifiableList(input);</span>
+        }
+    }
+
+    @Override
+    public List&lt;String&gt; getKeys() {
+<span class="fc" id="L255">        return keys;</span>
+    }
+
+    @Override
+    public MadxVarType getVarType(String key) {
+<span class="fc" id="L260">        return varTypes.get(unifyKey(key));</span>
+    }
+
+    @Override
+    public MadxVarType getVarType(MadxVariable var) {
+<span class="nc" id="L265">        return getVarType(var.getMadxName());</span>
+    }
+
+    //
+    // Methods of interface Result
+    //
+
+    @Override
+    public final ResultType getResultType() {
+<span class="fc" id="L274">        return ResultType.TFS_RESULT;</span>
+    }
+
+    @Override
+    public TfsSummary getSummary() {
+<span class="fc" id="L279">        return this.tfsSummary;</span>
+    }
+
+    public void setTfsSummary(TfsSummary tfsSummary) {
+<span class="fc" id="L283">        this.tfsSummary = tfsSummary;</span>
+<span class="fc" id="L284">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

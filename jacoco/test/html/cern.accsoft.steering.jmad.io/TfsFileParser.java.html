@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TfsFileParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.io</a> &gt; <span class="el_source">TfsFileParser.java</span></div><h1>TfsFileParser.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.io;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultException;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultImpl;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsSummaryImpl;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+import cern.accsoft.steering.jmad.util.StringUtil;
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
+
+/**
+ * This class provides an interface to read MadX-output files. The read data is returned in a Result - Object.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class TfsFileParser {
+
+    /** The index in the splitted line for the summary value */
+    private static final int FIELD_IDX_SUMMARY_VALUE = 3;
+
+    /** The file from where to read */
+    private final File file;
+
+    /** The result - object, where all read Data will be stored. */
+<span class="fc" id="L52">    private final TfsResultImpl result = new TfsResultImpl();</span>
+
+    /**
+     * @param file the file to parse.
+     */
+    public TfsFileParser(File file) {
+<span class="fc" id="L58">        super();</span>
+<span class="fc" id="L59">        this.file = file;</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Parses the file and stores the data in internal Variables.
+     * 
+     * @throws TfsFileParserException if the parsing fails
+     */
+    public void parse() throws TfsFileParserException {
+
+<span class="fc" id="L69">        TextFileParser parser = new TextFileParserImpl();</span>
+        List&lt;String&gt; lines;
+        try {
+<span class="fc" id="L72">            lines = parser.parse(file);</span>
+<span class="fc" id="L73">        } catch (TextFileParserException e) {</span>
+<span class="fc" id="L74">            throw new TfsFileParserException(&quot;Error while parsing MadX - Output file '&quot; + file.getAbsolutePath() + &quot;'&quot;,</span>
+                    e);
+<span class="fc" id="L76">        }</span>
+
+<span class="fc" id="L78">        result.clear();</span>
+<span class="fc" id="L79">        TfsSummaryImpl summary = new TfsSummaryImpl();</span>
+<span class="fc" id="L80">        result.setTfsSummary(summary);</span>
+
+<span class="fc" id="L82">        goThroughTheLines(lines, summary);</span>
+
+        try {
+<span class="fc" id="L85">            result.convert();</span>
+<span class="fc" id="L86">            result.verify();</span>
+<span class="fc" id="L87">            summary.convert();</span>
+<span class="nc" id="L88">        } catch (TfsResultException e) {</span>
+<span class="nc" id="L89">            throw new TfsFileParserException(&quot;Conversion or Verification of result (file='&quot; + file.getAbsolutePath()</span>
+                    + &quot;') failed!&quot;, e);
+<span class="fc" id="L91">        }</span>
+<span class="fc" id="L92">    }</span>
+
+    protected void goThroughTheLines(List&lt;String&gt; lines, TfsSummaryImpl summary) throws TfsFileParserException {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L96">            List&lt;String&gt; splitString = splitString(line);</span>
+<span class="fc" id="L97">            String[] tokens = splitString.toArray(new String[splitString.size()]);</span>
+
+<span class="fc bfc" id="L99" title="All 4 branches covered.">            if ((tokens.length &gt; 2) &amp;&amp; (tokens[0].equalsIgnoreCase(&quot;@&quot;))) {</span>
+<span class="fc" id="L100">                MadxVarType type = MadxVarType.getVarType(tokens[2].trim());</span>
+<span class="fc" id="L101">                summary.addValue(tokens[1], tokens[FIELD_IDX_SUMMARY_VALUE].replace(&quot;\&quot;&quot;, &quot;&quot;), type);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">            } else if (tokens.length &gt; 0) {</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                if (tokens[0].equalsIgnoreCase(&quot;*&quot;)) { // keys</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                    for (int j = 1; j &lt; tokens.length; j++) {</span>
+<span class="fc" id="L105">                        String keyName = tokens[j];</span>
+<span class="fc" id="L106">                        result.createColumn(keyName);</span>
+                    }
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                } else if (tokens[0].equalsIgnoreCase(&quot;$&quot;)) { // types</span>
+<span class="fc" id="L109">                    checkTokenNumber(tokens.length - 1, line);</span>
+<span class="fc" id="L110">                    int keyCount = 1;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">                    for (String key : result.getKeys()) {</span>
+<span class="fc" id="L112">                        result.setVarType(key, MadxVarType.getVarType(tokens[keyCount]));</span>
+<span class="fc" id="L113">                        keyCount++;</span>
+<span class="fc" id="L114">                    }</span>
+<span class="fc" id="L115">                } else { // values</span>
+<span class="fc" id="L116">                    checkTokenNumber(tokens.length, line);</span>
+<span class="fc" id="L117">                    ArrayList&lt;String&gt; values = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                    for (int j = 0; j &lt; tokens.length; j++) {</span>
+<span class="fc" id="L119">                        values.add(tokens[j].replace(&quot;\&quot;&quot;, &quot;&quot;));</span>
+                    }
+<span class="fc" id="L121">                    result.addRow(values);</span>
+                }
+            }
+<span class="fc" id="L124">        }</span>
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * checks, if the the number corresponds to the initialized number of fields and throws an exception, if that is not
+     * the case.
+     * 
+     * @param number the number of tokens to compare to the column count.
+     * @param line the actual parsed line, to compose a meaningful error message.
+     * @throws TfsFileParserException if the number does not correspond to the columnCounts in the actual result.
+     */
+    private void checkTokenNumber(int number, String line) throws TfsFileParserException {
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (result.getColumnCount() != number) {</span>
+<span class="nc" id="L137">            throw new TfsFileParserException(&quot;Line '&quot; + line + &quot;' seems to contain &quot; + number</span>
+<span class="nc" id="L138">                    + &quot; fields, but there are only &quot; + result.getColumnCount() + &quot; keys. Unable to handle this.&quot;);</span>
+        }
+<span class="fc" id="L140">    }</span>
+
+    /**
+     * Static function to split a line (almost) correctly. This is somehow complicated, since quoted values must stay
+     * together even if they contain spaces! XXX Problems may still arise, if quoted string e.g. has space as last
+     * character!
+     * 
+     * @param string the String to split
+     * @return the fields
+     * @throws TfsFileParserException if no meaningful splitting is possible
+     */
+    static List&lt;String&gt; splitString(String string) throws TfsFileParserException { // NOPMD by kaifox on 10/6/10 8:25 PM
+        /* PMD (package visibility for testing) */
+<span class="fc" id="L153">        ArrayList&lt;String&gt; fields = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc" id="L155">        String regexpSplitChars = &quot;(^|\\s+)&quot;;</span>
+<span class="fc" id="L156">        String regexpQuotes = &quot;\\\&quot;&quot;;</span>
+
+        // first split on quotes after space
+<span class="fc" id="L159">        String[] tokens = string.split(regexpSplitChars + regexpQuotes);</span>
+
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        for (int i = 0; i &lt; tokens.length; i++) {</span>
+            // if token still contains quotes, than it should also have been
+            // started by one...
+<span class="fc" id="L164">            String stringPastQuote = &quot;&quot;;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            if (tokens[i].contains(&quot;\&quot;&quot;)) {</span>
+                // we split at the quote.
+<span class="fc" id="L167">                String[] newTokens = tokens[i].split(regexpQuotes);</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">                if (newTokens.length &gt; 2) {</span>
+<span class="nc" id="L169">                    throw new TfsFileParserException(&quot;Was not able to split string '&quot; + string + &quot;' correctly!&quot;);</span>
+                }
+<span class="fc" id="L171">                fields.add(newTokens[0]); // this shall stay together since</span>
+                // they were the ones under quotes.
+                // always add, could e.g. be &quot;&quot;
+<span class="fc bfc" id="L174" title="All 2 branches covered.">                if (newTokens.length == 2) {</span>
+<span class="fc" id="L175">                    stringPastQuote = newTokens[1];</span>
+                }
+<span class="fc" id="L177">            } else { // if it contains no quote, we just split further</span>
+<span class="fc" id="L178">                stringPastQuote = tokens[i];</span>
+            }
+
+<span class="fc" id="L181">            String[] newTokens = stringPastQuote.split(&quot;[ \t\r]+&quot;);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            for (int j = 0; j &lt; newTokens.length; j++) {</span>
+<span class="fc" id="L183">                String field = newTokens[j];</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                if (!StringUtil.isWhitespacesOnly(field)) { // only add if really some content.</span>
+<span class="fc" id="L185">                    fields.add(field);</span>
+                }
+            }
+        }
+<span class="fc" id="L189">        return fields;</span>
+    }
+
+    public TfsResultImpl getResult() {
+<span class="fc" id="L193">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

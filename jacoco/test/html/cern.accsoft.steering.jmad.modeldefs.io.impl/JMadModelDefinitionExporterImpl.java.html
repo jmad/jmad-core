@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelDefinitionExporterImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.io.impl</a> &gt; <span class="el_source">JMadModelDefinitionExporterImpl.java</span></div><h1>JMadModelDefinitionExporterImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.modeldefs.io.impl;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExportRequest;
+import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionExporter;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
+import cern.accsoft.steering.jmad.util.FileUtil;
+import cern.accsoft.steering.jmad.util.StreamUtil;
+import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
+
+/**
+ * This is the default implementation of the {@link JMadModelDefinitionExporter}
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L62">public class JMadModelDefinitionExporterImpl implements JMadModelDefinitionExporter {</span>
+	/**
+	 * The persistence service to use to write model definition to xml. (injected by
+	 * spring)
+	 */
+<span class="fc" id="L67">	private List&lt;ModelDefinitionPersistenceService&gt; persistenceServices = new ArrayList&lt;ModelDefinitionPersistenceService&gt;();</span>
+
+	/**
+	 * The class which keeps track of file finders for the model definitions.
+	 */
+	private ModelFileFinderManager fileFinderManager;
+
+	/** The logger for the class */
+<span class="fc" id="L75">	private static final Logger LOGGER = LoggerFactory.getLogger(JMadModelDefinitionExporterImpl.class);</span>
+
+	@Override
+	public File export(JMadModelDefinitionExportRequest exportRequest, File exportPath) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (exportRequest == null) {</span>
+<span class="nc" id="L80">			LOGGER.error(&quot;No model definition given to export.&quot;);</span>
+<span class="nc" id="L81">			return null;</span>
+		}
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		if (exportPath == null) {</span>
+<span class="nc" id="L84">			LOGGER.error(&quot;No file given. Cannot export model definition.&quot;);</span>
+<span class="nc" id="L85">			return null;</span>
+		}
+
+<span class="nc" id="L88">		ModelDefinitionPersistenceService persistenceService = findPersistenceService(exportPath.getName());</span>
+
+<span class="nc bnc" id="L90" title="All 4 branches missed.">		if (persistenceService != null || exportPath.isDirectory()) {</span>
+<span class="nc" id="L91">			return exportAsFiles(exportRequest, exportPath);</span>
+		} else {
+			/* per default we export as zip */
+<span class="nc" id="L94">			return exportAsZip(exportRequest, exportPath);</span>
+		}
+	}
+
+	@Override
+	public File exportAsFiles(JMadModelDefinitionExportRequest exportRequest, File exportPath) {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">		if (exportRequest == null) {</span>
+<span class="nc" id="L101">			LOGGER.error(&quot;No model definition given to export.&quot;);</span>
+<span class="nc" id="L102">			return null;</span>
+		}
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		if (exportPath == null) {</span>
+<span class="nc" id="L105">			LOGGER.error(&quot;No destination dir given. Cannot export model definition.&quot;);</span>
+<span class="nc" id="L106">			return null;</span>
+		}
+<span class="fc" id="L108">		JMadModelDefinition modelDefinition = tailorModelDefinition(exportRequest);</span>
+
+		File xmlFile;
+		File destDir;
+<span class="fc bfc" id="L112" title="All 2 branches covered.">		if (exportPath.isDirectory()) {</span>
+<span class="fc" id="L113">			destDir = exportPath;</span>
+			/* per default we save as xml */
+<span class="fc" id="L115">			xmlFile = new File(destDir.getAbsolutePath() + File.separator + getFileName(modelDefinition));</span>
+		} else {
+<span class="fc" id="L117">			destDir = exportPath.getAbsoluteFile().getParentFile();</span>
+<span class="fc" id="L118">			xmlFile = exportPath;</span>
+		}
+<span class="fc" id="L120">		FileUtil.createDir(destDir, false);</span>
+
+		/*
+		 * first we save the model-def file. If it matches one of the extensions of the
+		 * persisters, then we use that one, otherwise we use the default.
+		 */
+<span class="fc" id="L126">		ModelDefinitionPersistenceService persistenceService = findPersistenceService(xmlFile.getAbsolutePath());</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		if (persistenceService == null) {</span>
+<span class="fc" id="L128">			xmlFile = new File(xmlFile.getAbsolutePath() + ModelDefinitionUtil.getDefaultFileExtension());</span>
+<span class="fc" id="L129">			persistenceService = findPersistenceService(xmlFile.getAbsolutePath());</span>
+		}
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">		if (persistenceService == null) {</span>
+<span class="nc" id="L132">			LOGGER.error(&quot;Cannot find appropriate persistence service for file '&quot; + xmlFile.getAbsolutePath() + &quot;'.&quot;);</span>
+		}
+
+		try {
+
+<span class="fc" id="L137">			persistenceService.save(modelDefinition, xmlFile);</span>
+
+			/*
+			 * then we loop through all model files and copy all the files.
+			 */
+<span class="fc" id="L142">			ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(modelDefinition);</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">			for (ModelFile modelFile : getRequiredFiles(modelDefinition)) {</span>
+				/*
+				 * We use the archive path here. So the file structure is the same as inside the
+				 * zip archive.
+				 */
+<span class="fc" id="L148">				String archivePath = fileFinder.getArchivePath(modelFile);</span>
+<span class="fc" id="L149">				File file = new File(destDir.getAbsolutePath() + File.separator + archivePath);</span>
+
+				/*
+				 * ensure that the parent dir exists
+				 */
+<span class="fc" id="L154">				FileUtil.createDir(file.getAbsoluteFile().getParentFile(), false);</span>
+
+<span class="fc" id="L156">				InputStream inStream = fileFinder.getStream(modelFile);</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">				if (!StreamUtil.toFile(inStream, file)) {</span>
+<span class="nc" id="L158">					LOGGER.error(&quot;Could not write file '&quot; + file.getAbsolutePath() + &quot;'&quot;);</span>
+<span class="nc" id="L159">					return null;</span>
+				}
+<span class="fc" id="L161">			}</span>
+<span class="fc" id="L162">			return xmlFile;</span>
+<span class="nc" id="L163">		} catch (PersistenceServiceException e) {</span>
+<span class="nc" id="L164">			LOGGER.error(&quot;Could not save model definition to file '&quot; + xmlFile.getAbsolutePath() + &quot;'.&quot;, e);</span>
+		}
+<span class="nc" id="L166">		return null;</span>
+	}
+
+	private ModelDefinitionPersistenceService findPersistenceService(String fileName) {
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		for (ModelDefinitionPersistenceService persistenceService : getPersistenceServices()) {</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">			if (persistenceService.isCorrectFileName(fileName)) {</span>
+<span class="fc" id="L172">				return persistenceService;</span>
+			}
+<span class="fc" id="L174">		}</span>
+<span class="fc" id="L175">		return null;</span>
+	}
+
+	@Override
+	public File exportAsZip(JMadModelDefinitionExportRequest exportRequest, File file) {
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		if (exportRequest == null) {</span>
+<span class="nc" id="L181">			LOGGER.error(&quot;No model definition given to export.&quot;);</span>
+<span class="nc" id="L182">			return null;</span>
+		}
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">		if (file == null) {</span>
+<span class="nc" id="L185">			LOGGER.error(&quot;No file given. Cannot export model definition.&quot;);</span>
+<span class="nc" id="L186">			return null;</span>
+		}
+<span class="fc" id="L188">		JMadModelDefinition modelDefinition = tailorModelDefinition(exportRequest);</span>
+
+<span class="fc" id="L190">		File zipFile = ModelDefinitionUtil.ensureZipFileExtension(file);</span>
+
+		try {
+			/* Create the output stream */
+			ZipOutputStream outStream;
+<span class="fc" id="L195">			outStream = new ZipOutputStream(new FileOutputStream(zipFile));</span>
+
+<span class="fc" id="L197">			String baseName = ModelDefinitionUtil.getProposedIdStringFromName(modelDefinition);</span>
+
+			/* Add a zip entry to the output stream each persister we have */
+<span class="fc bfc" id="L200" title="All 2 branches covered.">			for (ModelDefinitionPersistenceService persistenceService : getPersistenceServices()) {</span>
+<span class="fc" id="L201">				outStream.putNextEntry(new ZipEntry(baseName + persistenceService.getFileExtension()));</span>
+<span class="fc" id="L202">				persistenceService.save(modelDefinition, outStream);</span>
+<span class="fc" id="L203">				outStream.closeEntry();</span>
+<span class="fc" id="L204">			}</span>
+
+			/*
+			 * next we need the corresponding ModelFileFinder to find all the required files
+			 * and put them in the archive.
+			 */
+<span class="fc" id="L210">			ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(modelDefinition);</span>
+
+			/*
+			 * now we are ready to copy all the files into the archive.
+			 */
+<span class="fc bfc" id="L215" title="All 2 branches covered.">			for (ModelFile modelFile : getRequiredFiles(modelDefinition)) {</span>
+<span class="fc" id="L216">				outStream.putNextEntry(new ZipEntry(fileFinder.getArchivePath(modelFile)));</span>
+<span class="fc" id="L217">				InputStream inStream = fileFinder.getStream(modelFile);</span>
+<span class="fc" id="L218">				StreamUtil.copy(inStream, outStream);</span>
+<span class="fc" id="L219">				outStream.closeEntry();</span>
+<span class="fc" id="L220">				inStream.close();</span>
+<span class="fc" id="L221">			}</span>
+
+<span class="fc" id="L223">			outStream.close();</span>
+<span class="fc" id="L224">			return zipFile;</span>
+<span class="nc" id="L225">		} catch (IOException e) {</span>
+<span class="nc" id="L226">			LOGGER.error(&quot;Could not save model definition to zip file '&quot; + zipFile.getAbsolutePath() + &quot;'&quot;, e);</span>
+<span class="nc" id="L227">		} catch (PersistenceServiceException e) {</span>
+<span class="nc" id="L228">			LOGGER.error(&quot;Could not save model definition to zip file '&quot; + zipFile.getAbsolutePath() + &quot;'&quot;, e);</span>
+<span class="nc" id="L229">		}</span>
+<span class="nc" id="L230">		return null;</span>
+	}
+
+	private JMadModelDefinition tailorModelDefinition(JMadModelDefinitionExportRequest request) {
+<span class="fc" id="L234">		JMadModelDefinition modelDefinitionForExport = cloneModel(request.getModelDefinition());</span>
+
+		/* remove optics/sequences/ranges not selected */
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">		modelDefinitionForExport.getOpticsDefinitions().removeIf(o -&gt; !(request.getOpticsToExport().contains(o)));</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">		modelDefinitionForExport.getSequenceDefinitions().removeIf(s -&gt; !(request.getSequencesToExport().contains(s)));</span>
+<span class="fc" id="L239">		modelDefinitionForExport.getSequenceDefinitions().forEach(//</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">				seq -&gt; seq.getRangeDefinitions().removeIf(r -&gt; !(request.getRangesToExport().contains(r))));</span>
+
+		/* remove empty sequences (no ranges) */
+<span class="fc" id="L243">		modelDefinitionForExport.getSequenceDefinitions().removeIf(s -&gt; s.getRangeDefinitions().isEmpty());</span>
+
+		/* if we end up with an empty model, throw */
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">		if (modelDefinitionForExport.getOpticsDefinitions().isEmpty()) {</span>
+<span class="nc" id="L247">			throw new IllegalArgumentException(&quot;no optics definitions have been selected for export!&quot;);</span>
+		}
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">		if (modelDefinitionForExport.getSequenceDefinitions().isEmpty()) {</span>
+<span class="nc" id="L250">			throw new IllegalArgumentException(&quot;no sequence definitions have been selected for export!&quot;);</span>
+		}
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">		if (modelDefinitionForExport.getRangeDefinitions().isEmpty()) {</span>
+<span class="nc" id="L253">			throw new IllegalArgumentException(&quot;no ranges have been selected for export!&quot;);</span>
+		}
+
+		/* fix defaults */
+<span class="fc" id="L257">		if (!modelDefinitionForExport.getOpticsDefinitions()</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">				.contains(modelDefinitionForExport.getDefaultOpticsDefinition())) {</span>
+<span class="nc" id="L259">			((JMadModelDefinitionImpl) modelDefinitionForExport)</span>
+<span class="nc" id="L260">					.setDefaultOpticsDefinition(modelDefinitionForExport.getOpticsDefinitions().get(0));</span>
+		}
+
+<span class="fc" id="L263">		if (!modelDefinitionForExport.getSequenceDefinitions()</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">				.contains(modelDefinitionForExport.getDefaultSequenceDefinition())) {</span>
+<span class="nc" id="L265">			((JMadModelDefinitionImpl) modelDefinitionForExport)</span>
+<span class="nc" id="L266">					.setDefaultSequenceDefinition(modelDefinitionForExport.getSequenceDefinitions().get(0));</span>
+		}
+
+<span class="fc bfc" id="L269" title="All 2 branches covered.">		for (SequenceDefinition sequence : modelDefinitionForExport.getSequenceDefinitions()) {</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">			if (!sequence.getRangeDefinitions().contains(sequence.getDefaultRangeDefinition())) {</span>
+<span class="nc" id="L271">				((SequenceDefinitionImpl) sequence).setDefaultRangeDefinition(sequence.getRangeDefinitions().get(0));</span>
+			}
+<span class="fc" id="L273">		}</span>
+
+<span class="fc" id="L275">		return modelDefinitionForExport;</span>
+	}
+
+	private JMadModelDefinition cloneModel(JMadModelDefinition model) {
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">		for (ModelDefinitionPersistenceService cloneService : persistenceServices) {</span>
+			try {
+<span class="fc" id="L281">				return cloneService.clone(model);</span>
+<span class="nc" id="L282">			} catch (Exception e) {</span>
+				/* try next service */
+			}
+<span class="nc" id="L285">		}</span>
+<span class="nc" id="L286">		throw new IllegalStateException(&quot;no persistence service was able to clone the model definition&quot;);</span>
+	}
+
+	private String getFileName(JMadModelDefinition modelDefinition) {
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">		if ((modelDefinition.getSourceInformation() != null)</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">				&amp;&amp; (modelDefinition.getSourceInformation().getFileName() != null)) {</span>
+<span class="nc" id="L292">			return modelDefinition.getSourceInformation().getFileName();</span>
+		}
+<span class="fc" id="L294">		return ModelDefinitionUtil.getProposedDefaultFileName(modelDefinition);</span>
+	}
+
+	/**
+	 * collects all the required files for a model definition. it returns a
+	 * collection which will contain all the model files with the same archive path
+	 * only once.
+	 * 
+	 * @param modelDefinition
+	 *            the model definition for which to collect the files
+	 * @return all the files, with unique archive-path
+	 */
+	private Collection&lt;ModelFile&gt; getRequiredFiles(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L307">		ModelFileFinder fileFinder = getFileFinderManager().getModelFileFinder(modelDefinition);</span>
+<span class="fc" id="L308">		Map&lt;String, ModelFile&gt; modelFiles = new HashMap&lt;String, ModelFile&gt;();</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">		for (ModelFile modelFile : ModelDefinitionUtil.getRequiredModelFiles(modelDefinition)) {</span>
+<span class="fc" id="L310">			String archivePath = fileFinder.getArchivePath(modelFile);</span>
+<span class="fc" id="L311">			modelFiles.put(archivePath, modelFile);</span>
+<span class="fc" id="L312">		}</span>
+<span class="fc" id="L313">		return modelFiles.values();</span>
+	}
+
+	public void setFileFinderManager(ModelFileFinderManager fileFinderManager) {
+<span class="fc" id="L317">		this.fileFinderManager = fileFinderManager;</span>
+<span class="fc" id="L318">	}</span>
+
+	private ModelFileFinderManager getFileFinderManager() {
+<span class="fc" id="L321">		return fileFinderManager;</span>
+	}
+
+	public void setPersistenceServices(List&lt;ModelDefinitionPersistenceService&gt; persistenceServices) {
+<span class="fc" id="L325">		this.persistenceServices = persistenceServices;</span>
+<span class="fc" id="L326">	}</span>
+
+	private List&lt;ModelDefinitionPersistenceService&gt; getPersistenceServices() {
+<span class="fc" id="L329">		return persistenceServices;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

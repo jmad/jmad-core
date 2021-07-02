@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterpolationTfsResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.interpolate</a> &gt; <span class="el_source">InterpolationTfsResult.java</span></div><h1>InterpolationTfsResult.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ * This file is part of JMad. Copyright (c) 2008-2011, CERN. All rights reserved. Licensed under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.tools.interpolate;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResult;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsSummary;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+import cern.accsoft.steering.jmad.domain.var.MadxVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+
+public class InterpolationTfsResult implements TfsResult {
+<span class="fc" id="L35">    private static final Logger LOGGER = LoggerFactory.getLogger(InterpolationTfsResult.class);</span>
+    /** the twiss variables available from this interpolation result */
+<span class="fc" id="L37">    private Set&lt;MadxTwissVariable&gt; twissVariables = new HashSet&lt;MadxTwissVariable&gt;();</span>
+
+    /** the double value list mapped to the madx twiss variables */
+<span class="fc" id="L40">    private Map&lt;MadxTwissVariable, List&lt;Double&gt;&gt; doubleValueMapping = new HashMap&lt;MadxTwissVariable, List&lt;Double&gt;&gt;();</span>
+    /** the string value list mapped to the madx twiss variables */
+<span class="fc" id="L42">    private Map&lt;MadxTwissVariable, List&lt;String&gt;&gt; stringValueMapping = new HashMap&lt;MadxTwissVariable, List&lt;String&gt;&gt;();</span>
+
+    /** the indices of the elements in the mappings */
+<span class="fc" id="L45">    private Map&lt;String, Integer&gt; elementIndices = new HashMap&lt;String, Integer&gt;();</span>
+
+<span class="fc" id="L47">    public InterpolationTfsResult(Map&lt;Element, Map&lt;JMadPlane, Map&lt;MadxTwissVariable, Double&gt;&gt;&gt; valueMapping) {</span>
+        /* fill the data mappings */
+<span class="fc" id="L49">        this.twissVariables.add(MadxTwissVariable.S);</span>
+<span class="fc" id="L50">        this.twissVariables.add(MadxTwissVariable.NAME);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        for (Entry&lt;Element, Map&lt;JMadPlane, Map&lt;MadxTwissVariable, Double&gt;&gt;&gt; elementEntry : valueMapping.entrySet()) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            for (Entry&lt;JMadPlane, Map&lt;MadxTwissVariable, Double&gt;&gt; planeEntry : elementEntry.getValue().entrySet()) {</span>
+<span class="fc" id="L53">                this.twissVariables.addAll(planeEntry.getValue().keySet());</span>
+<span class="fc" id="L54">            }</span>
+<span class="fc" id="L55">            break;</span>
+        }
+
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        for (MadxTwissVariable variable : twissVariables) {</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            if (!MadxTwissVariable.NAME.equals(variable)) {</span>
+<span class="fc" id="L60">                this.doubleValueMapping.put(variable, new ArrayList&lt;Double&gt;());</span>
+            }
+
+<span class="fc" id="L63">            this.stringValueMapping.put(variable, new ArrayList&lt;String&gt;());</span>
+<span class="fc" id="L64">        }</span>
+
+<span class="fc" id="L66">        int i = 0;</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        for (Entry&lt;Element, Map&lt;JMadPlane, Map&lt;MadxTwissVariable, Double&gt;&gt;&gt; elementEntry : valueMapping.entrySet()) {</span>
+<span class="fc" id="L68">            Element element = elementEntry.getKey();</span>
+            /* fill the index mapping */
+<span class="fc" id="L70">            this.elementIndices.put(element.getName(), i++);</span>
+
+            /* fill the element values */
+<span class="fc" id="L73">            this.stringValueMapping.get(MadxTwissVariable.NAME).add(element.getName());</span>
+<span class="fc" id="L74">            this.doubleValueMapping.get(MadxTwissVariable.S).add(element.getPosition().getValue());</span>
+
+            /* fill the values for the both planes for the availabe twiss variables */
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            for (Entry&lt;JMadPlane, Map&lt;MadxTwissVariable, Double&gt;&gt; planeEntry : elementEntry.getValue().entrySet()) {</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">                for (Entry&lt;MadxTwissVariable, Double&gt; varEntry : planeEntry.getValue().entrySet()) {</span>
+<span class="fc" id="L79">                    this.doubleValueMapping.get(varEntry.getKey()).add(varEntry.getValue());</span>
+<span class="fc" id="L80">                }</span>
+<span class="fc" id="L81">            }</span>
+<span class="fc" id="L82">        }</span>
+
+        /* fill the string mappings */
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (Entry&lt;MadxTwissVariable, List&lt;Double&gt;&gt; entry : this.doubleValueMapping.entrySet()) {</span>
+<span class="fc" id="L86">            List&lt;String&gt; stringValues = this.stringValueMapping.get(entry.getKey());</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            for (Double value : entry.getValue()) {</span>
+<span class="fc" id="L88">                stringValues.add(value.toString());</span>
+<span class="fc" id="L89">            }</span>
+<span class="fc" id="L90">        }</span>
+<span class="fc" id="L91">    }</span>
+    
+    @Override
+    public ResultType getResultType() {
+<span class="nc" id="L95">        return ResultType.TFS_RESULT;</span>
+    }
+
+    @Override
+    public int getColumnCount() {
+<span class="nc" id="L100">        return twissVariables.size();</span>
+    }
+
+    @Override
+    public TfsSummary getSummary() {
+<span class="nc" id="L105">        throw new UnsupportedOperationException(</span>
+                &quot;Retrieval of twiss-summary from interpolated optics is not supported at the moment!&quot;);
+    }
+
+    @Override
+    public List&lt;Double&gt; getDoubleData(MadxVariable resultVariable) {
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (!this.doubleValueMapping.containsKey(resultVariable)) {</span>
+<span class="nc" id="L112">            LOGGER.error(&quot;No data available for [&quot; + resultVariable.getName() + &quot;]&quot;);</span>
+<span class="nc" id="L113">            return new ArrayList&lt;Double&gt;();</span>
+        }
+
+<span class="fc" id="L116">        return this.doubleValueMapping.get(resultVariable);</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getDoubleData(String key) {
+<span class="nc" id="L121">        MadxTwissVariable twissVar = MadxTwissVariable.fromMadxName(key);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (MadxTwissVariable.UNKNOWN.equals(twissVar)) {</span>
+<span class="nc" id="L123">            LOGGER.error(&quot;Unknown twiss variable [&quot; + key + &quot;]&quot;);</span>
+<span class="nc" id="L124">            return new ArrayList&lt;Double&gt;();</span>
+        }
+
+<span class="nc" id="L127">        return this.getDoubleData(twissVar);</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getStringData(MadxVariable resultVariable) {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (!this.stringValueMapping.containsKey(resultVariable)) {</span>
+<span class="nc" id="L133">            LOGGER.error(&quot;No data available for [&quot; + resultVariable.getName() + &quot;]&quot;);</span>
+<span class="nc" id="L134">            return new ArrayList&lt;String&gt;();</span>
+        }
+
+<span class="nc" id="L137">        return this.stringValueMapping.get(resultVariable);</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getStringData(String key) {
+<span class="nc" id="L142">        MadxTwissVariable twissVar = MadxTwissVariable.fromMadxName(key);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (MadxTwissVariable.UNKNOWN.equals(twissVar)) {</span>
+<span class="nc" id="L144">            LOGGER.error(&quot;Unknown twiss variable [&quot; + key + &quot;]&quot;);</span>
+<span class="nc" id="L145">            return new ArrayList&lt;String&gt;();</span>
+        }
+
+<span class="nc" id="L148">        return this.getStringData(twissVar);</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getKeys() {
+<span class="nc" id="L153">        List&lt;String&gt; keys = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        for (MadxTwissVariable variable : twissVariables) {</span>
+<span class="nc" id="L155">            keys.add(variable.getName().toUpperCase());</span>
+<span class="nc" id="L156">        }</span>
+
+<span class="nc" id="L158">        return keys;</span>
+    }
+
+    @Override
+    public Integer getElementIndex(String elementName) {
+<span class="fc" id="L163">        return this.elementIndices.get(elementName);</span>
+    }
+
+    @Override
+    public MadxVarType getVarType(String key) {
+<span class="nc" id="L168">        MadxTwissVariable variable = MadxTwissVariable.fromMadxName(key);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (MadxTwissVariable.UNKNOWN.equals(variable)) {</span>
+<span class="nc" id="L170">            LOGGER.error(&quot;Unknown twiss variable [&quot; + key + &quot;]&quot;);</span>
+<span class="nc" id="L171">            return MadxVarType.UNKNOWN;</span>
+        }
+
+<span class="nc" id="L174">        return variable.getVarType();</span>
+    }
+
+    @Override
+    public MadxVarType getVarType(MadxVariable var) {
+<span class="nc" id="L179">        return getVarType(var.getMadxName());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

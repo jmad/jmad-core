@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TwissInitialConditionsImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.twiss</a> &gt; <span class="el_source">TwissInitialConditionsImpl.java</span></div><h1>TwissInitialConditionsImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.twiss;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.optics.EditableOpticPointImpl;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import cern.accsoft.steering.jmad.util.bean.NamedBean;
+import cern.accsoft.steering.jmad.util.xml.CloneUtil;
+import com.google.common.collect.ImmutableList;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias(&quot;twiss-initial-conditions&quot;)
+public final class TwissInitialConditionsImpl extends EditableOpticPointImpl
+        implements NamedBean, TwissInitialConditions, Cloneable {
+
+    /**
+     * the listeners to the twiss-object
+     */
+<span class="fc" id="L44">    private final List&lt;TwissListener&gt; listeners = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L46">    private static final List&lt;MadxTwissVariable&gt; TWISS_MADX_VARIABLES = ImmutableList.&lt;MadxTwissVariable&gt;builder() //</span>
+<span class="fc" id="L47">            .addAll(MADX_VARIABLES) //</span>
+<span class="fc" id="L48">            .add(MadxTwissVariable.DELTAP) //</span>
+<span class="fc" id="L49">            .add(MadxTwissVariable.T) //</span>
+<span class="fc" id="L50">            .add(MadxTwissVariable.PT) //</span>
+<span class="fc" id="L51">            .build();</span>
+
+    /*
+     * TWISS, BETX=real,ALFX=real,MUX=real, BETY=real,ALFY=real,MUY=real, DX=real,DPX=real,DY=real,DPY=real,
+     * X=real,PX=real,Y=real,PY=real, T=real,PT=real, WX=real,PHIX=real,DMUX=real, WY=real,PHIY=real,DMUY=real,
+     * DDX=real,DDY=real,DDPX=real,DDPY=real, R11=real,R12=real,R21=real,R22=real, !coupling matrix TABLE=table_name,
+     * TOLERANCE=real, DELTAP=real:real:real;
+     */
+
+    /**
+     * when set, the chromatic functions are also calculated during twiss
+     */
+<span class="fc" id="L63">    private boolean calcChromaticFunctions = true;</span>
+
+    /**
+     * calculates the closed orbit. This means that the initial values must not be used in the command. This enforces
+     * madx to search for the closed orbit solution.
+     */
+<span class="fc" id="L69">    private boolean closedOrbit = false;</span>
+
+    /**
+     * calculates the linear lattice functions at the center of the elements instead at the end of it.
+     */
+<span class="fc" id="L74">    private boolean calcAtCenter = false;</span>
+
+    /**
+     * instead of using TwissInitialValueSet it loads MadX internal Optic function values as saved by a previous
+     * SaveBeta Command
+     */
+<span class="fc" id="L80">    private String saveBetaName = null;</span>
+
+    /**
+     * The phase space dimension (4, 5, 56, or 6) for PTC
+     */
+<span class="fc" id="L85">    private Integer ptcPhaseSpaceDimension = null;</span>
+
+    /**
+     * The map order for PTC
+     */
+<span class="fc" id="L90">    private Integer ptcMapOrder = null;</span>
+
+    /**
+     * Initial BETA-Z for PTC (if phase space dimension = 6)
+     */
+<span class="fc" id="L95">    private Double ptcBetz = null;</span>
+
+    /**
+     * the constructor
+     *
+     * @param name the name of the twiss (arbitrary)
+     */
+    public TwissInitialConditionsImpl(String name) {
+<span class="fc" id="L103">        super(name);</span>
+
+<span class="fc" id="L105">    }</span>
+
+    public TwissInitialConditionsImpl() {
+<span class="fc" id="L108">        this(&quot;unnamed twiss&quot;);</span>
+<span class="fc" id="L109">    }</span>
+
+    public void setSaveBetaName(String saveBetaName) {
+<span class="nc" id="L112">        this.saveBetaName = saveBetaName;</span>
+<span class="nc" id="L113">    }</span>
+
+    public String getSaveBetaName() {
+<span class="fc" id="L116">        return saveBetaName;</span>
+    }
+
+    @Override
+    public Integer getPtcPhaseSpaceDimension() {
+<span class="fc" id="L121">        return ptcPhaseSpaceDimension;</span>
+    }
+
+    @Override
+    public void setPtcPhaseSpaceDimension(Integer dim) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (dim != null) {</span>
+<span class="nc bnc" id="L127" title="All 8 branches missed.">            checkArgument((dim == 4 || dim == 5 || dim == 56 || dim == 6), &quot;phase space dimension must be 4, 5, 56 or 6.&quot;);</span>
+        }
+<span class="nc" id="L129">        ptcPhaseSpaceDimension = dim;</span>
+<span class="nc" id="L130">    }</span>
+
+    @Override
+    public Integer getPtcMapOrder() {
+<span class="fc" id="L134">        return ptcMapOrder;</span>
+    }
+
+    @Override
+    public void setPtcMapOrder(Integer order) {
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (order != null) {</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            checkArgument(order &gt; 1, &quot;map order must be at least 1&quot;);</span>
+        }
+<span class="nc" id="L142">        ptcMapOrder = order;</span>
+<span class="nc" id="L143">    }</span>
+
+    @Override
+    public Double getPtcBetz() {
+<span class="fc" id="L147">        return ptcBetz;</span>
+    }
+
+    @Override
+    public void setPtcBetz(Double betz) {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (betz != null) {</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            checkArgument(betz &gt; 0, &quot;betz must be &gt; 0&quot;);</span>
+        }
+<span class="nc" id="L155">        ptcBetz = betz;</span>
+<span class="nc" id="L156">    }</span>
+
+    public Double getDeltap() {
+<span class="fc" id="L159">        return getValue(MadxTwissVariable.DELTAP);</span>
+    }
+
+    public void setDeltap(Double deltap) {
+<span class="fc" id="L163">        setValue(MadxTwissVariable.DELTAP, deltap);</span>
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * @param calcChromaticFunctions the calcChromaticFunctions to set
+     */
+    public void setCalcChromaticFunctions(boolean calcChromaticFunctions) {
+<span class="fc" id="L170">        this.calcChromaticFunctions = calcChromaticFunctions;</span>
+<span class="fc" id="L171">        fireChangedTwiss();</span>
+<span class="fc" id="L172">    }</span>
+
+    /**
+     * @return the calcChromaticFunctions
+     */
+    public boolean isCalcChromaticFunctions() {
+<span class="fc" id="L178">        return calcChromaticFunctions;</span>
+    }
+
+    /**
+     * @param closedOrbit the closedOrbit to set
+     */
+    public void setClosedOrbit(boolean closedOrbit) {
+<span class="fc" id="L185">        this.closedOrbit = closedOrbit;</span>
+<span class="fc" id="L186">        fireChangedTwiss();</span>
+<span class="fc" id="L187">    }</span>
+
+    /**
+     * @return the closedOrbit
+     */
+    public boolean isClosedOrbit() {
+<span class="fc" id="L193">        return closedOrbit;</span>
+    }
+
+    /*
+     * methods concerning listeners
+     */
+
+    @Override
+    protected void firePropertyChanged() {
+<span class="fc" id="L202">        fireChangedTwiss();</span>
+<span class="fc" id="L203">    }</span>
+
+    /**
+     * notify the listeners, that a value has changed
+     */
+    private void fireChangedTwiss() {
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">        for (TwissListener listener : listeners) {</span>
+<span class="nc" id="L210">            listener.changedTwiss(this);</span>
+<span class="nc" id="L211">        }</span>
+<span class="fc" id="L212">    }</span>
+
+    /**
+     * @param listener the listener to add
+     */
+    public void addListener(TwissListener listener) {
+<span class="fc" id="L218">        this.listeners.add(listener);</span>
+<span class="fc" id="L219">    }</span>
+
+    /**
+     * @param listener the listener to remove
+     */
+    public void removeListener(TwissListener listener) {
+<span class="fc" id="L225">        this.listeners.remove(listener);</span>
+<span class="fc" id="L226">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L230">        return getName();</span>
+    }
+
+    /**
+     * @param calcAtCentre the calcAtCenter to set
+     */
+    public void setCalcAtCenter(boolean calcAtCentre) {
+<span class="fc" id="L237">        this.calcAtCenter = calcAtCentre;</span>
+<span class="fc" id="L238">        fireChangedTwiss();</span>
+<span class="fc" id="L239">    }</span>
+
+    /**
+     * @return the calcAtCenter
+     */
+    public boolean isCalcAtCenter() {
+<span class="fc" id="L245">        return calcAtCenter;</span>
+    }
+
+    public Double getT() {
+<span class="nc" id="L249">        return getValue(MadxTwissVariable.T);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setT(Double t) { // NOPMD by kaifox on 6/25/10 6:07 PM
+<span class="nc" id="L254">        setValue(MadxTwissVariable.T, t);</span>
+<span class="nc" id="L255">    }</span>
+
+    public Double getPt() {
+<span class="nc" id="L258">        return getValue(MadxTwissVariable.PT);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setPt(Double pt) { // NOPMD by kaifox on 6/25/10 6:07 PM
+<span class="nc" id="L263">        setValue(MadxTwissVariable.PT, pt);</span>
+<span class="nc" id="L264">    }</span>
+
+    @Override
+    public List&lt;MadxTwissVariable&gt; getMadxVariables() {
+<span class="fc" id="L268">        return TwissInitialConditionsImpl.TWISS_MADX_VARIABLES;</span>
+    }
+
+    @Override
+    public TwissInitialConditionsImpl clone() {
+<span class="fc" id="L273">        return CloneUtil.clone(TwissInitialConditionsImpl.class, this, new TwissInitialConditionsXmlConverter());</span>
+    }
+
+    /*
+     * Methods only needed for testing
+     */
+    /* package level for testing */
+    List&lt;TwissListener&gt; getListeners() { // NOPMD by kaifox on 6/25/10 6:07 PM
+<span class="fc" id="L281">        return this.listeners;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

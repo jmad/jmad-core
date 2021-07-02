@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxBinImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.bin</a> &gt; <span class="el_source">MadxBinImpl.java</span></div><h1>MadxBinImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: MadXBin.java,v 1.6 2008-12-12 14:48:13 kfuchsbe Exp $
+ *
+ * $Date: 2008-12-12 14:48:13 $ $Revision: 1.6 $ $Author: kfuchsbe $
+ *
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.bin;
+
+import java.io.File;
+import java.io.IOException;
+
+import cern.accsoft.steering.jmad.util.OsUtil;
+import cern.accsoft.steering.jmad.util.StreamUtil;
+import cern.accsoft.steering.jmad.util.TempFileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Determines the correct version of the madx-executable and provides methods to start its execution. Depending on the
+ * operating system the correct executable is extracted to a temporary directory and can be executed from there.
+ *
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L47">public class MadxBinImpl implements MadxBin {</span>
+<span class="fc" id="L48">    private static final Logger LOGGER = LoggerFactory.getLogger(MadxBinImpl.class);</span>
+
+    private static final String EXTERNAL_MADX_EXECUTABLE_PATH_PROP = &quot;cern.jmad.kernel.madxpath&quot;;
+
+    private static final String BIN_NAME = &quot;madx&quot;;
+
+    private static final String RESOURCE_PREFIX_WIN = &quot;win/&quot;;
+    private static final String RESOURCE_PREFIX_LINUX = &quot;linux/&quot;;
+    private static final String RESOURCE_PREFIX_OSX = &quot;osx/&quot;;
+
+    /**
+     * The file util to use (injected by spring)
+     */
+    private TempFileUtil fileUtil;
+
+    /**
+     * The filename of the executable, which then can be called by a shell
+     */
+    private String executablePath;
+
+    /**
+     * init-method called by spring
+     */
+    public void init() {
+<span class="fc" id="L72">        LOGGER.info(&quot;Preparing MAD-X binary for OS &quot; + OsUtil.getOsName());</span>
+<span class="fc" id="L73">        extractExecutable();</span>
+<span class="fc" id="L74">    }</span>
+
+    @Override
+    public Process execute() throws IOException {
+<span class="fc" id="L78">        return Runtime.getRuntime().exec(getExecutablePath());</span>
+    }
+
+    /**
+     * @return the path to the executable depending on the OS
+     */
+    private String getExecutablePath() {
+<span class="fc" id="L85">        return executablePath;</span>
+    }
+
+    /**
+     * @return the name of the resource depending on the OS
+     */
+    private static String getResourceName() {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (OsUtil.isWindows()) {</span>
+<span class="nc" id="L93">            return RESOURCE_PREFIX_WIN + BIN_NAME;</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        } else if (OsUtil.isLinux()) {</span>
+<span class="fc" id="L95">            return RESOURCE_PREFIX_LINUX + BIN_NAME;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        } else if (OsUtil.isOsX()) {</span>
+<span class="nc" id="L97">            return RESOURCE_PREFIX_OSX + BIN_NAME;</span>
+        } else {
+<span class="nc" id="L99">            return null;</span>
+        }
+    }
+
+    /**
+     * copies the executable to the actual path. This is necessary, when the file is included in a jar.
+     */
+    private void extractExecutable() {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (fileUtil == null) {</span>
+<span class="nc" id="L108">            return;</span>
+        }
+
+<span class="fc" id="L111">        String executableName = BIN_NAME;</span>
+<span class="fc" id="L112">        String resourceName = getResourceName();</span>
+<span class="fc" id="L113">        String sysPropExecutablePath = System.getProperty(EXTERNAL_MADX_EXECUTABLE_PATH_PROP);</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (sysPropExecutablePath != null) {</span>
+<span class="nc" id="L115">            LOGGER.info(&quot;Using madx binary '{}' (from system property {}).&quot;, sysPropExecutablePath,</span>
+                    EXTERNAL_MADX_EXECUTABLE_PATH_PROP);
+<span class="nc" id="L117">            executablePath = sysPropExecutablePath;</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        } else if (resourceName != null) {</span>
+<span class="fc" id="L119">            LOGGER.debug(&quot;Extracting madx binary for further use.&quot;);</span>
+<span class="fc" id="L120">            File file = fileUtil.getOutputFile(executableName);</span>
+<span class="fc" id="L121">            StreamUtil.toFile(MadxBinImpl.class.getResourceAsStream(resourceName), file);</span>
+<span class="fc" id="L122">            file.setExecutable(true);</span>
+<span class="fc" id="L123">            executablePath = file.getAbsolutePath();</span>
+<span class="fc" id="L124">        } else {</span>
+<span class="nc" id="L125">            LOGGER.warn(&quot;No madx binary is available in the jar for operating system '{}',\n&quot; //</span>
+                            + &quot;and the system property '{}' is not set!\n&quot;  //
+                            + &quot;If you have no executable named '{}' in the path,\n&quot; //
+                            + &quot;you will not be able to perform any calculations!&quot;, //
+<span class="nc" id="L129">                    OsUtil.getOsName(), EXTERNAL_MADX_EXECUTABLE_PATH_PROP, executableName);</span>
+<span class="nc" id="L130">            executablePath = executableName;</span>
+        }
+<span class="fc" id="L132">    }</span>
+
+    public void setFileUtil(TempFileUtil fileUtil) {
+<span class="fc" id="L135">        this.fileUtil = fileUtil;</span>
+<span class="fc" id="L136">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

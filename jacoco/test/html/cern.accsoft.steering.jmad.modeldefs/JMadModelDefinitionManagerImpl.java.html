@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelDefinitionManagerImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs</a> &gt; <span class="el_source">JMadModelDefinitionManagerImpl.java</span></div><h1>JMadModelDefinitionManagerImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.modeldefs;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
+import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelFileFinderImpl;
+
+/**
+ * This is the default implementation of a class that knows about the available Model definitions. It uses certain
+ * finders to search for model definitions and stores them internally for further retrieval.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L43">public abstract class JMadModelDefinitionManagerImpl implements JMadModelDefinitionManager {</span>
+
+    /**
+     * A list of all available model definitions. This is set to null on purpose. So it is loaded the first time we need
+     * it.
+     */
+<span class="fc" id="L49">    private List&lt;JMadModelDefinition&gt; modelDefinitions = null;</span>
+
+    /**
+     * this list will be walked through and every finder is used to search for modelDefinitions.
+     */
+<span class="fc" id="L54">    private List&lt;ModelDefinitionFinder&gt; finders = new ArrayList&lt;ModelDefinitionFinder&gt;();</span>
+
+    /** The hashmap for the fileFinders */
+<span class="fc" id="L57">    private final Map&lt;JMadModelDefinition, ModelFileFinder&gt; modelFileFinders = new WeakHashMap&lt;JMadModelDefinition, ModelFileFinder&gt;();</span>
+
+    private List&lt;JMadModelDefinition&gt; findAllModelDefinitions() {
+<span class="fc" id="L60">        List&lt;JMadModelDefinition&gt; modelDefs = new ArrayList&lt;JMadModelDefinition&gt;();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        for (ModelDefinitionFinder finder : this.getFinders()) {</span>
+<span class="fc" id="L62">            modelDefs.addAll(finder.findAllModelDefinitions());</span>
+<span class="fc" id="L63">        }</span>
+<span class="fc" id="L64">        return modelDefs;</span>
+    }
+
+    @Override
+    public List&lt;JMadModelDefinition&gt; getAllModelDefinitions() {
+        /*
+         * lazy loading of the model definitions
+         */
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (this.modelDefinitions == null) {</span>
+<span class="fc" id="L73">            this.modelDefinitions = findAllModelDefinitions();</span>
+        }
+<span class="fc" id="L75">        return this.modelDefinitions;</span>
+    }
+
+    @Override
+    public JMadModelDefinition getModelDefinition(String name, boolean ignoreCase) {
+<span class="fc" id="L80">        List&lt;JMadModelDefinition&gt; foundModelDefinitions = getAllModelDefinitions();</span>
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        for (JMadModelDefinition modelDefinition : foundModelDefinitions) {</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (name.equals(modelDefinition.getName())) {</span>
+<span class="fc" id="L84">                return modelDefinition;</span>
+            }
+<span class="pc bpc" id="L86" title="3 of 4 branches missed.">            if (ignoreCase &amp;&amp; (name.equalsIgnoreCase(modelDefinition.getName()))) {</span>
+<span class="nc" id="L87">                return modelDefinition;</span>
+            }
+<span class="fc" id="L89">        }</span>
+<span class="nc" id="L90">        return null;</span>
+
+    }
+
+    @Override
+    public JMadModelDefinition getModelDefinition(String name) {
+<span class="fc" id="L96">        return getModelDefinition(name, false);</span>
+    }
+
+    public void setFinders(List&lt;ModelDefinitionFinder&gt; finders) {
+<span class="fc" id="L100">        this.finders = finders;</span>
+<span class="fc" id="L101">    }</span>
+
+    private List&lt;ModelDefinitionFinder&gt; getFinders() {
+<span class="fc" id="L104">        return finders;</span>
+    }
+
+    @Override
+    public ModelFileFinder getModelFileFinder(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L109">        ModelFileFinder fileFinder = this.modelFileFinders.get(modelDefinition);</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (fileFinder == null) {</span>
+<span class="fc" id="L111">            fileFinder = createModelFileFinder(modelDefinition);</span>
+<span class="fc" id="L112">            this.modelFileFinders.put(modelDefinition, fileFinder);</span>
+        }
+<span class="fc" id="L114">        return fileFinder;</span>
+    }
+
+    /**
+     * creates a new modelFileFinder for a model definition
+     * 
+     * @param modelDefinition the model definition for which to create a {@link ModelFileFinder}
+     * @return the fully configured {@link ModelFileFinder}
+     */
+    private ModelFileFinder createModelFileFinder(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L124">        ModelFileFinderImpl fileFinder = createModelFileFinder();</span>
+<span class="fc" id="L125">        fileFinder.setModelFilePathOffsets(modelDefinition.getModelPathOffsets());</span>
+<span class="fc" id="L126">        fileFinder.setSourceInformation(modelDefinition.getSourceInformation());</span>
+<span class="fc" id="L127">        return fileFinder;</span>
+    }
+
+    /**
+     * lookup method injected by spring
+     * 
+     * @return a fully configured ModelFileFinder
+     */
+    protected abstract ModelFileFinderImpl createModelFileFinder();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

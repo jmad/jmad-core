@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxApertureGlobalVariable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.var.enums</a> &gt; <span class="el_source">MadxApertureGlobalVariable.java</span></div><h1>MadxApertureGlobalVariable.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.var.enums;
+
+import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
+import cern.accsoft.steering.jmad.domain.var.VariableUtil;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+
+/**
+ * Special global variables for aperture files.
+ * 
+ * @author muellerg
+ */
+<span class="nc" id="L37">public enum MadxApertureGlobalVariable implements GlobalVariable {</span>
+<span class="nc" id="L38">    EXN, EYN, //</span>
+<span class="nc" id="L39">    DQF, //</span>
+<span class="nc" id="L40">    BETAQFX, //</span>
+<span class="nc" id="L41">    PARAS_DX, PARAS_DY, //</span>
+<span class="nc" id="L42">    DP_BUCKET_SIZE, //</span>
+<span class="nc" id="L43">    TWISS_DELTAP, //</span>
+<span class="nc" id="L44">    CO_RADIUS, //</span>
+<span class="nc" id="L45">    BETA_BEATING, //</span>
+<span class="nc" id="L46">    NB_OF_ANGLES, //</span>
+<span class="nc" id="L47">    HALO_PRIM, HALO_R, HALO_H, HALO_V, //</span>
+<span class="nc" id="L48">    N1MIN, //</span>
+<span class="nc" id="L49">    AT_ELEMENT(MadxVarType.STRING), //</span>
+
+    /* if something wrong: */
+<span class="nc" id="L52">    UNKNOWN(&quot;jmad_unknown&quot;, MadxVarType.UNKNOWN);</span>
+
+    private String madxName;
+<span class="nc" id="L55">    private MadxVarType type = MadxVarType.DOUBLE;</span>
+
+<span class="nc" id="L57">    private MadxApertureGlobalVariable() {</span>
+        /*
+         * we use the lowercae expression as madx name.
+         */
+<span class="nc" id="L61">        this.madxName = this.name().toLowerCase();</span>
+<span class="nc" id="L62">    }</span>
+
+    private MadxApertureGlobalVariable(String madxName, MadxVarType type) {
+<span class="nc" id="L65">        this(type);</span>
+<span class="nc" id="L66">        this.madxName = madxName;</span>
+<span class="nc" id="L67">    }</span>
+
+    private MadxApertureGlobalVariable(MadxVarType type) {
+<span class="nc" id="L70">        this();</span>
+<span class="nc" id="L71">        this.type = type;</span>
+<span class="nc" id="L72">    }</span>
+
+    @Override
+    public String getMadxName() {
+<span class="nc" id="L76">        return this.madxName;</span>
+    }
+
+    @Override
+    public MadxVarType getVarType() {
+<span class="nc" id="L81">        return this.type;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L86">        return getMadxName();</span>
+    }
+
+    @Override
+    public String getUnit() {
+<span class="nc" id="L91">        return null;</span>
+    }
+
+    @Override
+    public Class&lt;?&gt; getValueClass() {
+<span class="nc" id="L96">        return getVarType().getValueClass();</span>
+    }
+
+    public static final MadxApertureGlobalVariable fromMadxName(String madxName) {
+<span class="nc" id="L100">        return VariableUtil.findFromMadxName(MadxApertureGlobalVariable.class, madxName,</span>
+                MadxApertureGlobalVariable.UNKNOWN);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EOptionCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd</a> &gt; <span class="el_source">EOptionCommand.java</span></div><h1>EOptionCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: EOptionCommand.java,v 1.2 2009-01-27 10:17:58 kfuchsbe Exp $
+ * 
+ * $Date: 2009-01-27 10:17:58 $ $Revision: 1.2 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.kernel.cmd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * the madx-command to change error options: EOPTION,SEED=real,ADD=logical;
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class EOptionCommand extends AbstractCommand {
+
+    /** the name of the command */
+    private static final String CMD_NAME = &quot;eoption&quot;;
+    /**
+     * SEED: Selects a particular sequence of random values. A SEED value is an integer in the range [0...999999999]
+     * (default: 123456789). SEED alone continues with the current sequence.
+     */
+    private final Double seed;
+
+    /**
+     * ADD: If this logical flag is set, an EALIGN or EFCOMP, causes the errors to be added on top of existing ones. If
+     * it is not set, new errors overwrite any previous definitions. The default values is TRUE.
+     */
+    private final Boolean add;
+
+    /**
+     * the constructor, which sets both fields
+     * 
+     * @param seed the new seed value for MadX random generation.
+     * @param add if set to if &lt;code&gt;true&lt;/code&gt; the errors defined in the following will add up, if &lt;code&gt;false&lt;/code&gt;
+     *            they will not.
+     * @see #seed
+     * @see #add
+     */
+<span class="fc" id="L68">    public EOptionCommand(Double seed, Boolean add) {</span>
+<span class="fc" id="L69">        this.seed = seed;</span>
+<span class="fc" id="L70">        this.add = add;</span>
+<span class="fc" id="L71">    }</span>
+
+    @Override
+    public String getName() {
+<span class="fc" id="L75">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="fc" id="L80">        ArrayList&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L82">        parameters.add(new GenericParameter&lt;&gt;(&quot;seed&quot;, seed));</span>
+
+        /*
+         * this is kind of special boolean parameter: it does not follow the convention, that it is omitted, when it is
+         * meant to be false! It has to be set explicitly to false. We therefore use a string-parameter.
+         */
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (add != null) {</span>
+<span class="fc" id="L89">            parameters.add(new GenericParameter&lt;&gt;(&quot;add&quot;, add.toString()));</span>
+        }
+<span class="fc" id="L91">        return parameters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

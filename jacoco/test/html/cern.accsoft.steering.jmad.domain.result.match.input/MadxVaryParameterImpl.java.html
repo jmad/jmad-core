@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxVaryParameterImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.match.input</a> &gt; <span class="el_source">MadxVaryParameterImpl.java</span></div><h1>MadxVaryParameterImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.result.match.input;
+
+import cern.accsoft.steering.jmad.domain.knob.MadxParameter;
+
+/**
+ * this
+ * 
+ * @author muellerg
+ */
+public class MadxVaryParameterImpl implements MadxVaryParameter {
+
+    /** the madx knob to vary */
+    private final MadxParameter parameter;
+
+    /** the step for the variation */
+<span class="fc" id="L41">    private Double step = null;</span>
+
+    public void setStep(Double step) {
+<span class="nc" id="L44">        this.step = step;</span>
+<span class="nc" id="L45">    }</span>
+
+    public void setLower(Double lower) {
+<span class="nc" id="L48">        this.lower = lower;</span>
+<span class="nc" id="L49">    }</span>
+
+    public void setUpper(Double upper) {
+<span class="nc" id="L52">        this.upper = upper;</span>
+<span class="nc" id="L53">    }</span>
+
+    /** the lower limit */
+<span class="fc" id="L56">    private Double lower = null;</span>
+
+    /** the upper limit */
+<span class="fc" id="L59">    private Double upper = null;</span>
+
+<span class="fc" id="L61">    public MadxVaryParameterImpl(MadxParameter parameter) {</span>
+<span class="fc" id="L62">        this.parameter = parameter;</span>
+<span class="fc" id="L63">    }</span>
+
+    @Override
+    public String getName() {
+<span class="fc" id="L67">        return this.parameter.getMadxName();</span>
+    }
+
+    @Override
+    public Double getLower() {
+<span class="fc" id="L72">        return this.lower;</span>
+    }
+
+    @Override
+    public Double getStep() {
+<span class="fc" id="L77">        return this.step;</span>
+    }
+
+    @Override
+    public Double getUpper() {
+<span class="fc" id="L82">        return this.upper;</span>
+    }
+
+    @Override
+    public MadxParameter getMadxParameter() {
+<span class="fc" id="L87">        return this.parameter;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

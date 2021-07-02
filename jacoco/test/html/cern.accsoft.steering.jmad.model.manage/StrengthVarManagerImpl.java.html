@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StrengthVarManagerImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model.manage</a> &gt; <span class="el_source">StrengthVarManagerImpl.java</span></div><h1>StrengthVarManagerImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.model.manage;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSet;
+import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSetImpl;
+import cern.accsoft.steering.jmad.io.StrengthFileParser;
+import cern.accsoft.steering.jmad.io.StrengthFileParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This is the default implementation of a {@link StrengthVarManager}
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L41">public class StrengthVarManagerImpl implements StrengthVarManager {</span>
+
+    /** The logger for this class */
+<span class="fc" id="L44">    private final static Logger LOGGER = LoggerFactory.getLogger(StrengthVarManagerImpl.class);</span>
+
+    /** the variables are kept in a strengthVarSet */
+<span class="fc" id="L47">    private StrengthVarSet strengthVarSet = new StrengthVarSetImpl();</span>
+
+    /** The listeners */
+<span class="fc" id="L50">    private List&lt;StrengthVarManagerListener&gt; listeners = new ArrayList&lt;StrengthVarManagerListener&gt;();</span>
+
+    @Override
+    public StrengthVarSet getStrengthVarSet() {
+<span class="fc" id="L54">        return this.strengthVarSet;</span>
+    }
+
+    /**
+     * perform the file parsing.
+     */
+    @Override
+    public void load(File file) {
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (file == null) {</span>
+<span class="nc" id="L63">            LOGGER.error(&quot;File is null! Nothing to parse.&quot;);</span>
+<span class="nc" id="L64">            return;</span>
+        }
+
+<span class="fc" id="L67">        StrengthFileParser parser = new StrengthFileParser(file);</span>
+        try {
+<span class="fc" id="L69">            parser.parse(true);</span>
+<span class="nc" id="L70">        } catch (StrengthFileParserException e) {</span>
+<span class="nc" id="L71">            LOGGER.error(&quot;Could not parse file '&quot; + file.getAbsolutePath() + &quot;'.&quot;, e);</span>
+<span class="nc" id="L72">            return;</span>
+<span class="fc" id="L73">        }</span>
+<span class="fc" id="L74">        this.strengthVarSet.addAllStrengths(parser.getStrengths());</span>
+<span class="fc" id="L75">        this.strengthVarSet.addAllVariables(parser.getVariables());</span>
+<span class="fc" id="L76">        fireChangedVariables();</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * notify the listeners that the data has changed.
+     */
+    private void fireChangedVariables() {
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        for (StrengthVarManagerListener listener : this.listeners) {</span>
+<span class="nc" id="L84">            listener.changedData();</span>
+<span class="nc" id="L85">        }</span>
+<span class="fc" id="L86">    }</span>
+
+    @Override
+    public void addListener(StrengthVarManagerListener listener) {
+<span class="nc" id="L90">        this.listeners.add(listener);</span>
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public void removeListener(StrengthVarManagerListener listener) {
+<span class="nc" id="L95">        this.listeners.remove(listener);</span>
+<span class="nc" id="L96">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

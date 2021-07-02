@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RangeDefinitionImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.machine</a> &gt; <span class="el_source">RangeDefinitionImpl.java</span></div><h1>RangeDefinitionImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.machine;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
+/**
+ * this class defines a range in a sequence, by defining the first and the last element.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+@XStreamAlias(&quot;range&quot;)
+public class RangeDefinitionImpl implements RangeDefinition, Cloneable {
+
+    /** the name of the range */
+<span class="pc" id="L45">    @XStreamAlias(&quot;name&quot;)</span>
+    @XStreamAsAttribute
+    private String name = null;
+
+    /**
+     * the range as used by madx.
+     */
+<span class="pc" id="L52">    @XStreamAlias(&quot;madx-range&quot;)</span>
+    private MadxRange madxRange = new MadxRange();
+
+    /** the twiss with the correct initial values for this range */
+<span class="pc" id="L56">    @XStreamAlias(&quot;twiss-initial-conditions&quot;)</span>
+    private TwissInitialConditionsImpl twiss = null;
+
+    /* filters, which define the monitors which shall be inverted */
+<span class="pc" id="L60">    @XStreamAlias(&quot;monitor-invert-filters&quot;)</span>
+    private List&lt;NameFilter&gt; monitorInvertFilters = new ArrayList&lt;&gt;();
+
+<span class="pc" id="L63">    @XStreamAlias(&quot;corrector-invert-filters&quot;)</span>
+    private List&lt;NameFilter&gt; correctorInvertFilters = new ArrayList&lt;&gt;();
+
+    /** files that shall be executed after the use-command. */
+<span class="pc" id="L67">    @XStreamAlias(&quot;post-use-files&quot;)</span>
+    private List&lt;ModelFile&gt; postUseFiles = new ArrayList&lt;&gt;();
+
+    /**
+     * The name of the start element. If non-null then the sequence is rotatet before use.
+     */
+<span class="pc" id="L73">    @XStreamAlias(&quot;start-element-name&quot;)</span>
+    private String startElementName = null;
+
+    /** the definition of the aperture for this range. NOTE: this might be null! */
+<span class="pc" id="L77">    @XStreamOmitField</span>
+    private ApertureDefinition apertureDefinition = null;
+
+    /** the sequence definition this {@link RangeDefinition} belongs to */
+<span class="pc" id="L81">    @XStreamOmitField</span>
+    private SequenceDefinition sequenceDefinition = null;
+
+    /**
+     * default constructor. Necessary for xstream
+     */
+    public RangeDefinitionImpl() {
+<span class="nc" id="L88">        super();</span>
+<span class="nc" id="L89">    }</span>
+
+    /**
+     * The default constructor. creates a range, which covers the whole Sequence.
+     * 
+     * @param sequenceDefinition The sequence definition to which this range belongs to
+     * @param name the name of this range
+     * @param twiss the initial conditions for the twiss-command in this range
+     */
+<span class="fc" id="L98">    public RangeDefinitionImpl(SequenceDefinition sequenceDefinition, String name, TwissInitialConditionsImpl twiss) {</span>
+<span class="fc" id="L99">        this.sequenceDefinition = sequenceDefinition;</span>
+<span class="fc" id="L100">        this.name = name;</span>
+<span class="fc" id="L101">        this.twiss = twiss;</span>
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * an alternative constructor, with the possibility to provide the name of the first and the last element.
+     * 
+     * @param sequenceDefinition The sequence definition to which this range belongs to
+     * @param name a verbose name for the range
+     * @param madxRange the range as it has to be defined for MadX
+     * @param twiss the initial conditions for the twiss command in this range
+     */ 
+    public RangeDefinitionImpl(SequenceDefinition sequenceDefinition, String name, MadxRange madxRange,
+            TwissInitialConditionsImpl twiss) {
+<span class="nc" id="L114">        this(sequenceDefinition, name, twiss);</span>
+<span class="nc" id="L115">        this.madxRange = madxRange;</span>
+<span class="nc" id="L116">    }</span>
+
+    @Override
+    public RangeDefinitionImpl clone() throws CloneNotSupportedException {
+<span class="fc" id="L120">        RangeDefinitionImpl newRangeDefinition = (RangeDefinitionImpl) super.clone();</span>
+<span class="fc" id="L121">        newRangeDefinition.sequenceDefinition = sequenceDefinition;</span>
+<span class="fc" id="L122">        newRangeDefinition.madxRange = madxRange;</span>
+<span class="fc" id="L123">        newRangeDefinition.twiss = twiss;</span>
+<span class="fc" id="L124">        newRangeDefinition.monitorInvertFilters = new ArrayList&lt;&gt;(this.monitorInvertFilters);</span>
+<span class="fc" id="L125">        newRangeDefinition.correctorInvertFilters = new ArrayList&lt;&gt;(this.correctorInvertFilters);</span>
+<span class="fc" id="L126">        newRangeDefinition.apertureDefinition = apertureDefinition;</span>
+<span class="fc" id="L127">        newRangeDefinition.startElementName = startElementName;</span>
+<span class="fc" id="L128">        newRangeDefinition.postUseFiles = new ArrayList&lt;&gt;(postUseFiles);</span>
+<span class="fc" id="L129">        return newRangeDefinition;</span>
+    }
+
+    public final TwissInitialConditionsImpl getTwiss() {
+<span class="fc" id="L133">        return twiss;</span>
+    }
+
+    public String getName() {
+<span class="fc" id="L137">        return name;</span>
+    }
+
+    /**
+     * adds a filter which defines that some monitors shall be inverted
+     * 
+     * @param filter the filter to add
+     */
+    public void addMonitorInvertFilter(NameFilter filter) {
+<span class="nc" id="L146">        this.monitorInvertFilters.add(filter);</span>
+<span class="nc" id="L147">    }</span>
+
+    public final List&lt;NameFilter&gt; getMonitorInvertFilters() {
+<span class="fc" id="L150">        return monitorInvertFilters;</span>
+    }
+
+    /**
+     * adds a filter, which defines that some correctors shall be inverted.
+     * 
+     * @param filter the filter to add
+     */
+    public void addCorrectorInvertFilter(NameFilter filter) {
+<span class="nc" id="L159">        this.correctorInvertFilters.add(filter);</span>
+<span class="nc" id="L160">    }</span>
+
+    public final List&lt;NameFilter&gt; getCorrectorInvertFilters() {
+<span class="fc" id="L163">        return correctorInvertFilters;</span>
+    }
+
+    /**
+     * adds a file that shall be executed after the use-command.
+     * 
+     * @param postUseFile the postUseFile to add
+     */
+    public void addPostUseFile(ModelFile postUseFile) {
+<span class="nc" id="L172">        this.postUseFiles.add(postUseFile);</span>
+<span class="nc" id="L173">    }</span>
+
+    @Override
+    public List&lt;ModelFile&gt; getPostUseFiles() {
+<span class="fc" id="L177">        return postUseFiles;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L182">        return getName();</span>
+    }
+
+    @Override
+    public SequenceDefinition getSequenceDefinition() {
+<span class="fc" id="L187">        return this.sequenceDefinition;</span>
+    }
+
+    public void setSequenceDefinition(SequenceDefinition sequenceDefinition) {
+<span class="fc" id="L191">        this.sequenceDefinition = sequenceDefinition;</span>
+<span class="fc" id="L192">    }</span>
+
+    @Override
+    public ApertureDefinition getApertureDefinition() {
+<span class="nc" id="L196">        return this.apertureDefinition;</span>
+    }
+
+    public void setApertureDefinition(ApertureDefinition apertureDefinition) {
+<span class="nc" id="L200">        this.apertureDefinition = apertureDefinition;</span>
+<span class="nc" id="L201">    }</span>
+
+    @Override
+    public Collection&lt;ModelFile&gt; getRequiredFiles() {
+<span class="fc" id="L205">        return getPostUseFiles();</span>
+    }
+
+    public void setMadxRange(MadxRange madxRange) {
+<span class="nc" id="L209">        this.madxRange = madxRange;</span>
+<span class="nc" id="L210">    }</span>
+
+    @Override
+    public MadxRange getMadxRange() {
+<span class="fc" id="L214">        return madxRange;</span>
+    }
+
+    @Override
+    public String getStartElementName() {
+<span class="fc" id="L219">        return this.startElementName;</span>
+    }
+
+    public void setStartElementName(String startElementName) {
+<span class="fc" id="L223">        this.startElementName = startElementName;</span>
+<span class="fc" id="L224">    }</span>
+
+    /**
+     * this method is called before the object is written to xml. We do some cleanups here to avoid writing empty lists
+     * to xml.
+     * 
+     * @return the cleaned up object.
+     */
+    private Object writeReplace() {
+        RangeDefinitionImpl writtenObj;
+        try {
+<span class="fc" id="L235">            writtenObj = clone();</span>
+<span class="nc" id="L236">        } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L237">            return this;</span>
+<span class="fc" id="L238">        }</span>
+
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">        if (monitorInvertFilters.isEmpty()) {</span>
+            /* PMD: Has to be set to null to get a clean xml */
+<span class="fc" id="L242">            writtenObj.monitorInvertFilters = null; // NOPMD by kaifox on</span>
+            // 10/6/10 8:16 PM
+        }
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">        if (correctorInvertFilters.isEmpty()) {</span>
+            /* PMD: Has to be set to null to get a clean xml */
+<span class="nc" id="L247">            writtenObj.correctorInvertFilters = null; // NOPMD by kaifox on</span>
+            // 10/6/10 8:16 PM
+        }
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        if (postUseFiles.isEmpty()) {</span>
+            /* PMD: Has to be set to null to get a clean xml */
+<span class="fc" id="L252">            writtenObj.postUseFiles = null; // NOPMD by kaifox on 10/6/10 8:16</span>
+            // PM
+        }
+<span class="fc" id="L255">        return writtenObj;</span>
+    }
+
+    /**
+     * is called after creating this object from xml. Some additional initialization is done here, since no emplty lists
+     * are stored to xml.
+     * 
+     * @return the this object, fully configured.
+     */
+    private Object readResolve() {
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">        if (monitorInvertFilters == null) {</span>
+<span class="fc" id="L266">            monitorInvertFilters = new ArrayList&lt;&gt;();</span>
+        }
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        if (correctorInvertFilters == null) {</span>
+<span class="fc" id="L269">            correctorInvertFilters = new ArrayList&lt;&gt;();</span>
+        }
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">        if (postUseFiles == null) {</span>
+<span class="fc" id="L272">            postUseFiles = new ArrayList&lt;&gt;();</span>
+        }
+<span class="fc" id="L274">        return this;</span>
+    }
+
+    /* NOTE: to avoid issues with missing hashCode() and equals() on JMad objects,
+     * and to avoid circular references, the following implementations of hashCode()
+     * and equals() DELIBERATELY ONLY OPERATE ON NAMES (Strings) 
+     * 
+     * Be careful when changing this behaviour and/or re-generating! */
+	@Override
+	public int hashCode() {
+<span class="fc" id="L284">		final int prime = 31;</span>
+<span class="fc" id="L285">		int result = 1;</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">		result = prime * result + ((name == null) ? 0 : name.hashCode());</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">		result = prime * result + ((sequenceDefinition == null) ? 0 : sequenceDefinition.getName().hashCode());</span>
+<span class="fc" id="L288">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L293" title="All 2 branches covered.">		if (this == obj) {</span>
+<span class="fc" id="L294">			return true;</span>
+		}
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">		if (obj == null) {</span>
+<span class="nc" id="L297">			return false;</span>
+		}
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">		if (!(obj instanceof RangeDefinitionImpl)) {</span>
+<span class="nc" id="L300">			return false;</span>
+		}
+<span class="fc" id="L302">		RangeDefinitionImpl other = (RangeDefinitionImpl) obj;</span>
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">		if (name == null) {</span>
+<span class="nc bnc" id="L304" title="All 2 branches missed.">			if (other.name != null) {</span>
+<span class="nc" id="L305">				return false;</span>
+			}
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">		} else if (!name.equals(other.name)) {</span>
+<span class="nc" id="L308">			return false;</span>
+		}
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">		if (sequenceDefinition == null) {</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">			if (other.sequenceDefinition != null) {</span>
+<span class="nc" id="L312">				return false;</span>
+			}
+<span class="pc bpc" id="L314" title="1 of 2 branches missed.">		} else if (!sequenceDefinition.getName().equals(other.sequenceDefinition.getName())) {</span>
+<span class="nc" id="L315">			return false;</span>
+		}
+<span class="fc" id="L317">		return true;</span>
+	}
+
+    public String toStringFull() {
+<span class="nc" id="L321">        return &quot;RangeDefinitionImpl [name=&quot; + name + &quot;, madxRange=&quot; + madxRange + &quot;, twiss=&quot; + twiss</span>
+                + &quot;, monitorInvertFilters=&quot; + monitorInvertFilters + &quot;, correctorInvertFilters=&quot;
+                + correctorInvertFilters + &quot;, postUseFiles=&quot; + postUseFiles + &quot;, startElementName=&quot; + startElementName
+                + &quot;, apertureDefinition=&quot; + apertureDefinition + &quot;, sequenceDefinition=&quot; + sequenceDefinition + &quot;]&quot;;
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OngoingSequence.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.creating.lang</a> &gt; <span class="el_source">OngoingSequence.java</span></div><h1>OngoingSequence.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
+
+import static java.util.Objects.requireNonNull;
+
+import java.util.function.Consumer;
+
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
+
+public class OngoingSequence {
+
+    private final String name;
+    private final JMadModelDefinitionImpl modelDefinition;
+<span class="nc" id="L18">    private boolean isDefault = false;</span>
+
+<span class="nc" id="L20">    public OngoingSequence(String name, JMadModelDefinitionImpl modelDefinition) {</span>
+<span class="nc" id="L21">        this.name = requireNonNull(name, &quot;name must not be null&quot;);</span>
+<span class="nc" id="L22">        this.modelDefinition = requireNonNull(modelDefinition, &quot;modelDefinition must not be null&quot;);</span>
+<span class="nc" id="L23">    }</span>
+
+    public OngoingSequence isDefault() {
+<span class="nc" id="L26">        this.isDefault = true;</span>
+<span class="nc" id="L27">        return this;</span>
+    }
+
+    public void isDefinedAs(Consumer&lt;SequenceBlock&gt; block) {
+<span class="nc" id="L31">        SequenceDefinitionImpl sequenceDefinition = new SequenceDefinitionImpl(name);</span>
+<span class="nc" id="L32">        SequenceBlock sequenceBlock = new SequenceBlock(sequenceDefinition);</span>
+<span class="nc" id="L33">        block.accept(sequenceBlock);</span>
+<span class="nc" id="L34">        modelDefinition.addSequenceDefinition(sequenceDefinition);</span>
+
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (isDefault) {</span>
+<span class="nc" id="L37">            AssertUtil.requireNull(modelDefinition.getDefaultSequenceDefinition(),</span>
+                    &quot;default sequence already defined. Cannot define twice.&quot;);
+<span class="nc" id="L39">            modelDefinition.setDefaultSequenceDefinition(sequenceDefinition);</span>
+        }
+<span class="nc" id="L41">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

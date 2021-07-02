@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextFileParserImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util.io.impl</a> &gt; <span class="el_source">TextFileParserImpl.java</span></div><h1>TextFileParserImpl.java</h1><pre class="source lang-java linenums">package cern.accsoft.steering.jmad.util.io.impl;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+
+/**
+ * Simple parser, that opens a TextFile and returns the (trimmed) lines as List.
+ * &lt;p&gt;
+ * Additionaly, this parser can handle two different compression formats:
+ * &lt;ul&gt;
+ * &lt;li&gt;gzip
+ * &lt;li&gt;bzip2
+ * &lt;/ul&gt;
+ * To handle the bzip2 compression bzip2.jar has to be in the classpath. Which compression to use is decided on the
+ * extension of the filename (&quot;.gz&quot; for gzip and &quot;.bz2&quot; for bzip2).
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L31">public class TextFileParserImpl implements TextFileParser {</span>
+    public static final String EXTENSION_GZIP = &quot;.gz&quot;;
+    public static final String EXTENSION_BZIP2 = &quot;.bz2&quot;;
+
+    public static final int LENGTH_BZIP_MAGIC_BYTES = 2;
+
+    @Override
+    public List&lt;String&gt; parse(File file) throws TextFileParserException {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (file == null) {</span>
+<span class="nc" id="L40">            throw new TextFileParserException(&quot;Failure: file must not be null!&quot;);</span>
+        }
+
+<span class="fc" id="L43">        List&lt;String&gt; lines = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L44">        BufferedReader bufferedReader = openReader(file);</span>
+
+        try {
+            while (true) {
+<span class="fc" id="L48">                String line = bufferedReader.readLine();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">                if (line == null) {</span>
+<span class="fc" id="L50">                    break;</span>
+                }
+
+<span class="fc" id="L53">                line = line.trim();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">                if (line.length() &gt; 0) { // ignore empty lines</span>
+<span class="fc" id="L55">                    lines.add(line.trim());</span>
+                }
+<span class="fc" id="L57">            }</span>
+<span class="fc" id="L58">            bufferedReader.close();</span>
+<span class="nc" id="L59">        } catch (IOException e) {</span>
+<span class="nc" id="L60">            throw new TextFileParserException(&quot;IO-failure!&quot;, e);</span>
+<span class="fc" id="L61">        }</span>
+<span class="fc" id="L62">        return lines;</span>
+    }
+
+    /**
+     * opens an valid reader, depending on the ending of the fileName.
+     * 
+     * @param file the file to open
+     * @return the reader if successful
+     * @throws TextFileParserException if the reader cannot be opened
+     */
+    private BufferedReader openReader(File file) throws TextFileParserException {
+<span class="fc" id="L73">        BufferedReader reader = null;</span>
+        try {
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">            if (file.getCanonicalPath().endsWith(EXTENSION_GZIP)) {</span>
+<span class="nc" id="L76">                reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">            } else if (file.getCanonicalPath().endsWith(EXTENSION_BZIP2)) {</span>
+                /*
+                 * Read magic &quot;Bz&quot; before the actual Data (just dump the first two Bytes of the File)
+                 */
+<span class="nc" id="L81">                FileInputStream tfsData = new FileInputStream(file);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (tfsData.read(new byte[LENGTH_BZIP_MAGIC_BYTES]) != LENGTH_BZIP_MAGIC_BYTES) {</span>
+<span class="nc" id="L83">                    throw new TextFileParserException(&quot;Error while reading from file stream.&quot;);</span>
+                }
+
+<span class="nc" id="L86">                reader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(tfsData)));</span>
+
+<span class="nc" id="L88">            } else {</span>
+<span class="fc" id="L89">                reader = new BufferedReader(new FileReader(file));</span>
+            }
+<span class="fc" id="L91">        } catch (Exception e) {</span>
+<span class="fc" id="L92">            throw new TextFileParserException(&quot;Error while opening inputstream for filename '&quot; + file.getAbsolutePath()</span>
+                    + &quot;'.&quot;, e);
+<span class="fc" id="L94">        }</span>
+<span class="fc" id="L95">        return reader;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

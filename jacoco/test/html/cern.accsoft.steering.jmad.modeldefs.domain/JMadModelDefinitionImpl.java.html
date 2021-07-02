@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelDefinitionImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.domain</a> &gt; <span class="el_source">JMadModelDefinitionImpl.java</span></div><h1>JMadModelDefinitionImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.modeldefs.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.file.ModelPathOffsets;
+import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.util.xml.converters.NameRefConverter;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@XStreamAlias(&quot;jmad-model-definition&quot;)
+<span class="nc" id="L42">public class JMadModelDefinitionImpl extends AbstractModelDefinition {</span>
+
+    /**
+     * the logger for the class
+     */
+<span class="fc" id="L47">    private static final Logger LOGGER = LoggerFactory.getLogger(JMadModelDefinitionImpl.class);</span>
+
+    @XStreamAlias(&quot;name&quot;)
+    @XStreamAsAttribute
+    private String name;
+
+<span class="nc" id="L53">    @XStreamAlias(&quot;optics&quot;)</span>
+    private final List&lt;OpticsDefinition&gt; opticsDefinitions = new ArrayList&lt;&gt;();
+
+<span class="nc" id="L56">    @XStreamOmitField</span>
+    private OpticsDefinition defaultOpticsDefinition = null;
+
+<span class="nc" id="L59">    @XStreamAlias(&quot;default-optic&quot;)</span>
+    @XStreamConverter(NameRefConverter.class)
+    private String defaultOpticsDefinitionName = null;
+
+<span class="nc" id="L63">    @XStreamAlias(&quot;sequences&quot;)</span>
+    private final List&lt;SequenceDefinition&gt; sequenceDefinitions = new ArrayList&lt;&gt;();
+
+<span class="nc" id="L66">    @XStreamOmitField</span>
+    private SequenceDefinition defaultSequenceDefinition = null;
+
+<span class="nc" id="L69">    @XStreamAlias(&quot;default-sequence&quot;)</span>
+    @XStreamConverter(NameRefConverter.class)
+    private String defaultSequenceDefinitionName = null;
+
+<span class="nc" id="L73">    @XStreamAlias(&quot;init-files&quot;)</span>
+    private final List&lt;ModelFile&gt; initFiles = new ArrayList&lt;&gt;();
+
+<span class="nc" id="L76">    @XStreamAlias(&quot;path-offsets&quot;)</span>
+    private ModelPathOffsets modelPathOffsets = new ModelPathOffsetsImpl();
+
+<span class="nc" id="L79">    @XStreamOmitField</span>
+    private SourceInformation sourceInformation = null;
+
+<span class="nc" id="L82">    @XStreamOmitField</span>
+    private String modelPackUri = null;
+
+<span class="nc" id="L85">    @XStreamAlias(&quot;svn-revision&quot;)</span>
+    @XStreamOmitField
+    private String unusedSvnRevision = &quot;unused field kept for XStream backwards compatibility&quot;;
+
+    // ***********************************************
+    // * Add and Remove SequenceDefinitions
+    // ***********************************************
+
+    @Override
+    public SequenceDefinition getDefaultSequenceDefinition() {
+<span class="fc" id="L95">        return this.defaultSequenceDefinition;</span>
+    }
+
+    @Override
+    public List&lt;SequenceDefinition&gt; getSequenceDefinitions() {
+<span class="fc" id="L100">        return this.sequenceDefinitions;</span>
+    }
+
+    public void setDefaultSequenceDefinition(SequenceDefinition sequenceDefinition) {
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (sequenceDefinition == null) {</span>
+<span class="nc" id="L105">            return;</span>
+        }
+
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (!this.sequenceDefinitions.contains(sequenceDefinition)) {</span>
+<span class="nc" id="L109">            addSequenceDefinition(sequenceDefinition);</span>
+        }
+
+        /* If the addition worked */
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (this.sequenceDefinitions.contains(sequenceDefinition)) {</span>
+<span class="fc" id="L114">            this.defaultSequenceDefinition = sequenceDefinition;</span>
+<span class="fc" id="L115">            this.defaultSequenceDefinitionName = sequenceDefinition.getName();</span>
+        }
+<span class="fc" id="L117">    }</span>
+
+    public void addSequenceDefinition(SequenceDefinition sequenceDefinition) {
+<span class="nc" id="L120">        String sequenceName = sequenceDefinition.getName();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (this.containsSequenceDefinition(sequenceName)) {</span>
+<span class="nc" id="L122">            LOGGER.error(&quot;ModelDefinition [&quot; + this.name + &quot;] already contains a Sequence Definition called [&quot;</span>
+                    + sequenceName + &quot;]\n--&gt; rename the Sequence Definition to add!!&quot;);
+<span class="nc" id="L124">            return;</span>
+        }
+<span class="nc" id="L126">        this.sequenceDefinitions.add(sequenceDefinition);</span>
+<span class="nc" id="L127">    }</span>
+
+    public void removeSequenceDefinition(String name) {
+<span class="nc" id="L130">        SequenceDefinition seqDefinition = findSequenceDefinition(name);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (seqDefinition != null) {</span>
+<span class="nc" id="L132">            this.sequenceDefinitions.remove(seqDefinition);</span>
+        }
+<span class="nc" id="L134">    }</span>
+
+    // ***********************************************
+    // * Add/remove Optics Definitions
+    // ***********************************************
+
+    @Override
+    public List&lt;OpticsDefinition&gt; getOpticsDefinitions() {
+<span class="fc" id="L142">        return this.opticsDefinitions;</span>
+    }
+
+    @Override
+    public OpticsDefinition getDefaultOpticsDefinition() {
+<span class="fc" id="L147">        return this.defaultOpticsDefinition;</span>
+    }
+
+    public void setDefaultOpticsDefinition(OpticsDefinition opticsDefinition) {
+<span class="fc" id="L151">        Objects.requireNonNull(opticsDefinition, &quot;opticsDefinition must not be null&quot;);</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        if (!this.opticsDefinitions.contains(opticsDefinition)) {</span>
+<span class="nc" id="L153">            addOpticsDefinition(opticsDefinition);</span>
+        }
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (this.opticsDefinitions.contains(opticsDefinition)) {</span>
+<span class="fc" id="L157">            this.defaultOpticsDefinition = opticsDefinition;</span>
+<span class="fc" id="L158">            this.defaultOpticsDefinitionName = opticsDefinition.getName();</span>
+        }
+<span class="fc" id="L160">    }</span>
+
+    public void addOpticsDefinition(OpticsDefinition opticsDefinition) {
+<span class="nc" id="L163">        String opticsName = opticsDefinition.getName();</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (containsOpticsDefinition(opticsName)) {</span>
+<span class="nc" id="L165">            LOGGER.warn(&quot;ModelDefinition [&quot; + this.name + &quot;] already contains an Optics Definition called [&quot;</span>
+                    + opticsName + &quot;]\n--&gt; rename the Optics Definition to add!!&quot;);
+<span class="nc" id="L167">            return;</span>
+        }
+<span class="nc" id="L169">        this.opticsDefinitions.add(opticsDefinition);</span>
+<span class="nc" id="L170">    }</span>
+
+    /**
+     * Add an File which will be called when initializing the model
+     *
+     * @param modelFile the {@link ModelFile} to add
+     */
+    public void addInitFile(ModelFile modelFile) {
+<span class="nc" id="L178">        this.initFiles.add(modelFile);</span>
+
+<span class="nc" id="L180">    }</span>
+
+    public void removeInitFile(ModelFile modelFile) {
+<span class="nc" id="L183">        this.initFiles.remove(modelFile);</span>
+<span class="nc" id="L184">    }</span>
+
+    // ***********************************************
+    // * ModelDefinition Functions
+    // ***********************************************
+
+    @Override
+    public String getName() {
+<span class="fc" id="L192">        return this.name;</span>
+    }
+
+    public void setName(String name) {
+<span class="nc" id="L196">        this.name = name;</span>
+<span class="nc" id="L197">    }</span>
+
+    @Override
+    public List&lt;ModelFile&gt; getInitFiles() {
+<span class="fc" id="L201">        return this.initFiles;</span>
+    }
+
+    @Override
+    public ModelPathOffsets getModelPathOffsets() {
+<span class="fc" id="L206">        return this.modelPathOffsets;</span>
+    }
+
+    public void setModelPathOffsets(ModelPathOffsets modelPathOffsets) {
+<span class="nc" id="L210">        this.modelPathOffsets = modelPathOffsets;</span>
+<span class="nc" id="L211">    }</span>
+
+    private Object readResolve() {
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">        if (this.defaultOpticsDefinitionName != null) {</span>
+<span class="fc" id="L215">            setDefaultOpticsDefinition(getOpticsDefinition(this.defaultOpticsDefinitionName));</span>
+        }
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        if (this.defaultSequenceDefinitionName != null) {</span>
+<span class="fc" id="L218">            setDefaultSequenceDefinition(getSequenceDefinition(this.defaultSequenceDefinitionName));</span>
+        }
+<span class="fc" id="L220">        return this;</span>
+    }
+
+    @Override
+    public SourceInformation getSourceInformation() {
+<span class="fc" id="L225">        return this.sourceInformation;</span>
+    }
+
+    public void setSourceInformation(SourceInformation sourceInformation) {
+<span class="fc" id="L229">        this.sourceInformation = sourceInformation;</span>
+<span class="fc" id="L230">    }</span>
+
+    public void setModelPackUri(String modelPackUri) {
+<span class="nc" id="L233">        this.modelPackUri = modelPackUri;</span>
+<span class="nc" id="L234">    }</span>
+
+    @Override
+    public String getModelPackUri() {
+<span class="nc" id="L238">        return this.modelPackUri;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

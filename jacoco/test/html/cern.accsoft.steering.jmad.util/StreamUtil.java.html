@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StreamUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">StreamUtil.java</span></div><h1>StreamUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.util;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class StreamUtil {
+
+    /** The logger for the class */
+<span class="fc" id="L45">    private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);</span>
+
+    /**
+     * private constructor to prevent instantiation
+     */
+    private StreamUtil() {
+        /* Only static methods */
+    }
+
+    /**
+     * copies all data from the input stream to the output stream. The output stream is flushed afterwards. None of the
+     * streams is opened or closed.
+     * 
+     * @param inputStream the stream from which to copy the data
+     * @param outputStream the stream to copy the data to
+     * @throws IOException if something goes wrong.
+     */
+    public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+<span class="fc" id="L63">        BufferedInputStream instream = new BufferedInputStream(inputStream);</span>
+<span class="fc" id="L64">        BufferedOutputStream outstream = new BufferedOutputStream(outputStream);</span>
+        while (true) {
+<span class="fc" id="L66">            int readValue = instream.read();</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (readValue == -1) {</span>
+<span class="fc" id="L68">                break;</span>
+            }
+<span class="fc" id="L70">            outstream.write(readValue);</span>
+<span class="fc" id="L71">        }</span>
+<span class="fc" id="L72">        outstream.flush();</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * ensures, that the given input stream is extracted to the given file. If the file already exists it is
+     * overwritten!
+     * 
+     * @param inputStream the stream from which to read
+     * @param destinationFile the file where the resource shall be extracted to
+     * @return true if successful, false if not
+     */
+    public static final boolean toFile(InputStream inputStream, File destinationFile) {
+
+<span class="pc bpc" id="L85" title="2 of 4 branches missed.">        if ((destinationFile == null) || (inputStream == null)) {</span>
+<span class="nc" id="L86">            return false;</span>
+        }
+
+        /* make sure, that we use the actual file */
+<span class="fc" id="L90">        boolean existed = destinationFile.exists();</span>
+<span class="fc" id="L91">        boolean deleted = destinationFile.delete();</span>
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        if (existed &amp;&amp; (!deleted)) {</span>
+<span class="nc" id="L93">            LOGGER.debug(&quot;File '&quot; + destinationFile.getAbsolutePath()</span>
+                    + &quot;' already exists, but cannot be deleted. The existing version will be kept.&quot;);
+<span class="nc" id="L95">            return true;</span>
+        }
+
+<span class="fc" id="L98">        boolean success = false;</span>
+
+<span class="fc" id="L100">        FileOutputStream outputStream = null;</span>
+        try {
+<span class="fc" id="L102">            outputStream = new FileOutputStream(destinationFile);</span>
+<span class="fc" id="L103">            StreamUtil.copy(inputStream, outputStream);</span>
+<span class="fc" id="L104">            success = true;</span>
+<span class="nc" id="L105">        } catch (IOException e) {</span>
+<span class="nc" id="L106">            LOGGER.error(&quot;Error while copying stream to  file '&quot; + destinationFile.getAbsolutePath() + &quot;'.&quot;, e);</span>
+        } finally {
+            try {
+<span class="fc" id="L109">                inputStream.close();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                if (outputStream != null) {</span>
+<span class="fc" id="L111">                    outputStream.close();</span>
+                }
+<span class="nc" id="L113">            } catch (IOException e) {</span>
+<span class="nc" id="L114">                LOGGER.error(&quot;Error while closing streams after copying stream to file.&quot;, e);</span>
+<span class="nc" id="L115">                success = false;</span>
+<span class="fc" id="L116">            }</span>
+        }
+<span class="fc" id="L118">        return success;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

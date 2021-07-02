@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PtcTwissCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd.ptc</a> &gt; <span class="el_source">PtcTwissCommand.java</span></div><h1>PtcTwissCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.kernel.cmd.ptc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
+import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * this class represents a ptc-twiss command
+ *
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class PtcTwissCommand extends AbstractCommand {
+<span class="nc" id="L41">    private static final Logger LOGGER = LoggerFactory.getLogger(PtcTwissCommand.class);</span>
+
+    /**
+     * the name of the command
+     */
+    private static final String CMD_NAME = &quot;ptc_twiss&quot;;
+
+    /**
+     * the twiss values
+     */
+    private final TwissInitialConditions twiss;
+
+<span class="nc" id="L53">    public PtcTwissCommand(TwissInitialConditions twiss) {</span>
+<span class="nc" id="L54">        this.twiss = twiss;</span>
+<span class="nc" id="L55">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L59">        return CMD_NAME;</span>
+    }
+
+    /* TODO implement all options! */
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L65">        List&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L67">        parameters.add(new GenericParameter&lt;&gt;(&quot;deltap&quot;, twiss.getDeltap()));</span>
+
+        /*
+         * the initial conditions must not be set, if we want to calc the closed orbit solution
+         */
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!twiss.isClosedOrbit()) {</span>
+<span class="nc" id="L73">            parameters.add(new GenericParameter&lt;&gt;(&quot;betx&quot;, twiss.getBetx()));</span>
+<span class="nc" id="L74">            parameters.add(new GenericParameter&lt;&gt;(&quot;alfx&quot;, twiss.getAlfx()));</span>
+<span class="nc" id="L75">            parameters.add(new GenericParameter&lt;&gt;(&quot;bety&quot;, twiss.getBety()));</span>
+<span class="nc" id="L76">            parameters.add(new GenericParameter&lt;&gt;(&quot;alfy&quot;, twiss.getAlfy()));</span>
+<span class="nc" id="L77">            parameters.add(new GenericParameter&lt;&gt;(&quot;dx&quot;, twiss.getDx()));</span>
+<span class="nc" id="L78">            parameters.add(new GenericParameter&lt;&gt;(&quot;dy&quot;, twiss.getDy()));</span>
+<span class="nc" id="L79">            parameters.add(new GenericParameter&lt;&gt;(&quot;dpx&quot;, twiss.getDpx()));</span>
+<span class="nc" id="L80">            parameters.add(new GenericParameter&lt;&gt;(&quot;dpy&quot;, twiss.getDpy()));</span>
+<span class="nc" id="L81">            parameters.add(new GenericParameter&lt;&gt;(&quot;x&quot;, twiss.getX()));</span>
+<span class="nc" id="L82">            parameters.add(new GenericParameter&lt;&gt;(&quot;px&quot;, twiss.getPx()));</span>
+<span class="nc" id="L83">            parameters.add(new GenericParameter&lt;&gt;(&quot;y&quot;, twiss.getY()));</span>
+<span class="nc" id="L84">            parameters.add(new GenericParameter&lt;&gt;(&quot;py&quot;, twiss.getPy()));</span>
+<span class="nc" id="L85">            parameters.add(new GenericParameter&lt;&gt;(&quot;t&quot;, twiss.getT()));</span>
+<span class="nc" id="L86">            parameters.add(new GenericParameter&lt;&gt;(&quot;pt&quot;, twiss.getPt()));</span>
+<span class="nc" id="L87">            parameters.add(new GenericParameter&lt;&gt;(&quot;mux&quot;, twiss.getMux()));</span>
+<span class="nc" id="L88">            parameters.add(new GenericParameter&lt;&gt;(&quot;muy&quot;, twiss.getMuy()));</span>
+        }
+<span class="nc" id="L90">        parameters.add(new GenericParameter&lt;&gt;(&quot;closed_orbit&quot;, twiss.isClosedOrbit()));</span>
+<span class="nc" id="L91">        parameters.add(new GenericParameter&lt;&gt;(&quot;icase&quot;, twiss.getPtcPhaseSpaceDimension()));</span>
+<span class="nc" id="L92">        parameters.add(new GenericParameter&lt;&gt;(&quot;no&quot;, twiss.getPtcMapOrder()));</span>
+<span class="nc" id="L93">        parameters.add(new GenericParameter&lt;&gt;(&quot;betz&quot;, twiss.getPtcBetz()));</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (twiss.isCalcAtCenter()) {</span>
+<span class="nc" id="L95">            LOGGER.warn(&quot;Calculating at the center is not supported by PTC_TWISS. Ignoring option. &quot; +</span>
+                    &quot;Calculating at the end of the elements.&quot;);
+        }
+
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (getOutputFile() != null) {</span>
+<span class="nc" id="L100">            parameters.add(new GenericParameter&lt;&gt;(&quot;file&quot;, getOutputFile().getAbsolutePath(), true));</span>
+        }
+
+<span class="nc" id="L103">        return parameters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

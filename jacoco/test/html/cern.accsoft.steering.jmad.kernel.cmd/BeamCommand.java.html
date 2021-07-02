@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BeamCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd</a> &gt; <span class="el_source">BeamCommand.java</span></div><h1>BeamCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.kernel.cmd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.beam.Beam;
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * represents the madX 'beam' command BEAM, PARTICLE=name,MASS=real,CHARGE=real, ENERGY=real,PC=real,GAMMA=real,
+ * EX=real,EXN=real,EY=real,EYN=real, ET=real,SIGT=real,SIGE=real, KBUNCH=integer,NPART=real,BCURRENT=real,
+ * BUNCHED=logical,RADIATE=logical,BV=integer,SEQUENCE=name;
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class BeamCommand extends AbstractCommand {
+    private static final String CMD_NAME = &quot;beam&quot;;
+
+    private final Beam beam;
+
+<span class="fc" id="L44">    public BeamCommand(Beam beam) {</span>
+<span class="fc" id="L45">        this.beam = beam;</span>
+<span class="fc" id="L46">    }</span>
+
+    @Override
+    public String getName() {
+<span class="fc" id="L50">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="fc" id="L55">        ArrayList&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+        /*
+         * define the mapping of the member-fields to the parameters.
+         */
+        /*
+         * for particle, there may be set throug enum or through a arbitrary string. DANGER: not checked, if boths are
+         * set!
+         */
+<span class="fc" id="L64">        parameters.add(new GenericParameter&lt;&gt;(&quot;particle&quot;, beam.getParticle()));</span>
+<span class="fc" id="L65">        parameters.add(new GenericParameter&lt;&gt;(&quot;particle&quot;, beam.getParticleName()));</span>
+
+<span class="fc" id="L67">        parameters.add(new GenericParameter&lt;&gt;(&quot;mass&quot;, beam.getMass()));</span>
+<span class="fc" id="L68">        parameters.add(new GenericParameter&lt;&gt;(&quot;charge&quot;, beam.getCharge()));</span>
+<span class="fc" id="L69">        parameters.add(new GenericParameter&lt;&gt;(&quot;energy&quot;, beam.getEnergy()));</span>
+<span class="fc" id="L70">        parameters.add(new GenericParameter&lt;&gt;(&quot;pc&quot;, beam.getMomentum()));</span>
+<span class="fc" id="L71">        parameters.add(new GenericParameter&lt;&gt;(&quot;gamma&quot;, beam.getGamma()));</span>
+<span class="fc" id="L72">        parameters.add(new GenericParameter&lt;&gt;(&quot;ex&quot;, beam.getHorizontalEmittance()));</span>
+<span class="fc" id="L73">        parameters.add(new GenericParameter&lt;&gt;(&quot;ey&quot;, beam.getVerticalEmittance()));</span>
+<span class="fc" id="L74">        parameters.add(new GenericParameter&lt;&gt;(&quot;et&quot;, beam.getLongitudinalEmittance()));</span>
+<span class="fc" id="L75">        parameters.add(new GenericParameter&lt;&gt;(&quot;exn&quot;, beam.getNormalisedHorizontalEmittance()));</span>
+<span class="fc" id="L76">        parameters.add(new GenericParameter&lt;&gt;(&quot;eyn&quot;, beam.getNormalisedVerticalEmittance()));</span>
+<span class="fc" id="L77">        parameters.add(new GenericParameter&lt;&gt;(&quot;sigt&quot;, beam.getBunchLength()));</span>
+<span class="fc" id="L78">        parameters.add(new GenericParameter&lt;&gt;(&quot;sige&quot;, beam.getRelativeEnergySpread()));</span>
+<span class="fc" id="L79">        parameters.add(new GenericParameter&lt;&gt;(&quot;kbunch&quot;, beam.getBunchNumber()));</span>
+<span class="fc" id="L80">        parameters.add(new GenericParameter&lt;&gt;(&quot;npart&quot;, beam.getParticleNumber()));</span>
+<span class="fc" id="L81">        parameters.add(new GenericParameter&lt;&gt;(&quot;bcurrent&quot;, beam.getBunchCurrent()));</span>
+<span class="fc" id="L82">        parameters.add(new GenericParameter&lt;&gt;(&quot;bunched&quot;, beam.getBunched()));</span>
+<span class="fc" id="L83">        parameters.add(new GenericParameter&lt;&gt;(&quot;radiate&quot;, beam.getRadiate()));</span>
+<span class="fc" id="L84">        parameters.add(new GenericParameter&lt;&gt;(&quot;bv&quot;, beam.getDirection()));</span>
+<span class="fc" id="L85">        parameters.add(new GenericParameter&lt;&gt;(&quot;sequence&quot;, beam.getSequence()));</span>
+
+<span class="fc" id="L87">        return parameters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadPreferencesImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">JMadPreferencesImpl.java</span></div><h1>JMadPreferencesImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: PreferencesImpl.java,v 1.2 2008-09-19 16:49:41 kfuchsbe Exp $
+ * 
+ * $Date: 2008-09-19 16:49:41 $ $Revision: 1.2 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.util;
+
+/**
+ * The basic implementation to store preferences.
+ * &lt;p&gt;
+ * The basic principle is the following: For each option there exists a system
+ * property and it can be st individually. If it is set individually then the
+ * value is returned. If not set, then the value of the system property is
+ * returned, if this is not set then a hardcoded default value is returned.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L42">public class JMadPreferencesImpl implements JMadPreferences {</span>
+
+	/** The name of the system-property for the output path. */
+	private static final String PROP_OUTPUT_PATH = &quot;cern.jmad.output.path&quot;;
+	/** the default value for the output path when property is not set. */
+	private static final String DEFAULT_OUTPUT_PATH = &quot;.&quot;;
+	/** The output path, if set. Default to null so the system value is returned */
+<span class="fc" id="L49">	private String outputPath = null;</span>
+
+	/** The name of the system-property for the model repository base path */
+	private static final String PROP_REPOSITORY_BASE_PATH = &quot;cern.jmad.repository.base.path&quot;;
+
+	/**
+	 * the repository base path if set. Defaults to null so the system property
+	 * value is returned.
+	 */
+<span class="fc" id="L58">	private String repositoryBasePath = null;</span>
+
+	/** The name of the property defining the cleanup of the kernel files */
+	private static final String PROP_CLEANUP_KERNEL_FILES = &quot;cern.jmad.cleanup.kernel.files&quot;;
+	/** Per default the kernel files shall be cleaned up */
+	private static final boolean DEFAULT_CLEANUP_KERNEL_FILES = true;
+	/**
+	 * The value of cleaning up kernel files. Defaults to null so the property
+	 * value is returned.
+	 */
+<span class="fc" id="L68">	private Boolean cleanupKernelFiles = null;</span>
+
+	//
+	// methods of interface Preferences
+	//
+
+	
+	@Override
+	public String getOutputPath() {
+		/* If the outputpath is set, then the answer is clear: we use it */
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">		if (this.outputPath != null) {</span>
+<span class="nc" id="L79">			return this.outputPath;</span>
+		}
+
+		/* else use the property */
+<span class="fc" id="L83">		String outputPath = System.getProperty(PROP_OUTPUT_PATH);</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">		if (outputPath != null) {</span>
+<span class="nc" id="L85">			return outputPath;</span>
+		}
+
+		/* if even that is not set, then we use the system temp-dir: */
+<span class="fc" id="L89">		outputPath = SystemUtil.getSystemTempDirectoryPath();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (outputPath != null) {</span>
+<span class="fc" id="L91">			return outputPath;</span>
+		}
+
+		/*
+		 * If even the system-temp dir is not available, then we use the default
+		 * value
+		 */
+<span class="nc" id="L98">		return DEFAULT_OUTPUT_PATH;</span>
+	}
+
+	@Override
+	public void setOutputPath(String outputPath) {
+<span class="nc" id="L103">		this.outputPath = outputPath;</span>
+<span class="nc" id="L104">	}</span>
+
+	@Override
+	public String getModelRepositoryBasePath() {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		if (this.repositoryBasePath != null) {</span>
+<span class="nc" id="L109">			return this.repositoryBasePath;</span>
+		}
+<span class="nc" id="L111">		return System.getProperty(PROP_REPOSITORY_BASE_PATH);</span>
+	}
+
+	@Override
+	public void setModelRepositoryBasePath(String basePath) {
+<span class="nc" id="L116">		this.repositoryBasePath = basePath;</span>
+<span class="nc" id="L117">	}</span>
+
+	@Override
+	public boolean isCleanupKernelFiles() {
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		if (this.cleanupKernelFiles != null) {</span>
+<span class="nc" id="L122">			return this.cleanupKernelFiles;</span>
+		}
+<span class="fc" id="L124">		String propertyValue = System.getProperty(PROP_CLEANUP_KERNEL_FILES);</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">		if (propertyValue != null) {</span>
+<span class="nc" id="L126">			return Boolean.parseBoolean(propertyValue);</span>
+		}
+<span class="fc" id="L128">		return DEFAULT_CLEANUP_KERNEL_FILES;</span>
+	}
+
+	@Override
+	public void setCleanupKernelFiles(boolean cleanup) {
+<span class="nc" id="L133">		this.cleanupKernelFiles = cleanup;</span>
+<span class="nc" id="L134">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

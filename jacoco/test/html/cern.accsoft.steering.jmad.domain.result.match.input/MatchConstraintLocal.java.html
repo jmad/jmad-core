@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MatchConstraintLocal.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.match.input</a> &gt; <span class="el_source">MatchConstraintLocal.java</span></div><h1>MatchConstraintLocal.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.result.match.input;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.machine.MadxRange;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+
+/**
+ * @author muellerg
+ */
+public class MatchConstraintLocal implements MatchConstraint {
+
+<span class="nc" id="L47">    private static final Logger LOGGER = LoggerFactory.getLogger(MatchConstraintLocal.class);</span>
+
+<span class="nc" id="L49">    private static final List&lt;MadxTwissVariable&gt; MADX_VARIABLES = Arrays.asList(new MadxTwissVariable[] { //</span>
+            MadxTwissVariable.BETX, MadxTwissVariable.BETY, //
+                    MadxTwissVariable.ALFX, MadxTwissVariable.ALFY, //
+                    MadxTwissVariable.MUX, MadxTwissVariable.MUY, //
+                    MadxTwissVariable.DX, MadxTwissVariable.DY, //
+                    MadxTwissVariable.DDX, MadxTwissVariable.DDY, //
+                    MadxTwissVariable.DPX, MadxTwissVariable.DPY, //
+                    MadxTwissVariable.DDPX, MadxTwissVariable.DDPY, //
+                    MadxTwissVariable.X, MadxTwissVariable.Y, //
+                    MadxTwissVariable.PX, MadxTwissVariable.PY });
+
+    /** the values for the variables */
+<span class="nc" id="L61">    private final Map&lt;MadxTwissVariable, Double&gt; variableValues = new EnumMap&lt;MadxTwissVariable, Double&gt;(</span>
+            MadxTwissVariable.class);
+
+    /** Range for the Constraint initialized to whole Sequence!!! */
+    private final MadxRange madxRange;
+
+    // TODO Upgrade to use relations to, for now only equal until somebody needs
+    // something else ;)
+    // public static enum ConstraintRelation {
+    // EQUALS(&quot;=&quot;);
+    //
+    // private ConstraintRelation(String madxChar) {
+    // this.madxChar = madxChar;
+    // }
+    //
+    // private String madxChar;
+    //
+    // public String getMadxChar() {
+    // return madxChar;
+    // }
+    //
+    // }
+
+<span class="nc" id="L84">    public MatchConstraintLocal(MadxRange madxRange) {</span>
+<span class="nc" id="L85">        this.madxRange = madxRange;</span>
+<span class="nc" id="L86">    }</span>
+
+    public Double getValue(MadxTwissVariable variable) {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!this.getMadxVariables().contains(variable)) {</span>
+<span class="nc" id="L90">            LOGGER.warn(&quot;It is not foreseen, that this bean handles the madx-variable '&quot; + variable.toString()</span>
+                    + &quot;'. Therefore there may be no getters and setters for this!&quot;);
+        }
+<span class="nc" id="L93">        return this.variableValues.get(variable);</span>
+    }
+
+    private void setValue(MadxTwissVariable variable, Double value) {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (!this.getMadxVariables().contains(variable)) {</span>
+<span class="nc" id="L98">            LOGGER.warn(&quot;It is not foreseen, that this bean handles the madx-variable '&quot; + variable.toString()</span>
+                    + &quot;'. Therefore there may be no getters and setters for this!&quot;);
+        }
+<span class="nc" id="L101">        this.variableValues.put(variable, value);</span>
+<span class="nc" id="L102">    }</span>
+
+    public Double getBetx() {
+<span class="nc" id="L105">        return getValue(MadxTwissVariable.BETX);</span>
+    }
+
+    public void setBetx(Double betx) {
+<span class="nc" id="L109">        setValue(MadxTwissVariable.BETX, betx);</span>
+<span class="nc" id="L110">    }</span>
+
+    public Double getBety() {
+<span class="nc" id="L113">        return getValue(MadxTwissVariable.BETY);</span>
+    }
+
+    public void setBety(Double bety) {
+<span class="nc" id="L117">        setValue(MadxTwissVariable.BETY, bety);</span>
+<span class="nc" id="L118">    }</span>
+
+    public Double getMux() {
+<span class="nc" id="L121">        return getValue(MadxTwissVariable.MUX);</span>
+    }
+
+    public void setMux(Double mux) {
+<span class="nc" id="L125">        setValue(MadxTwissVariable.MUX, mux);</span>
+<span class="nc" id="L126">    }</span>
+
+    public Double getMuy() {
+<span class="nc" id="L129">        return getValue(MadxTwissVariable.MUY);</span>
+    }
+
+    public void setMuy(Double muy) {
+<span class="nc" id="L133">        setValue(MadxTwissVariable.MUY, muy);</span>
+<span class="nc" id="L134">    }</span>
+
+    public Double getDx() {
+<span class="nc" id="L137">        return getValue(MadxTwissVariable.DX);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setDx(Double dx) { // NOPMD by kaifox on 6/25/10 5:56 PM
+<span class="nc" id="L142">        setValue(MadxTwissVariable.DX, dx);</span>
+<span class="nc" id="L143">    }</span>
+
+    public Double getDy() {
+<span class="nc" id="L146">        return getValue(MadxTwissVariable.DY);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setDy(Double dy) { // NOPMD by kaifox on 6/25/10 5:57 PM
+<span class="nc" id="L151">        setValue(MadxTwissVariable.DY, dy);</span>
+<span class="nc" id="L152">    }</span>
+
+    public Double getAlfx() {
+<span class="nc" id="L155">        return getValue(MadxTwissVariable.ALFX);</span>
+    }
+
+    public void setAlfx(Double alfx) {
+<span class="nc" id="L159">        setValue(MadxTwissVariable.ALFX, alfx);</span>
+<span class="nc" id="L160">    }</span>
+
+    public Double getAlfy() {
+<span class="nc" id="L163">        return getValue(MadxTwissVariable.ALFY);</span>
+    }
+
+    public void setAlfy(Double alfy) {
+<span class="nc" id="L167">        setValue(MadxTwissVariable.ALFY, alfy);</span>
+<span class="nc" id="L168">    }</span>
+
+    public Double getDdx() {
+<span class="nc" id="L171">        return getValue(MadxTwissVariable.DDX);</span>
+    }
+
+    public void setDdx(Double ddx) {
+<span class="nc" id="L175">        setValue(MadxTwissVariable.DDX, ddx);</span>
+<span class="nc" id="L176">    }</span>
+
+    public Double getDpx() {
+<span class="nc" id="L179">        return getValue(MadxTwissVariable.DPX);</span>
+    }
+
+    public void setDpx(Double dpx) {
+<span class="nc" id="L183">        setValue(MadxTwissVariable.DPX, dpx);</span>
+<span class="nc" id="L184">    }</span>
+
+    public Double getDpy() {
+<span class="nc" id="L187">        return getValue(MadxTwissVariable.DPY);</span>
+    }
+
+    public void setDpy(Double dpy) {
+<span class="nc" id="L191">        setValue(MadxTwissVariable.DPY, dpy);</span>
+<span class="nc" id="L192">    }</span>
+
+    public Double getDdy() {
+<span class="nc" id="L195">        return getValue(MadxTwissVariable.DDY);</span>
+    }
+
+    public void setDdy(Double ddy) {
+<span class="nc" id="L199">        setValue(MadxTwissVariable.DDY, ddy);</span>
+<span class="nc" id="L200">    }</span>
+
+    public Double getDdpx() {
+<span class="nc" id="L203">        return getValue(MadxTwissVariable.DDPX);</span>
+    }
+
+    public void setDdpx(Double ddpx) {
+<span class="nc" id="L207">        setValue(MadxTwissVariable.DDPX, ddpx);</span>
+<span class="nc" id="L208">    }</span>
+
+    public Double getDdpy() {
+<span class="nc" id="L211">        return getValue(MadxTwissVariable.DDPY);</span>
+    }
+
+    public void setDdpy(Double ddpy) {
+<span class="nc" id="L215">        setValue(MadxTwissVariable.DDPY, ddpy);</span>
+<span class="nc" id="L216">    }</span>
+
+    public Double getX() {
+<span class="nc" id="L219">        return getValue(MadxTwissVariable.X);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setX(Double x) { // NOPMD by kaifox on 6/25/10 5:57 PM
+<span class="nc" id="L224">        setValue(MadxTwissVariable.X, x);</span>
+<span class="nc" id="L225">    }</span>
+
+    public Double getPx() {
+<span class="nc" id="L228">        return getValue(MadxTwissVariable.PX);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setPx(Double px) { // NOPMD by kaifox on 6/25/10 5:57 PM
+<span class="nc" id="L233">        setValue(MadxTwissVariable.PX, px);</span>
+<span class="nc" id="L234">    }</span>
+
+    public Double getY() {
+<span class="nc" id="L237">        return getValue(MadxTwissVariable.Y);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setY(Double y) { // NOPMD by kaifox on 6/25/10 5:57 PM
+<span class="nc" id="L242">        setValue(MadxTwissVariable.Y, y);</span>
+<span class="nc" id="L243">    }</span>
+
+    public Double getPy() {
+<span class="nc" id="L246">        return getValue(MadxTwissVariable.PY);</span>
+    }
+
+    /* PMD: short variable name to be consistent with MadX */
+    public void setPy(Double py) { // NOPMD by kaifox on 10/6/10 6:42 PM
+<span class="nc" id="L251">        setValue(MadxTwissVariable.PY, py);</span>
+<span class="nc" id="L252">    }</span>
+
+    public List&lt;MadxTwissVariable&gt; getMadxVariables() {
+<span class="nc" id="L255">        return MatchConstraintLocal.MADX_VARIABLES;</span>
+    }
+
+    public MadxRange getMadxRange() {
+<span class="nc" id="L259">        return madxRange;</span>
+    }
+
+    @Override
+    public boolean isGlobal() {
+<span class="nc" id="L264">        return false;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getReadoutNames() {
+
+<span class="nc" id="L270">        ArrayList&lt;String&gt; readOutNames = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc" id="L272">        String[] opticVars = new String[this.variableValues.size()];</span>
+<span class="nc" id="L273">        int varCount = 0;</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        for (MadxTwissVariable var : this.variableValues.keySet()) {</span>
+<span class="nc" id="L275">            opticVars[varCount++] = var.getMadxName();</span>
+<span class="nc" id="L276">        }</span>
+
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (!this.madxRange.isElement()) {</span>
+<span class="nc" id="L279">            String[] firstLast = this.madxRange.getMadxString().split(MadxRange.ELEMENT_SEPARATOR);</span>
+
+            // For now if a Range is defined for a local Constraint read Values
+            // for first and last Element
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            for (String attr : opticVars) {</span>
+<span class="nc" id="L284">                readOutNames.add(firstLast[0] + Element.ATTR_SEPARATOR + attr);</span>
+<span class="nc" id="L285">                readOutNames.add(firstLast[1] + Element.ATTR_SEPARATOR + attr);</span>
+            }
+<span class="nc" id="L287">        } else {</span>
+<span class="nc" id="L288">            String elem = this.madxRange.getMadxString();</span>
+
+<span class="nc bnc" id="L290" title="All 2 branches missed.">            for (String attr : opticVars) {</span>
+<span class="nc" id="L291">                readOutNames.add(elem + Element.ATTR_SEPARATOR + attr);</span>
+            }
+        }
+
+<span class="nc" id="L295">        return readOutNames;</span>
+    }
+
+    @Override
+    public Map&lt;String, Double&gt; getParameterSettings() {
+
+<span class="nc" id="L301">        HashMap&lt;String, Double&gt; paraSettings = new HashMap&lt;String, Double&gt;(this.variableValues.size());</span>
+
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        for (MadxTwissVariable par : this.variableValues.keySet()) {</span>
+<span class="nc" id="L304">            paraSettings.put(par.getMadxName(), this.variableValues.get(par));</span>
+<span class="nc" id="L305">        }</span>
+
+<span class="nc" id="L307">        return paraSettings;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

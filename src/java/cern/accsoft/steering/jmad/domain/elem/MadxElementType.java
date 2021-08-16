@@ -61,6 +61,7 @@ public enum MadxElementType {
      * The following types are not (yet) mapped to a corresponding type in jmad
      */
     INSTRUMENT(JMadElementType.UNKNOWN), //
+    PLACEHOLDER(JMadElementType.UNKNOWN), //
     MULTIPOLE(JMadElementType.UNKNOWN), //
     RFCAVITY(JMadElementType.UNKNOWN), //
     RCOLLIMATOR(JMadElementType.UNKNOWN), //

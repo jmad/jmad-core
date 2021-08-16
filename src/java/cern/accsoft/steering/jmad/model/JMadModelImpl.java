@@ -15,7 +15,6 @@ import static java.util.Collections.singletonList;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -535,7 +534,7 @@ public class JMadModelImpl implements JMadModel, ElementAttributeReader {
 
     @Override
     public void readAttributes(Element element) throws JMadModelException {
-        readAttributes(Arrays.asList(new Element[] { element }));
+        readAttributes(singletonList(element));
     }
 
     @Override

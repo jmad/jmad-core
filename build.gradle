@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.11.1'
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.18'
     compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
     compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
 

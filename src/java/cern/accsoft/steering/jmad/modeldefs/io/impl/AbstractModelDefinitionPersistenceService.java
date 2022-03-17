@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.thoughtworks.xstream.XStream;
-
 import cern.accsoft.steering.jmad.domain.beam.Beam;
 import cern.accsoft.steering.jmad.domain.file.AbstractModelFile;
 import cern.accsoft.steering.jmad.domain.file.CallableModelFileImpl;
@@ -24,6 +22,8 @@ import cern.accsoft.steering.jmad.modeldefs.io.ModelDefinitionPersistenceService
 import cern.accsoft.steering.jmad.util.xml.GenericXStreamService;
 import cern.accsoft.steering.jmad.util.xml.PersistenceService;
 import cern.accsoft.steering.jmad.util.xml.PersistenceServiceException;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 
 public abstract class AbstractModelDefinitionPersistenceService implements ModelDefinitionPersistenceService {
 	@Override
@@ -95,5 +95,7 @@ public abstract class AbstractModelDefinitionPersistenceService implements Model
 
 		/* The default implementations */
 		xStream.addDefaultImplementation(ModelPathOffsetsImpl.class, ModelPathOffsets.class);
+
+		xStream.addPermission(AnyTypePermission.ANY);
 	}
 }

@@ -27,6 +27,7 @@ package cern.accsoft.steering.jmad.util.xml;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 
 /**
  * This is a utility class that uses the XStream mechanism to clone objects. Custom converters can be provided in order
@@ -45,6 +46,7 @@ public final class CloneUtil {
         XStream xStream = new XStream();
         xStream.autodetectAnnotations(true);
         xStream.processAnnotations(clazz);
+        xStream.addPermission(AnyTypePermission.ANY);
         return (T) xStream.fromXML(xStream.toXML(object));
     }
 
@@ -54,6 +56,7 @@ public final class CloneUtil {
         xStream.registerConverter(converter);
         xStream.autodetectAnnotations(true);
         xStream.processAnnotations(clazz);
+        xStream.addPermission(AnyTypePermission.ANY);
         return (T) xStream.fromXML(xStream.toXML(object));
 
     }

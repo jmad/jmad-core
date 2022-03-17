@@ -17,8 +17,8 @@ public abstract class AbstractXStreamService<T> extends GenericXStreamService<T>
     @Override
     protected XStream createXStream() {
         this.xStream = this.newXStreamInstance();
-        this.xStream.addPermission(AnyTypePermission.ANY);
         this.initializeXStream(this.xStream);
+        this.xStream.addPermission(AnyTypePermission.ANY);
         return this.xStream;
     }
 

@@ -37,12 +37,12 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.11.1'
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.18'
     compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
-    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
+    compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
 
-    compile group: 'org.springframework', name: 'spring-core', version: '5.2.0.RELEASE'
-    compile group: 'org.springframework', name: 'spring-context', version: '5.2.0.RELEASE'
+    compile group: 'org.springframework', name: 'spring-core', version: '5.3.12'
+    compile group: 'org.springframework', name: 'spring-context', version: '5.3.12'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
     compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.4'

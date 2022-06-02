@@ -51,7 +51,6 @@ public class MadxScriptModelDefinitionPersistenceService implements ModelDefinit
         MadxScriptCreationContext script = new MadxScriptCreationContext(
                 fileFinderManager.getModelFileFinder(model)::getArchivePath, model, outStream);
         script.comment("JMad export of model " + model.getName());
-        script.comment("Generated: " + Instant.now().toString());
         script.space();
 
         script.comment(" -------- initialization -------- ");

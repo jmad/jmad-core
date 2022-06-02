@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMultiModelKnob.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model.knob</a> &gt; <span class="el_source">AbstractMultiModelKnob.java</span></div><h1>AbstractMultiModelKnob.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id $
+ * 
+ * $Date$ $Revision$ $Author$
+ * 
+ * Copyright CERN ${year}, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.model.knob;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.knob.AbstractKnob;
+import cern.accsoft.steering.jmad.model.JMadModel;
+
+/**
+ * Implementation of a Knob which allows to act on multiple Models. Changes to the Knob value have to be propagated to
+ * all connected Models.
+ * 
+ * @author muellerg
+ */
+public abstract class AbstractMultiModelKnob extends AbstractKnob implements MultiModelKnob {
+
+    /** the list of models that are connected to knob */
+    private List&lt;JMadModel&gt; connectedModels;
+
+    @Override
+    public synchronized void addModel(JMadModel model) {
+<span class="fc" id="L51">        this.connectedModels.add(model);</span>
+<span class="fc" id="L52">    }</span>
+
+<span class="fc" id="L54">    public AbstractMultiModelKnob() {</span>
+        /* new empty model list, models are added later on */
+<span class="fc" id="L56">        this.connectedModels = new ArrayList&lt;JMadModel&gt;();</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * @return the {@link JMadModel}s connected to this Knob.
+     */
+    public synchronized List&lt;JMadModel&gt; getConnectedModels() {
+<span class="fc" id="L63">        return this.connectedModels;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InitPtcTask.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.task.ptc</a> &gt; <span class="el_source">InitPtcTask.java</span></div><h1>InitPtcTask.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.kernel.task.ptc;
+
+import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcAlignCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcCreateLayoutCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcCreateUniverseCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcSetSwitchCommand;
+import cern.accsoft.steering.jmad.kernel.task.AbstractTask;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * initializes the PTC universe, creates the layout and calls the ptc-align
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="nc" id="L43">public class InitPtcTask extends AbstractTask {</span>
+
+    private static final int LAYOUT_DEFAULT_MODEL = 2;
+    private static final int LAYOUT_DEFAULT_NST = 2;
+    private static final int LAYOUT_DEFAULT_METHOD = 6;
+
+    @Override
+    protected List&lt;Command&gt; getCommands() {
+<span class="nc" id="L51">        List&lt;Command&gt; commands = new ArrayList&lt;Command&gt;();</span>
+<span class="nc" id="L52">        commands.add(new PtcCreateUniverseCommand());</span>
+
+<span class="nc" id="L54">        PtcCreateLayoutCommand layoutCmd = new PtcCreateLayoutCommand();</span>
+<span class="nc" id="L55">        layoutCmd.setTime(true);</span>
+<span class="nc" id="L56">        layoutCmd.setModel(LAYOUT_DEFAULT_MODEL);</span>
+<span class="nc" id="L57">        layoutCmd.setMethod(LAYOUT_DEFAULT_METHOD);</span>
+<span class="nc" id="L58">        layoutCmd.setNst(LAYOUT_DEFAULT_NST);</span>
+<span class="nc" id="L59">        layoutCmd.setExact(true);</span>
+<span class="nc" id="L60">        layoutCmd.setResplit(true);</span>
+<span class="nc" id="L61">        layoutCmd.setThin(0.0005);</span>
+<span class="nc" id="L62">        layoutCmd.setXbend(0.0005);</span>
+<span class="nc" id="L63">        layoutCmd.setEven(true);</span>
+<span class="nc" id="L64">        commands.add(layoutCmd);</span>
+
+<span class="nc" id="L66">        PtcSetSwitchCommand switchCommand = new PtcSetSwitchCommand();</span>
+<span class="nc" id="L67">        switchCommand.setTime(true);</span>
+<span class="nc" id="L68">        switchCommand.setFringe(true);</span>
+<span class="nc" id="L69">        switchCommand.setNocavity(false);</span>
+<span class="nc" id="L70">        commands.add(switchCommand);</span>
+
+<span class="nc" id="L72">        commands.add(new PtcAlignCommand());</span>
+<span class="nc" id="L73">        return commands;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

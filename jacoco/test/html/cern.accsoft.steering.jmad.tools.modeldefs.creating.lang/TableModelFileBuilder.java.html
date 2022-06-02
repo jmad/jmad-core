@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TableModelFileBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.creating.lang</a> &gt; <span class="el_source">TableModelFileBuilder.java</span></div><h1>TableModelFileBuilder.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
+
+import static java.util.Objects.requireNonNull;
+
+import cern.accsoft.steering.jmad.domain.file.AbstractModelFile;
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation;
+import cern.accsoft.steering.jmad.domain.file.TableModelFileImpl;
+
+public class TableModelFileBuilder implements ModelFileBuilder {
+
+    private final String path;
+<span class="nc" id="L17">    private ModelFileLocation location = AbstractModelFile.DEFAULT_MODEL_FILE_LOCATION;</span>
+    private String tableName;
+
+<span class="nc" id="L20">    public TableModelFileBuilder(String path) {</span>
+<span class="nc" id="L21">        this.path = requireNonNull(path, &quot;filePath must not be null&quot;);</span>
+<span class="nc" id="L22">    }</span>
+
+    @Override
+    public ModelFile build() {
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (tableName == null) {</span>
+<span class="nc" id="L27">            throw new IllegalStateException(&quot;tableName is not set. This is not allowed.&quot;);</span>
+        }
+<span class="nc" id="L29">        return new TableModelFileImpl(path, location, tableName);</span>
+    }
+
+    public void setTableName(String tableName) {
+<span class="nc" id="L33">        this.tableName = requireNonNull(tableName, &quot;tableName must not be null&quot;);</span>
+<span class="nc" id="L34">    }</span>
+
+    public void setLocation(ModelFileLocation location) {
+<span class="nc" id="L37">        this.location = requireNonNull(location, &quot;location must not be null&quot;);</span>
+<span class="nc" id="L38">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

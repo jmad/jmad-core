@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PtcCreateLayoutCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd.ptc</a> &gt; <span class="el_source">PtcCreateLayoutCommand.java</span></div><h1>PtcCreateLayoutCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.kernel.cmd.ptc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * This class represents the madx-command to transfer the madx data to ptc: &lt;a
+ * href=&quot;http://mad.web.cern.ch/mad/ptc_general/ptc_general.html&quot;&gt;PTC_CREATE_LAYOUT&lt;/a&gt;
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class PtcCreateLayoutCommand extends AbstractCommand {
+
+    /** the name of the command */
+    private static final String CMD_NAME = &quot;ptc_create_layout&quot;;
+
+    /*
+     * the possible parameters
+     */
+<span class="nc" id="L49">    private Boolean time = null;</span>
+<span class="nc" id="L50">    private Integer model = null;</span>
+<span class="nc" id="L51">    private Integer method = null;</span>
+<span class="nc" id="L52">    private Integer nst = null;</span>
+<span class="nc" id="L53">    private Boolean exact = null;</span>
+<span class="nc" id="L54">    private Double offsetDeltaP = null;</span>
+<span class="nc" id="L55">    private Boolean errorsOut = null;</span>
+<span class="nc" id="L56">    private Boolean errorsIn = null;</span>
+<span class="nc" id="L57">    private String magnetName = null;</span>
+<span class="nc" id="L58">    private Boolean resplit = null;</span>
+<span class="nc" id="L59">    private Double thin = null;</span>
+<span class="nc" id="L60">    private Double xbend = null;</span>
+<span class="nc" id="L61">    private Boolean even = null;</span>
+
+    /**
+     * the default constructor, which sets no values
+     */
+    public PtcCreateLayoutCommand() {
+<span class="nc" id="L67">        super();</span>
+<span class="nc" id="L68">    }</span>
+
+    /**
+     * the constructor, which just sets the time-option
+     * 
+     * @param time determines how the time coordinate is treated by ptc. (see &lt;a
+     *            href=&quot;http://mad.web.cern.ch/mad/ptc_general/ptc_general.html&quot;&gt;PTC_CREATE_LAYOUT&lt;/a&gt;)
+     */
+    public PtcCreateLayoutCommand(Boolean time) {
+<span class="nc" id="L77">        super();</span>
+<span class="nc" id="L78">        this.time = time;</span>
+<span class="nc" id="L79">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L83">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L88">        List&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+        /*
+         * this is kind of special boolean parameter: it does not follow the convention, that it is omitted, when it is
+         * meant to be false! It has to be set explicitly to false. We therefore use a string-parameter.
+         */
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (time != null) {</span>
+<span class="nc" id="L95">            parameters.add(new GenericParameter&lt;&gt;(&quot;time&quot;, time.toString()));</span>
+        }
+
+<span class="nc" id="L98">        parameters.add(new GenericParameter&lt;&gt;(&quot;model&quot;, model));</span>
+<span class="nc" id="L99">        parameters.add(new GenericParameter&lt;&gt;(&quot;method&quot;, method));</span>
+<span class="nc" id="L100">        parameters.add(new GenericParameter&lt;&gt;(&quot;nst&quot;, nst));</span>
+<span class="nc" id="L101">        parameters.add(new GenericParameter&lt;&gt;(&quot;exact&quot;, exact));</span>
+<span class="nc" id="L102">        parameters.add(new GenericParameter&lt;&gt;(&quot;offset_deltap&quot;, offsetDeltaP));</span>
+<span class="nc" id="L103">        parameters.add(new GenericParameter&lt;&gt;(&quot;errors_in&quot;, errorsIn));</span>
+<span class="nc" id="L104">        parameters.add(new GenericParameter&lt;&gt;(&quot;errors_out&quot;, errorsOut));</span>
+<span class="nc" id="L105">        parameters.add(new GenericParameter&lt;&gt;(&quot;magnet_name&quot;, magnetName));</span>
+<span class="nc" id="L106">        parameters.add(new GenericParameter&lt;&gt;(&quot;resplit&quot;, resplit));</span>
+<span class="nc" id="L107">        parameters.add(new GenericParameter&lt;&gt;(&quot;thin&quot;, thin));</span>
+<span class="nc" id="L108">        parameters.add(new GenericParameter&lt;&gt;(&quot;xbend&quot;, xbend));</span>
+        /* same as for &quot;time&quot;: default is true! */
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (even != null) {</span>
+<span class="nc" id="L111">            parameters.add(new GenericParameter&lt;&gt;(&quot;even&quot;, even.toString()));</span>
+        }
+<span class="nc" id="L113">        return parameters;</span>
+    }
+
+    public Boolean getTime() {
+<span class="nc" id="L117">        return time;</span>
+    }
+
+    public void setTime(Boolean time) {
+<span class="nc" id="L121">        this.time = time;</span>
+<span class="nc" id="L122">    }</span>
+
+    public Integer getModel() {
+<span class="nc" id="L125">        return model;</span>
+    }
+
+    public void setModel(Integer model) {
+<span class="nc" id="L129">        this.model = model;</span>
+<span class="nc" id="L130">    }</span>
+
+    public Integer getMethod() {
+<span class="nc" id="L133">        return method;</span>
+    }
+
+    public void setMethod(Integer method) {
+<span class="nc" id="L137">        this.method = method;</span>
+<span class="nc" id="L138">    }</span>
+
+    public Integer getNst() {
+<span class="nc" id="L141">        return nst;</span>
+    }
+
+    public void setNst(Integer nst) {
+<span class="nc" id="L145">        this.nst = nst;</span>
+<span class="nc" id="L146">    }</span>
+
+    public Boolean getExact() {
+<span class="nc" id="L149">        return exact;</span>
+    }
+
+    public void setExact(Boolean exact) {
+<span class="nc" id="L153">        this.exact = exact;</span>
+<span class="nc" id="L154">    }</span>
+
+    public Double getOffsetDeltaP() {
+<span class="nc" id="L157">        return offsetDeltaP;</span>
+    }
+
+    public void setOffsetDeltaP(Double offsetDeltaP) {
+<span class="nc" id="L161">        this.offsetDeltaP = offsetDeltaP;</span>
+<span class="nc" id="L162">    }</span>
+
+    public Boolean getErrorsOut() {
+<span class="nc" id="L165">        return errorsOut;</span>
+    }
+
+    public void setErrorsOut(Boolean errorsOut) {
+<span class="nc" id="L169">        this.errorsOut = errorsOut;</span>
+<span class="nc" id="L170">    }</span>
+
+    public Boolean getErrorsIn() {
+<span class="nc" id="L173">        return errorsIn;</span>
+    }
+
+    public void setErrorsIn(Boolean errorsIn) {
+<span class="nc" id="L177">        this.errorsIn = errorsIn;</span>
+<span class="nc" id="L178">    }</span>
+
+    public String getMagnetName() {
+<span class="nc" id="L181">        return magnetName;</span>
+    }
+
+    public void setMagnetName(String magnetName) {
+<span class="nc" id="L185">        this.magnetName = magnetName;</span>
+<span class="nc" id="L186">    }</span>
+
+    public Boolean getResplit() {
+<span class="nc" id="L189">        return resplit;</span>
+    }
+
+    public void setResplit(Boolean resplit) {
+<span class="nc" id="L193">        this.resplit = resplit;</span>
+<span class="nc" id="L194">    }</span>
+
+    public Double getThin() {
+<span class="nc" id="L197">        return thin;</span>
+    }
+
+    public void setThin(Double thin) {
+<span class="nc" id="L201">        this.thin = thin;</span>
+<span class="nc" id="L202">    }</span>
+
+    public Double getXbend() {
+<span class="nc" id="L205">        return xbend;</span>
+    }
+
+    public void setXbend(Double xbend) {
+<span class="nc" id="L209">        this.xbend = xbend;</span>
+<span class="nc" id="L210">    }</span>
+
+    public Boolean getEven() {
+<span class="nc" id="L213">        return even;</span>
+    }
+
+    public void setEven(Boolean even) {
+<span class="nc" id="L217">        this.even = even;</span>
+<span class="nc" id="L218">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

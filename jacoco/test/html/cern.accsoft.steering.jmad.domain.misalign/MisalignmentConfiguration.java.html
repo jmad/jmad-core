@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MisalignmentConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.misalign</a> &gt; <span class="el_source">MisalignmentConfiguration.java</span></div><h1>MisalignmentConfiguration.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: MisalignmentConfiguration.java,v 1.2 2009-01-20 19:43:11 kfuchsbe Exp $
+ * 
+ * $Date: 2009-01-20 19:43:11 $ $Revision: 1.2 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.domain.misalign;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A misalignment-configuration for one element.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class MisalignmentConfiguration {
+
+    /**
+     * the name-prefix, which we use for the misalignment-name.
+     */
+    private static final String NAME_PREFIX = &quot;misalign&quot;;
+
+    /** the listeners */
+<span class="nc" id="L48">    private final List&lt;MisalignmentConfigurationListener&gt; listeners = new ArrayList&lt;MisalignmentConfigurationListener&gt;();</span>
+
+    /** the element to which to apply the misalignment */
+    private final String elementName;
+
+    /** the misalignment to apply */
+    private final Misalignment misalignment;
+
+    /**
+     * the constructor which sets the immutable fields
+     * 
+     * @param elementName the name of the element to which this configuration applies.
+     */
+<span class="nc" id="L61">    public MisalignmentConfiguration(String elementName) {</span>
+<span class="nc" id="L62">        this.elementName = elementName;</span>
+<span class="nc" id="L63">        this.misalignment = new Misalignment(NAME_PREFIX + &quot;-&quot; + elementName);</span>
+<span class="nc" id="L64">        this.misalignment.addListener(new MisalignmentListener() {</span>
+
+            @Override
+            public void changedValues(Misalignment changedMisalignment) {
+<span class="nc" id="L68">                fireChangedMisalignmentValues();</span>
+<span class="nc" id="L69">            }</span>
+        });
+<span class="nc" id="L71">    }</span>
+
+    /**
+     * @return the misalignment
+     */
+    public final Misalignment getMisalignment() {
+<span class="nc" id="L77">        return misalignment;</span>
+    }
+
+    /**
+     * @return the elementName
+     */
+    public String getElementName() {
+<span class="nc" id="L84">        return elementName;</span>
+    }
+
+    /*
+     * methods concerning listeners
+     */
+
+    /**
+     * notify the listeners, that values in the misalignment changed
+     */
+    private void fireChangedMisalignmentValues() {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (MisalignmentConfigurationListener listener : this.listeners) {</span>
+<span class="nc" id="L96">            listener.changedMisalignmentValues(this);</span>
+<span class="nc" id="L97">        }</span>
+<span class="nc" id="L98">    }</span>
+
+    /**
+     * @param listener the listener to add
+     */
+    public void addListener(MisalignmentConfigurationListener listener) {
+<span class="nc" id="L104">        this.listeners.add(listener);</span>
+<span class="nc" id="L105">    }</span>
+
+    /**
+     * @param listener the listener to remove
+     */
+    public void removeListener(MisalignmentConfigurationListener listener) {
+<span class="nc" id="L111">        this.listeners.remove(listener);</span>
+<span class="nc" id="L112">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L116">        return &quot;MisalignmentConfiguration [elementName=&quot; + elementName + &quot;, misalignment=&quot; + misalignment + &quot;]&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

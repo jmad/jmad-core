@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractResultSelectableTask.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.task</a> &gt; <span class="el_source">AbstractResultSelectableTask.java</span></div><h1>AbstractResultSelectableTask.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.kernel.task;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequest;
+import cern.accsoft.steering.jmad.domain.var.MadxVariable;
+import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.kernel.cmd.SelectCommand;
+
+public abstract class AbstractResultSelectableTask extends AbstractTask {
+
+    private final TfsResultRequest resultRequest;
+
+    public AbstractResultSelectableTask(TfsResultRequest resultRequest) {
+<span class="fc" id="L39">        super();</span>
+<span class="fc" id="L40">        this.resultRequest = resultRequest;</span>
+<span class="fc" id="L41">    }</span>
+
+    protected List&lt;Command&gt; createSelectCommands(String selectFlag) {
+<span class="fc" id="L44">        List&lt;Command&gt; commands = new ArrayList&lt;Command&gt;();</span>
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (resultRequest != null) {</span>
+<span class="fc" id="L47">            SelectCommand select = new SelectCommand();</span>
+<span class="fc" id="L48">            select.setFlag(selectFlag);</span>
+<span class="fc" id="L49">            select.setClear(true);</span>
+<span class="fc" id="L50">            commands.add(select);</span>
+
+            /*
+             * add the select commands for the patterns
+             */
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            for (String pattern : resultRequest.getElementPattern()) {</span>
+<span class="fc" id="L56">                select = createColumnsSelectCommand(selectFlag);</span>
+<span class="fc" id="L57">                select.setPattern(pattern);</span>
+<span class="fc" id="L58">                commands.add(select);</span>
+<span class="fc" id="L59">            }</span>
+
+            /*
+             * add ElementClasses that are included inside the Request
+             */
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            for (String elemClass : resultRequest.getElementClasses()) {</span>
+<span class="fc" id="L65">                select = createColumnsSelectCommand(selectFlag);</span>
+<span class="fc" id="L66">                select.setElementClass(elemClass);</span>
+<span class="fc" id="L67">                commands.add(select);</span>
+<span class="fc" id="L68">            }</span>
+            /* The default behavior when NO particular class or NO particular pattern for elements is selected */
+<span class="fc bfc" id="L70" title="All 4 branches covered.">            if (resultRequest.getElementClasses().isEmpty() &amp;&amp; resultRequest.getElementPattern().isEmpty()) {</span>
+<span class="fc" id="L71">                select = createColumnsSelectCommand(selectFlag);</span>
+<span class="fc" id="L72">                commands.add(select);</span>
+            }
+        }
+
+<span class="fc" id="L76">        return commands;</span>
+    }
+
+    /**
+     * creates a select command for the given flas, which contains all the columns defined by the variables
+     * 
+     * @param selectFlag the select-flag for which to compose the command
+     * @return the configured select-command
+     */
+    private SelectCommand createColumnsSelectCommand(String selectFlag) {
+<span class="fc" id="L86">        SelectCommand select = new SelectCommand();</span>
+<span class="fc" id="L87">        select.setFlag(selectFlag);</span>
+        // add requested variables
+<span class="fc" id="L89">        StringBuffer columns = new StringBuffer(&quot;&quot;);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (MadxVariable var : resultRequest.getResultVariables()) {</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (columns.length() &gt; 0) {</span>
+<span class="fc" id="L92">                columns.append(',');</span>
+            }
+<span class="fc" id="L94">            columns.append(var.getMadxName());</span>
+<span class="fc" id="L95">        }</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (columns.length() &gt; 0) {</span>
+<span class="fc" id="L97">            select.setColumn(columns.toString());</span>
+        }
+<span class="fc" id="L99">        return select;</span>
+    }
+
+    @Override
+    public ResultType getResultType() {
+<span class="pc bpc" id="L104" title="2 of 4 branches missed.">        if ((resultRequest == null) || (getOutputFile() == null)) {</span>
+<span class="nc" id="L105">            return super.getResultType();</span>
+        } else {
+<span class="fc" id="L107">            return ResultType.TFS_RESULT;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelDefinitionExportRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.io</a> &gt; <span class="el_source">JMadModelDefinitionExportRequest.java</span></div><h1>JMadModelDefinitionExportRequest.java</h1><pre class="source lang-java linenums">package cern.accsoft.steering.jmad.modeldefs.io;
+
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Set;
+
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
+import com.google.common.collect.ImmutableSet;
+
+/**
+ * This class allows to formulate a 'request' for exporting particular optics,
+ * sequences and/or ranges from a {@link JMadModelDefinition}. Request should be
+ * created using the builder, available through the from() method.
+ * &lt;p&gt;
+ * This class is immutable.
+ *
+ * @author mihostet
+ */
+public class JMadModelDefinitionExportRequest {
+    private final JMadModelDefinition modelDefinition;
+    private final Set&lt;OpticsDefinition&gt; opticsToExport;
+    private final Set&lt;RangeDefinition&gt; rangesToExport;
+
+    private JMadModelDefinitionExportRequest(JMadModelDefinition modelDefinition, Set&lt;OpticsDefinition&gt; opticsToExport,
+<span class="fc" id="L28">            Set&lt;RangeDefinition&gt; rangesToExport) {</span>
+<span class="fc" id="L29">        this.modelDefinition = modelDefinition;</span>
+<span class="fc" id="L30">        this.opticsToExport = opticsToExport;</span>
+<span class="fc" id="L31">        this.rangesToExport = rangesToExport;</span>
+<span class="fc" id="L32">    }</span>
+
+    /**
+     * Create a request to export ALL optics, sequences and ranges from a given
+     * model definition.
+     *
+     * @param modelDefinition the model to export
+     * @return the {@link JMadModelDefinitionExportRequest}
+     */
+    public static JMadModelDefinitionExportRequest allFrom(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L42">        return from(modelDefinition).exportAllOptics().exportAllRanges().build();</span>
+    }
+
+    /**
+     * Start the creation of a {@link JMadModelDefinitionExportRequest} for the
+     * given model definition.
+     *
+     * @param modelDefinition the model to export
+     * @return a builder for {@link JMadModelDefinitionExportRequest}
+     */
+    public static JMadModelDefinitionExportRequest.Builder from(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L53">        return new Builder(modelDefinition);</span>
+    }
+
+    /**
+     * Builder class
+     *
+     * @author mihostet
+     */
+    public static class Builder {
+        private final JMadModelDefinition modelDefinition;
+<span class="fc" id="L63">        private final ImmutableSet.Builder&lt;OpticsDefinition&gt; opticsToExport = ImmutableSet.builder();</span>
+<span class="fc" id="L64">        private final ImmutableSet.Builder&lt;RangeDefinition&gt; rangesToExport = ImmutableSet.builder();</span>
+
+<span class="fc" id="L66">        Builder(JMadModelDefinition modelDefinition) {</span>
+<span class="fc" id="L67">            this.modelDefinition = modelDefinition;</span>
+<span class="fc" id="L68">        }</span>
+
+        /**
+         * Request to export ALL optics from the model
+         *
+         * @return this
+         */
+        public Builder exportAllOptics() {
+<span class="fc" id="L76">            opticsToExport.addAll(modelDefinition.getOpticsDefinitions());</span>
+<span class="fc" id="L77">            return this;</span>
+        }
+
+        /**
+         * Request to export ALL ranges from the model
+         *
+         * @return this
+         */
+        public Builder exportAllRanges() {
+<span class="fc" id="L86">            rangesToExport.addAll(modelDefinition.getRangeDefinitions());</span>
+<span class="fc" id="L87">            return this;</span>
+        }
+
+        /**
+         * Add a particular {@link OpticsDefinition} to the list of exported optics
+         *
+         * @param optics the optic to export
+         * @return this
+         */
+        public Builder export(OpticsDefinition optics) {
+<span class="nc" id="L97">            opticsToExport.add(optics);</span>
+<span class="nc" id="L98">            return this;</span>
+        }
+
+        /**
+         * Add all ranges from a particular {@link SequenceDefinition} to the list of
+         * ranges to export
+         *
+         * @param sequence the sequence to export including all ranges contained
+         * @return this
+         */
+        public Builder exportAllRangesFrom(SequenceDefinition sequence) {
+<span class="nc" id="L109">            sequence.getRangeDefinitions().forEach(this::export);</span>
+<span class="nc" id="L110">            return this;</span>
+        }
+
+        /**
+         * Add a particular {@link RangeDefinition} to the list of ranges to export
+         *
+         * @param range the range to export
+         * @return this
+         */
+        public Builder export(RangeDefinition range) {
+<span class="nc" id="L120">            rangesToExport.add(range);</span>
+<span class="nc" id="L121">            return this;</span>
+        }
+
+        /**
+         * Build the {@link JMadModelDefinitionExportRequest}
+         *
+         * @return the final request
+         */
+        public JMadModelDefinitionExportRequest build() {
+<span class="fc" id="L130">            return new JMadModelDefinitionExportRequest(//</span>
+                    modelDefinition, //
+<span class="fc" id="L132">                    opticsToExport.build(), //</span>
+<span class="fc" id="L133">                    rangesToExport.build());</span>
+        }
+    }
+
+    /**
+     * Get all optics to export
+     *
+     * @return collection of optics to export
+     */
+    public Set&lt;OpticsDefinition&gt; getOpticsToExport() {
+<span class="fc" id="L143">        return opticsToExport;</span>
+    }
+
+    /**
+     * Get all sequences to export (derived from the selected ranges)
+     *
+     * @return collection of sequences to export
+     */
+    public Set&lt;SequenceDefinition&gt; getSequencesToExport() {
+<span class="fc" id="L152">        return rangesToExport.stream().map(RangeDefinition::getSequenceDefinition).collect(toSet());</span>
+    }
+
+    /**
+     * Get all ranges to export
+     *
+     * @return collection of ranges to export
+     */
+    public Set&lt;RangeDefinition&gt; getRangesToExport() {
+<span class="fc" id="L161">        return rangesToExport;</span>
+    }
+
+    /**
+     * Get the model definition to export
+     *
+     * @return the model definition
+     */
+    public JMadModelDefinition getModelDefinition() {
+<span class="fc" id="L170">        return modelDefinition;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

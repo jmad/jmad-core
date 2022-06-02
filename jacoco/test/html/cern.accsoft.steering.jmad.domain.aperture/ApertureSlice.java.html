@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApertureSlice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.aperture</a> &gt; <span class="el_source">ApertureSlice.java</span></div><h1>ApertureSlice.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.aperture;
+
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+
+/**
+ * Represents one slice of aperture in the aperture model. Such a slice is not necessarily equivalent with one element.
+ * In the contrary on element might have many slices.
+ * &lt;p&gt;
+ * This class contains the original values as well as the calculated min/max values for the both planes. Additionaly the
+ * positions for a so-called reference trajectory are stored, around which the aperture can later be centered.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class ApertureSlice {
+
+    private static final double MAX_APERTURE = 0.2;
+
+    private AperType type;
+    private double xMin;
+    private double xMax;
+    private double yMin;
+    private double yMax;
+    private double aper1;
+    private double aper2;
+    private double aper3;
+    private double aper4;
+    private double posX;
+    private double posY;
+    private double posS;
+
+    /**
+     * Create a new ApertureSlice and calculate the Aperture Extrema
+     * 
+     * @param type {@link AperType} of this Element
+     * @param aper1 Aperture Value 1
+     * @param aper2 Aperture Value 2
+     * @param aper3 Aperture Value 3
+     * @param aper4 Aperture Value 4
+     * @param pos Position of this Element in the Sequence
+     */
+<span class="nc" id="L63">    public ApertureSlice(AperType type, double aper1, double aper2, double aper3, double aper4, double pos) {</span>
+<span class="nc" id="L64">        this.posS = pos;</span>
+<span class="nc" id="L65">        this.type = type;</span>
+
+<span class="nc" id="L67">        this.setApertureValues(aper1, aper2, aper3, aper4);</span>
+<span class="nc" id="L68">    }</span>
+
+    /**
+     * Create a new ApertureSlice only defined by its Type and Position
+     * 
+     * @param type {@link AperType} of this Element
+     * @param pos Position of this Element in the Sequence
+     */
+<span class="nc" id="L76">    public ApertureSlice(AperType type, double pos) {</span>
+<span class="nc" id="L77">        this.posS = pos;</span>
+<span class="nc" id="L78">        this.type = type;</span>
+<span class="nc" id="L79">    }</span>
+
+    public double getAper1() {
+<span class="nc" id="L82">        return aper1;</span>
+    }
+
+    public double getAper2() {
+<span class="nc" id="L86">        return aper2;</span>
+    }
+
+    public double getAper3() {
+<span class="nc" id="L90">        return aper3;</span>
+    }
+
+    public double getAper4() {
+<span class="nc" id="L94">        return aper4;</span>
+    }
+
+    /**
+     * Calculate the Aperture Extrema for the Aperture Slice according to the type and the 4 Aperture Values
+     * 
+     * @param aper1 the value of the madx-variable aper1
+     * @param aper2 the value of the madx-variable aper2
+     * @param aper3 the value of the madx-variable aper3
+     * @param aper4 the value of the madx-variable aper4
+     */
+    public final void setApertureValues(double aper1, double aper2, double aper3, double aper4) {
+
+        // Ensure visibility in Plots
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        this.aper1 = (aper1 &gt; MAX_APERTURE ? MAX_APERTURE : aper1);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        this.aper2 = (aper2 &gt; MAX_APERTURE ? MAX_APERTURE : aper2);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        this.aper3 = (aper3 &gt; MAX_APERTURE ? MAX_APERTURE : aper3);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        this.aper4 = (aper4 &gt; MAX_APERTURE ? MAX_APERTURE : aper4);</span>
+
+<span class="nc bnc" id="L113" title="All 5 branches missed.">        switch (this.type) {</span>
+        case RACETRACK:
+<span class="nc" id="L115">            this.xMin = -aper1 - aper3;</span>
+<span class="nc" id="L116">            this.xMax = +aper1 + aper3;</span>
+<span class="nc" id="L117">            this.yMin = -aper2 - aper3;</span>
+<span class="nc" id="L118">            this.yMax = +aper2 + aper3;</span>
+<span class="nc" id="L119">            break;</span>
+        case RECTELLIPSE:
+<span class="nc" id="L121">            this.xMin = (-1.0) * Math.min(aper1, aper3);</span>
+<span class="nc" id="L122">            this.xMax = Math.min(aper1, aper3);</span>
+<span class="nc" id="L123">            this.yMin = (-1.0) * Math.min(aper2, aper4);</span>
+<span class="nc" id="L124">            this.yMax = Math.min(aper2, aper4);</span>
+<span class="nc" id="L125">            break;</span>
+        case CIRCLE:
+<span class="nc" id="L127">            this.xMin = (-1.0) * aper1;</span>
+<span class="nc" id="L128">            this.xMax = aper1;</span>
+<span class="nc" id="L129">            this.yMin = (-1.0) * aper1;</span>
+<span class="nc" id="L130">            this.yMax = aper1;</span>
+<span class="nc" id="L131">            break;</span>
+        case RECTANGLE:
+<span class="nc" id="L133">            this.xMin = (-1.0) * aper1;</span>
+<span class="nc" id="L134">            this.xMax = aper1;</span>
+<span class="nc" id="L135">            this.yMin = (-1.0) * aper2;</span>
+<span class="nc" id="L136">            this.yMax = aper2;</span>
+<span class="nc" id="L137">            break;</span>
+        default:
+        }
+<span class="nc" id="L140">    }</span>
+
+    /**
+     * Compares two aperture slices
+     * 
+     * @param actSlice aperture slice to compare to this one
+     * @return &lt;code&gt;true&lt;/code&gt; when type/position and all 4 ApertureValues are equal
+     */
+    public boolean sameAperInfo(ApertureSlice actSlice) {
+<span class="nc bnc" id="L149" title="All 12 branches missed.">        if (actSlice.type.equals(this.type) &amp;&amp; actSlice.posS == this.posS &amp;&amp; actSlice.aper1 == this.aper1</span>
+                &amp;&amp; actSlice.aper2 == this.aper2 &amp;&amp; actSlice.aper3 == this.aper3 &amp;&amp; actSlice.aper4 == this.aper4) {
+<span class="nc" id="L151">            return true;</span>
+        }
+
+<span class="nc" id="L154">        return false;</span>
+    }
+
+    public AperType getType() {
+<span class="nc" id="L158">        return type;</span>
+    }
+
+    public void setType(AperType type) {
+<span class="nc" id="L162">        this.type = type;</span>
+<span class="nc" id="L163">    }</span>
+
+    public double getXmin() {
+<span class="nc" id="L166">        return xMin;</span>
+    }
+
+    public void setXmin(double xMin) {
+<span class="nc" id="L170">        this.xMin = xMin;</span>
+<span class="nc" id="L171">    }</span>
+
+    public double getXmax() {
+<span class="nc" id="L174">        return xMax;</span>
+    }
+
+    public void setXmax(double xMax) {
+<span class="nc" id="L178">        this.xMax = xMax;</span>
+<span class="nc" id="L179">    }</span>
+
+    public double getS() {
+<span class="nc" id="L182">        return posS;</span>
+    }
+
+    public void setS(double posS) {
+<span class="nc" id="L186">        this.posS = posS;</span>
+<span class="nc" id="L187">    }</span>
+
+    public double getYmin() {
+<span class="nc" id="L190">        return yMin;</span>
+    }
+
+    public void setYmin(double yMin) {
+<span class="nc" id="L194">        this.yMin = yMin;</span>
+<span class="nc" id="L195">    }</span>
+
+    public double getYmax() {
+<span class="nc" id="L198">        return yMax;</span>
+    }
+
+    public void setYmax(double yMax) {
+<span class="nc" id="L202">        this.yMax = yMax;</span>
+<span class="nc" id="L203">    }</span>
+
+    public double getX() {
+<span class="nc" id="L206">        return posX;</span>
+    }
+
+    public void setX(double x) {
+<span class="nc" id="L210">        this.posX = x;</span>
+<span class="nc" id="L211">    }</span>
+
+    public double getY() {
+<span class="nc" id="L214">        return posY;</span>
+    }
+
+    public void setY(double y) {
+<span class="nc" id="L218">        this.posY = y;</span>
+<span class="nc" id="L219">    }</span>
+
+    /**
+     * retrieves the trajectory-position for the given plane. This is the position around which the aperture can be
+     * centered.
+     * 
+     * @param plane the plane for which to get the position
+     * @return the position in the given plane
+     */
+    public double getPos(JMadPlane plane) {
+<span class="nc bnc" id="L229" title="All 3 branches missed.">        switch (plane) {</span>
+        case H:
+<span class="nc" id="L231">            return getX();</span>
+        case V:
+<span class="nc" id="L233">            return getY();</span>
+        default:
+<span class="nc" id="L235">            throw new IllegalArgumentException(&quot;Unknown plane '&quot; + plane + &quot;'.&quot;);</span>
+        }
+    }
+
+    /**
+     * returns max value of the aperture in the given plane.
+     * 
+     * @param plane the plane for which to get the value
+     * @return the max aperture value in the given plane
+     */
+    public double getMax(JMadPlane plane) {
+<span class="nc bnc" id="L246" title="All 3 branches missed.">        switch (plane) {</span>
+        case H:
+<span class="nc" id="L248">            return getXmax();</span>
+        case V:
+<span class="nc" id="L250">            return getYmax();</span>
+        default:
+<span class="nc" id="L252">            throw new IllegalArgumentException(&quot;Unknown plane '&quot; + plane + &quot;'.&quot;);</span>
+        }
+    }
+
+    /**
+     * returns the aperture minimum value in the given plane
+     * 
+     * @param plane the plane for which to retrieve the minimum value
+     * @return the aperture minimum value in the given plane
+     */
+    public double getMin(JMadPlane plane) {
+<span class="nc bnc" id="L263" title="All 3 branches missed.">        switch (plane) {</span>
+        case H:
+<span class="nc" id="L265">            return getXmin();</span>
+        case V:
+<span class="nc" id="L267">            return getYmin();</span>
+        default:
+<span class="nc" id="L269">            throw new IllegalArgumentException(&quot;Unknown plane '&quot; + plane + &quot;'.&quot;);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

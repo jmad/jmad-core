@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SystemUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">SystemUtil.java</span></div><h1>SystemUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: SystemUtil.java,v 1.1 2008-09-09 23:41:42 kfuchsbe Exp $
+ * 
+ * $Date: 2008-09-09 23:41:42 $ $Revision: 1.1 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.util;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+/**
+ * This class contains various methods to access system properties.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class SystemUtil {
+
+    private SystemUtil() {
+        /* only static methods */
+    }
+
+    /*
+     * the names of the properties
+     */
+    private static final String PROPERTY_NAME_USERNAME = &quot;user.name&quot;;
+    private static final String PROPERTY_NAME_TEMP_DIR = &quot;java.io.tmpdir&quot;;
+
+    /**
+     * @return the name of the currently logged in user.
+     */
+    public static String getUserName() {
+        String username;
+<span class="fc" id="L57">        username = System.getProperty(PROPERTY_NAME_USERNAME);</span>
+<span class="fc" id="L58">        return username;</span>
+    }
+
+    /**
+     * @return the name of the local host
+     */
+    public static String getHostName() {
+        try {
+<span class="fc" id="L66">            return InetAddress.getLocalHost().getHostName();</span>
+<span class="nc" id="L67">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L68">            return &quot;unknown-host&quot;;</span>
+        }
+    }
+
+    /**
+     * @return the path of the systems temporary directory
+     */
+    public static String getSystemTempDirectoryPath() {
+        String systemTempPath;
+<span class="fc" id="L77">        systemTempPath = System.getProperty(PROPERTY_NAME_TEMP_DIR);</span>
+<span class="fc" id="L78">        return systemTempPath;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FullResponseMatrixTool.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.response</a> &gt; <span class="el_source">FullResponseMatrixTool.java</span></div><h1>FullResponseMatrixTool.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ *
+ */
+package cern.accsoft.steering.jmad.tools.response;
+
+import static java.util.Collections.newSetFromMap;
+import static java.util.Collections.singletonList;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+
+import Jama.Matrix;
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.elem.JMadElementType;
+import cern.accsoft.steering.jmad.domain.elem.impl.Corrector;
+import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
+import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
+import cern.accsoft.steering.jmad.domain.result.Result;
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultImpl;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequestImpl;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import cern.accsoft.steering.jmad.kernel.task.AddFieldErrors;
+import cern.accsoft.steering.jmad.model.JMadModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This implementation of {@link ResponseMatrixTool} calculates the response matrix using the exact kick strengths given
+ * in the request and calculates the response matrix by the use of two trajectories returned by the madx-model. It thus
+ * includes all (even nonlinear) effects and coupling.
+ *
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L61">public class FullResponseMatrixTool implements ResponseMatrixTool {</span>
+<span class="fc" id="L62">    private static final Logger LOGGER = LoggerFactory.getLogger(FullResponseMatrixTool.class);</span>
+    /**
+     * below this value we treat the kick as zero and leave the matrix values also at zero.
+     */
+    private static final double KICK_ZERO_LIMIT = 1e-10;
+    private static final double BEND_TILT_TOLERANCE = 1e-5;
+
+<span class="fc" id="L69">    private final Set&lt;BiConsumer&lt;ResponseRequest, Integer&gt;&gt; progressListeners = newSetFromMap(</span>
+            new ConcurrentHashMap&lt;&gt;());
+
+    @Override
+    public Matrix calcResponseMatrix(JMadModel model, ResponseRequest request) throws JMadModelException {
+
+<span class="fc" id="L75">        List&lt;String&gt; monitorNames = request.getMonitorNames();</span>
+<span class="fc" id="L76">        List&lt;String&gt; correctorNames = request.getCorrectorNames();</span>
+<span class="fc" id="L77">        List&lt;JMadPlane&gt; monitorPlanes = request.getMonitorPlanes();</span>
+<span class="fc" id="L78">        List&lt;JMadPlane&gt; correctorPlanes = request.getCorrectorPlanes();</span>
+<span class="fc" id="L79">        List&lt;Double&gt; strengthValues = request.getStrengthValues();</span>
+
+<span class="fc" id="L81">        Matrix matrix = new Matrix(monitorNames.size(), correctorNames.size());</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int i = 0; i &lt; correctorNames.size(); i++) {</span>
+<span class="fc" id="L84">            String correctorName = correctorNames.get(i);</span>
+<span class="fc" id="L85">            JMadPlane correctorPlane = correctorPlanes.get(i);</span>
+<span class="fc" id="L86">            double strengthValue = strengthValues.get(i);</span>
+<span class="fc" id="L87">            LOGGER.info(&quot;Calculating for corrector {} ({} of {})&quot;, correctorName, i + 1, correctorNames.size());</span>
+
+<span class="fc" id="L89">            Element element = model.getActiveRange().getElement(correctorName);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (element == null) {</span>
+<span class="nc" id="L91">                LOGGER.warn(&quot;Could not find element {} in model {} - ignoring!&quot;, correctorName, model.getDescription());</span>
+            }
+
+<span class="fc" id="L94">            double deltaKick = 2 * strengthValue;</span>
+
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            if (Math.abs(deltaKick) &lt; KICK_ZERO_LIMIT) {</span>
+<span class="nc" id="L97">                LOGGER.info(&quot;  corrector {} skipped: no kick&quot;, correctorName);</span>
+<span class="nc" id="L98">                notifyProgressListeners(request, i);</span>
+<span class="nc" id="L99">                continue;</span>
+            }
+
+<span class="fc" id="L102">            TfsResultImpl minus = calcResponse(model, element, correctorPlane, -strengthValue, monitorNames,</span>
+<span class="fc" id="L103">                    request.getMonitorRegexps());</span>
+<span class="fc" id="L104">            TfsResultImpl plus = calcResponse(model, element, correctorPlane, strengthValue, monitorNames,</span>
+<span class="fc" id="L105">                    request.getMonitorRegexps());</span>
+
+<span class="fc" id="L107">            List&lt;Double&gt; plusXData = plus.getDoubleData(MadxTwissVariable.X);</span>
+<span class="fc" id="L108">            List&lt;Double&gt; plusYData = plus.getDoubleData(MadxTwissVariable.Y);</span>
+<span class="fc" id="L109">            List&lt;Double&gt; minusXData = minus.getDoubleData(MadxTwissVariable.X);</span>
+<span class="fc" id="L110">            List&lt;Double&gt; minusYData = minus.getDoubleData(MadxTwissVariable.Y);</span>
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            for (int j = 0; j &lt; monitorNames.size(); j++) {</span>
+<span class="fc" id="L113">                String monitorName = monitorNames.get(j);</span>
+<span class="fc" id="L114">                JMadPlane monitorPlane = monitorPlanes.get(j);</span>
+
+<span class="fc" id="L116">                Integer plusIndex = plus.getElementIndex(monitorName);</span>
+<span class="fc" id="L117">                Integer minusIndex = minus.getElementIndex(monitorName);</span>
+<span class="pc bpc" id="L118" title="3 of 4 branches missed.">                if (minusIndex == null &amp;&amp; plusIndex == null) {</span>
+<span class="nc" id="L119">                    LOGGER.warn(&quot;No result for monitor {} {} in {} - ignoring!&quot;, monitorName, monitorPlane,</span>
+<span class="nc" id="L120">                            model.getDescription());</span>
+<span class="nc" id="L121">                    continue;</span>
+                }
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">                if (plusIndex == null) {</span>
+<span class="nc" id="L124">                    throw new JMadModelException(&quot;No Data for monitor '&quot; + monitorName + &quot;' in plus-Result.&quot;);</span>
+                }
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">                if (minusIndex == null) {</span>
+<span class="nc" id="L127">                    throw new JMadModelException(&quot;No Data for monitor '&quot; + monitorName + &quot;' in minus-Result.&quot;);</span>
+                }
+
+                double deltaPos;
+<span class="fc bfc" id="L131" title="All 2 branches covered.">                if (JMadPlane.H.equals(monitorPlane)) {</span>
+<span class="fc" id="L132">                    deltaPos = plusXData.get(plusIndex) - minusXData.get(minusIndex);</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">                } else if (JMadPlane.V.equals(monitorPlane)) {</span>
+<span class="fc" id="L134">                    deltaPos = plusYData.get(plusIndex) - minusYData.get(minusIndex);</span>
+                } else {
+<span class="nc" id="L136">                    throw new JMadModelException(&quot;Unable to handle plane '&quot; + monitorPlane + &quot;'&quot;);</span>
+                }
+
+<span class="fc" id="L139">                double value = deltaPos / deltaKick;</span>
+
+                /*
+                 * inverting if it relates to a corrector that should be inverted by definition
+                 */
+<span class="fc bfc" id="L144" title="All 2 branches covered.">                for (NameFilter filter : model.getActiveRange().getCorrectorInvertFilters()) {</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                    if (filter.isConcerned(correctorName, correctorPlane)) {</span>
+<span class="fc" id="L146">                        value *= -1;</span>
+<span class="fc" id="L147">                        break;</span>
+                    }
+<span class="fc" id="L149">                }</span>
+
+                /*
+                 * inverting if it relates to a monitor that should be inverted by definition
+                 */
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">                for (NameFilter filter : model.getActiveRange().getMonitorInvertFilters()) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                    if (filter.isConcerned(monitorName, monitorPlane)) {</span>
+<span class="nc" id="L156">                        value *= -1;</span>
+<span class="nc" id="L157">                        break;</span>
+                    }
+<span class="nc" id="L159">                }</span>
+
+<span class="fc" id="L161">                matrix.set(j, i, value);</span>
+            }
+<span class="fc" id="L163">            notifyProgressListeners(request, i);</span>
+        }
+<span class="fc" id="L165">        return matrix;</span>
+    }
+
+    private void notifyProgressListeners(ResponseRequest request, int i) {
+<span class="pc" id="L169">        progressListeners.forEach(p -&gt; p.accept(request, i));</span>
+<span class="fc" id="L170">    }</span>
+
+    @Override
+    public void addProgressListener(BiConsumer&lt;ResponseRequest, Integer&gt; listener) {
+<span class="nc" id="L174">        progressListeners.add(listener);</span>
+<span class="nc" id="L175">    }</span>
+
+    @Override
+    public void removeProgressListener(BiConsumer&lt;ResponseRequest, Integer&gt; listener) {
+<span class="nc" id="L179">        progressListeners.remove(listener);</span>
+<span class="nc" id="L180">    }</span>
+
+    /**
+     * calcs the response for one corrector
+     *
+     * @param model          the model from which to calc the response
+     * @param element        the corrector for which to calc the response
+     * @param plane          the plane in where to kick
+     * @param kick           the value for the kick
+     * @param monitorNames   the monitorNames to be included in the result
+     * @param monitorRegexps regexpressions which represent all monitors (using this makes the twiss faster)
+     * @return the result of the twiss
+     * @throws JMadModelException if something goes wrong
+     */
+    private TfsResultImpl calcResponse(JMadModel model, Element element, JMadPlane plane, double kick,
+            List&lt;String&gt; monitorNames, List&lt;String&gt; monitorRegexps) throws JMadModelException {
+
+<span class="fc" id="L197">        addKickToElement(model, element, plane, kick);</span>
+
+<span class="fc" id="L199">        TfsResultRequestImpl resultRequest = new TfsResultRequestImpl();</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (monitorRegexps.isEmpty()) {</span>
+            /*
+             * if none are defined, then we add just the monitorNames, but this seems to be slower for some reason.
+             */
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            for (String monitorName : monitorNames) {</span>
+<span class="fc" id="L205">                resultRequest.addElementFilter(monitorName);</span>
+<span class="fc" id="L206">            }</span>
+        } else {
+            /*
+             * if element-names for the response were defined for the range, then we use them
+             */
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            for (String regexp : monitorRegexps) {</span>
+<span class="nc" id="L212">                resultRequest.addElementFilter(regexp);</span>
+<span class="nc" id="L213">            }</span>
+        }
+<span class="fc" id="L215">        resultRequest.addVariable(MadxTwissVariable.NAME);</span>
+<span class="fc" id="L216">        resultRequest.addVariable(MadxTwissVariable.X);</span>
+<span class="fc" id="L217">        resultRequest.addVariable(MadxTwissVariable.Y);</span>
+<span class="fc" id="L218">        resultRequest.addVariable(MadxTwissVariable.KEYWORD);</span>
+
+        TfsResultImpl tfsResult;
+        try {
+<span class="fc" id="L222">            Result result = model.twiss(resultRequest);</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">            if (ResultType.TFS_RESULT != result.getResultType()) {</span>
+<span class="nc" id="L224">                throw new JMadModelException(&quot;Twiss returned wrong type of result!&quot;);</span>
+            }
+<span class="fc" id="L226">            tfsResult = (TfsResultImpl) result;</span>
+        } finally {
+            /* reset strength to old Value */
+<span class="fc" id="L229">            addKickToElement(model, element, plane, -kick);</span>
+        }
+<span class="fc" id="L231">        return tfsResult;</span>
+    }
+
+    private void addKickToElement(JMadModel model, Element element, JMadPlane plane, double kick)
+            throws JMadModelException {
+<span class="fc bfc" id="L236" title="All 2 branches covered.">        if (JMadElementType.CORRECTOR.isTypeOf(element)) {</span>
+<span class="fc" id="L237">            Corrector corrector = (Corrector) element;</span>
+<span class="fc" id="L238">            double oldKick = corrector.getKick(plane);</span>
+<span class="fc" id="L239">            corrector.setKick(plane, oldKick + kick);</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">        } else if (JMadElementType.BEND.isTypeOf(element)) {</span>
+<span class="fc" id="L241">            int tiltSign = bendFieldErrorSignFromTilt(element, plane);</span>
+<span class="fc" id="L242">            AddFieldErrors fieldErrorsTask = new AddFieldErrors(element.getName(),</span>
+<span class="fc" id="L243">                    singletonList(kick * tiltSign)); /* this will ADD to any existing field errors */</span>
+<span class="fc" id="L244">            model.execute(fieldErrorsTask.compose());</span>
+<span class="fc" id="L245">        } else {</span>
+<span class="nc" id="L246">            throw new JMadModelException(&quot;Element '&quot; + element.getName()</span>
+                    + &quot;' is not a corrector or bend! Cannot calc response for this element!&quot;);
+        }
+<span class="fc" id="L249">    }</span>
+
+    private int bendFieldErrorSignFromTilt(Element element, JMadPlane plane) throws JMadModelException {
+<span class="fc" id="L252">        double elementTilt = Optional.ofNullable(element.getAttribute(&quot;tilt&quot;)).orElse(0.0);</span>
+        int tiltSign;
+<span class="pc bpc" id="L254" title="3 of 4 branches missed.">        if (plane == JMadPlane.H &amp;&amp; Math.abs(elementTilt) &lt; BEND_TILT_TOLERANCE) {</span>
+<span class="nc" id="L255">            tiltSign = 1;</span>
+<span class="pc bpc" id="L256" title="3 of 4 branches missed.">        } else if (plane == JMadPlane.H &amp;&amp; Math.abs(Math.abs(elementTilt) - Math.PI) &lt; BEND_TILT_TOLERANCE) {</span>
+<span class="nc" id="L257">            tiltSign = -1;</span>
+<span class="pc bpc" id="L258" title="2 of 4 branches missed.">        } else if (plane == JMadPlane.V &amp;&amp; Math.abs(elementTilt - Math.PI / 2) &lt; BEND_TILT_TOLERANCE) {</span>
+<span class="fc" id="L259">            tiltSign = -1;</span>
+<span class="nc bnc" id="L260" title="All 4 branches missed.">        } else if (plane == JMadPlane.V &amp;&amp; Math.abs(elementTilt + Math.PI / 2) &lt; BEND_TILT_TOLERANCE) {</span>
+<span class="nc" id="L261">            tiltSign = 1;</span>
+        } else {
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            String planeAngle = plane == JMadPlane.H ? &quot;0 rad&quot; : &quot;pi/2 rad&quot;;</span>
+<span class="nc" id="L264">            throw new JMadModelException(</span>
+<span class="nc" id="L265">                    &quot;Element '&quot; + element.getName() + &quot;' is a BEND with tilt=&quot; + elementTilt + &quot; rad - can not kick in &quot;</span>
+                            + plane + &quot; (= &quot; + planeAngle + &quot;, tol=&quot; + BEND_TILT_TOLERANCE + &quot;)&quot;);
+        }
+<span class="fc" id="L268">        return tiltSign;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

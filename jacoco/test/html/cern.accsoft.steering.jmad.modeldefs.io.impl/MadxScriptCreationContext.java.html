@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxScriptCreationContext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.io.impl</a> &gt; <span class="el_source">MadxScriptCreationContext.java</span></div><h1>MadxScriptCreationContext.java</h1><pre class="source lang-java linenums">package cern.accsoft.steering.jmad.modeldefs.io.impl;
+
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.function.Function;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.kernel.cmd.CallCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
+
+/**
+ * This class provides a &quot;context&quot; for writing Mad-X script files. It holds a
+ * {@link JMadModelDefinition}, the {@link ModelFileFinderManager} and the
+ * {@link OutputStream} to write to.
+ * &lt;p&gt;
+ * It allows the persistence service to write the file in a readable,
+ * &quot;procedural&quot; way by calling the methods to write commands, comments, spaces,
+ * call files etc.
+ * &lt;p&gt;
+ * This class is NOT thread-safe, and each instance is only to be used to write
+ * a single MAD-X output file!
+ *
+ * @author mihostet
+ */
+class MadxScriptCreationContext {
+    private final Function&lt;ModelFile, String&gt; fileResolver;
+    private final JMadModelDefinition model;
+    private final PrintWriter script;
+
+    private boolean writeCommented;
+
+    /**
+     * Create a new MAD-X script creation context.
+     *
+     * @param fileResolver    the function to resolve ModelFiles to (relative) paths
+     * @param modelDefinition the {@link JMadModelDefinition} that will be saved
+     * @param outputStream    the stream to write to
+     */
+    MadxScriptCreationContext(Function&lt;ModelFile, String&gt; fileResolver, JMadModelDefinition modelDefinition,
+<span class="fc" id="L43">            OutputStream outputStream) {</span>
+<span class="fc" id="L44">        this.fileResolver = fileResolver;</span>
+<span class="fc" id="L45">        this.model = modelDefinition;</span>
+<span class="fc" id="L46">        this.script = new PrintWriter(new OutputStreamWriter(outputStream));</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Write a spacer (blank line)
+     */
+    public void space() {
+<span class="fc" id="L53">        script.println();</span>
+<span class="fc" id="L54">        script.println();</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Write a single or multi line comment, prefixing each line accordingly
+     *
+     * @param comment the comment to write
+     */
+    public void comment(String comment) {
+<span class="fc" id="L63">        script.println(&quot;! &quot; + comment.replaceAll(&quot;\n&quot;, &quot;\n ! &quot;));</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Write a Mad-X command
+     * &lt;p&gt;
+     * The line will be commented if setCommented() has been set to true before
+     *
+     * @param madxCommand the command to write
+     */
+    public void command(Command madxCommand) {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (writeCommented) {</span>
+<span class="nc" id="L75">            comment(madxCommand.compose());</span>
+        } else {
+<span class="fc" id="L77">            script.println(madxCommand.compose());</span>
+        }
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Write the Mad-X command to call a {@link ModelFile}
+     * &lt;p&gt;
+     * The line will be commented if setCommented() has been set to true before
+     *
+     * @param file the file to call
+     */
+    public void call(ModelFile file) {
+<span class="fc" id="L89">        command(new CallCommand(fileResolver.apply(file)));</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * Returns true if commands are currently written as comments
+     *
+     * @return the comment status
+     */
+    public boolean isCommented() {
+<span class="nc" id="L98">        return writeCommented;</span>
+    }
+
+    /**
+     * While set to true, all further commands/calls will be written to the MAD-X
+     * script as comments. When set back to false, commands/calls are written in
+     * their active form.
+     *
+     * @param writeCommented whether to write commands/calls commented
+     */
+    public void setCommented(boolean writeCommented) {
+<span class="fc" id="L109">        this.writeCommented = writeCommented;</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Flush the output stream
+     */
+    public void flush() {
+<span class="fc" id="L116">        script.flush();</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Close the output stream
+     */
+    public void close() {
+<span class="nc" id="L123">        script.close();</span>
+<span class="nc" id="L124">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

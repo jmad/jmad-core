@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractModelDefinition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.domain</a> &gt; <span class="el_source">AbstractModelDefinition.java</span></div><h1>AbstractModelDefinition.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.modeldefs.domain;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
+
+/**
+ * A Model definition consists of a (arbitrary) number of initialization - files (madx files) and contains an arbitrary
+ * number of sequence-names. This is the abstract version of a model definition. It implements lazy loading for almost
+ * all properties to ensure, that they are created only when they are needed, only once and reused afterwards. All the
+ * create... methods have to be overridden by the subclasses. NOTE: It is important that that class stays at the same
+ * resource-location, since all the resource-paths are calculated relative to this class!
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="nc" id="L46">public abstract class AbstractModelDefinition implements JMadModelDefinition {</span>
+
+    /** The logger for the class */
+<span class="fc" id="L49">    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractModelDefinition.class);</span>
+
+    @Override
+    public final String toString() {
+<span class="nc" id="L53">        return getName();</span>
+    }
+
+    @Override
+    public final SequenceDefinition getSequenceDefinition(String name) {
+<span class="fc" id="L58">        SequenceDefinition sequenceDefinition = findSequenceDefinition(name);</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (sequenceDefinition == null) {</span>
+            /* if we find nothing .. */
+<span class="nc" id="L61">            LOGGER.warn(&quot;Sequence Definition [&quot; + name + &quot;] does not exist in ModelDefinition [&quot; + this.getName() + &quot;]&quot;);</span>
+        }
+<span class="fc" id="L63">        return sequenceDefinition;</span>
+    }
+
+    protected SequenceDefinition findSequenceDefinition(String name) {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (name == null) {</span>
+<span class="nc" id="L68">            LOGGER.error(&quot;name of SequenceDefinition was null. Aborting search.&quot;);</span>
+<span class="nc" id="L69">            return null;</span>
+        }
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        for (SequenceDefinition sequenceDefinition : getSequenceDefinitions()) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (name.equals(sequenceDefinition.getName())) {</span>
+<span class="fc" id="L73">                return sequenceDefinition;</span>
+            }
+<span class="nc" id="L75">        }</span>
+
+<span class="nc" id="L77">        return null;</span>
+    }
+
+    @Override
+    public List&lt;RangeDefinition&gt; getRangeDefinitions() {
+<span class="fc" id="L82">        List&lt;RangeDefinition&gt; ranges = new ArrayList&lt;RangeDefinition&gt;();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (SequenceDefinition sequenceDefinition : getSequenceDefinitions()) {</span>
+<span class="fc" id="L84">            ranges.addAll(sequenceDefinition.getRangeDefinitions());</span>
+<span class="fc" id="L85">        }</span>
+<span class="fc" id="L86">        return ranges;</span>
+    }
+
+    @Override
+    public RangeDefinition getDefaultRangeDefinition() {
+<span class="fc" id="L91">        SequenceDefinition defaultSequence = getDefaultSequenceDefinition();</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (defaultSequence == null) {</span>
+<span class="nc" id="L93">            return null;</span>
+        }
+<span class="fc" id="L95">        return defaultSequence.getDefaultRangeDefinition();</span>
+    }
+
+    @Override
+    public final OpticsDefinition getOpticsDefinition(String name) {
+<span class="fc" id="L100">        OpticsDefinition opticsDefinition = findOpticsDefinition(name);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (opticsDefinition == null) {</span>
+            /* If nothing is found ... */
+<span class="nc" id="L103">            LOGGER.warn(&quot;Optics Definition [&quot; + name + &quot;] does not exist in ModelDefinition [&quot; + this.getName() + &quot;]&quot;);</span>
+        }
+<span class="fc" id="L105">        return opticsDefinition;</span>
+    }
+
+    private OpticsDefinition findOpticsDefinition(String name) {
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (name == null) {</span>
+<span class="nc" id="L110">            LOGGER.warn(&quot;Name of searched opticsDefinition was null. Aborting search.&quot;);</span>
+<span class="nc" id="L111">            return null;</span>
+        }
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        for (OpticsDefinition opticsDefinition : getOpticsDefinitions()) {</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">            if (name.equals(opticsDefinition.getName())) {</span>
+<span class="fc" id="L115">                return opticsDefinition;</span>
+            }
+<span class="nc" id="L117">        }</span>
+<span class="nc" id="L118">        return null;</span>
+    }
+
+    
+    protected boolean containsSequenceDefinition(String name) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        return (findSequenceDefinition(name) != null);</span>
+    }
+
+    protected boolean containsOpticsDefinition(String name) {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        return (findOpticsDefinition(name) != null);</span>
+    }
+
+    /**
+     * Returns all the {@link ModelFile}s used by this model definition.
+     * &lt;p&gt;
+     * &lt;b&gt;DANGER&lt;/b&gt;: This does not return all required files, but only the init files, which is correct since this is
+     * only the implementation for ModelFileDependant - interfsace. To get ALL the required files use
+     * {@link ModelDefinitionUtil}
+     * 
+     * @return all the required model files
+     */
+    @Override
+    public final Collection&lt;ModelFile&gt; getRequiredFiles() {
+<span class="fc" id="L141">        return getInitFiles();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

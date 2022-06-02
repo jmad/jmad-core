@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleOrbitSegmentCalculator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.interpolate</a> &gt; <span class="el_source">SimpleOrbitSegmentCalculator.java</span></div><h1>SimpleOrbitSegmentCalculator.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ * This file is part of JMad. Copyright (c) 2008-2011, CERN. All rights reserved. Licensed under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.tools.interpolate;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import Jama.Matrix;
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.optics.Optic;
+import cern.accsoft.steering.jmad.domain.optics.OpticPoint;
+import cern.accsoft.steering.jmad.domain.optics.OpticPointImpl;
+import cern.accsoft.steering.jmad.domain.orbit.Orbit;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+import cern.accsoft.steering.jmad.domain.var.enums.JMadTwissVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+
+/**
+ * This class does the actual interpolation of the orbit in one plane for one segment defined by two adjacent monitors.
+ * 
+ * @author muellerg
+ */
+public class SimpleOrbitSegmentCalculator implements OrbitSegmentCalculator {
+<span class="fc" id="L38">    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOrbitSegmentCalculator.class);</span>
+
+    /** the plane this orbit segment calculator works on */
+    private JMadPlane plane;
+
+    /** the monitor at the beginning of this segment */
+    private Element startMonitor;
+    /** the monitor at the end of the segment */
+    private Element endMonitor;
+
+    /** the transfer matrix between the start and end monitor */
+<span class="fc" id="L49">    private Matrix monitorTransferMatrix = null;</span>
+
+    /** the transfer matrix mapping from the start monitor to all the elements of the segment */
+    private Map&lt;Element, Matrix&gt; elementMatrices;
+
+    /** the list of elements in the segment, including the monitors (first/last) */
+<span class="fc" id="L55">    private LinkedList&lt;Element&gt; segmentElements = new LinkedList&lt;Element&gt;();</span>
+
+    /** flag to determine if segment contains start and end of circular machine */
+<span class="fc" id="L58">    private boolean isCycleStartSegment = false;</span>
+
+    /** the maximum mu in the segment */
+    private double maxMu;
+
+<span class="fc" id="L63">    public SimpleOrbitSegmentCalculator(JMadPlane plane) {</span>
+<span class="fc" id="L64">        this.plane = plane;</span>
+<span class="fc" id="L65">        this.elementMatrices = new HashMap&lt;Element, Matrix&gt;();</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public void setStartSegmentMonitor(Element element) {
+<span class="fc" id="L70">        this.startMonitor = element;</span>
+<span class="fc" id="L71">        this.segmentElements.addFirst(element);</span>
+<span class="fc" id="L72">    }</span>
+
+    @Override
+    public void setEndSegmentMonitor(Element element) {
+<span class="fc" id="L76">        this.endMonitor = element;</span>
+<span class="fc" id="L77">        this.segmentElements.addLast(element);</span>
+<span class="fc" id="L78">    }</span>
+
+    @Override
+    public void addElementToCalculate(Element element) {
+<span class="fc" id="L82">        this.segmentElements.add(element);</span>
+<span class="fc" id="L83">    }</span>
+
+    @Override
+    public boolean update(Optic optic) {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (this.isCycleStartSegment()) {</span>
+<span class="fc" id="L88">            this.updateMuMax(optic);</span>
+        }
+
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (!this.updateMonitorTransferMatrix(optic)) {</span>
+<span class="nc" id="L92">            return false;</span>
+        }
+
+<span class="fc" id="L95">        OpticPoint from = optic.getPoint(this.startMonitor);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for (Element element : this.segmentElements) {</span>
+<span class="fc bfc" id="L97" title="All 4 branches covered.">            if (element.equals(startMonitor) || element.equals(endMonitor)) {</span>
+<span class="fc" id="L98">                continue;</span>
+            }
+
+<span class="fc" id="L101">            OpticPoint to = optic.getPoint(element);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">            if (to == null) {</span>
+<span class="nc" id="L103">                LOGGER.error(&quot;Could not update transfer matrix in &quot; + this.getName() + &quot; no optic data for element [&quot;</span>
+<span class="nc" id="L104">                        + element.getName() + &quot;] in plane [&quot; + this.getPlane() + &quot;].&quot;);</span>
+<span class="nc" id="L105">                return false;</span>
+            }
+
+<span class="fc" id="L108">            this.elementMatrices.put(element, this.calculateTransferMatrix(from, to));</span>
+<span class="fc" id="L109">        }</span>
+
+<span class="fc" id="L111">        return true;</span>
+    }
+
+    private void updateMuMax(Optic optic) {
+<span class="fc" id="L115">        double maxMu = Double.MIN_VALUE;</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (Element element : this.segmentElements) {</span>
+<span class="fc" id="L117">            double mu = optic.getPoint(element).getValue(JMadTwissVariable.MU, this.getPlane());</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            if (mu &gt; maxMu) {</span>
+<span class="fc" id="L119">                maxMu = mu;</span>
+            }
+<span class="fc" id="L121">        }</span>
+
+<span class="fc" id="L123">        this.setMaxMu(maxMu);</span>
+<span class="fc" id="L124">    }</span>
+
+    private void setMaxMu(double maxMu) {
+<span class="fc" id="L127">        this.maxMu = maxMu;</span>
+<span class="fc" id="L128">    }</span>
+
+    private double getMaxMu() {
+<span class="fc" id="L131">        return this.maxMu;</span>
+    }
+
+    private Matrix calculateTransferMatrix(OpticPoint from, OpticPoint to) {
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        if (!this.isCycleStartSegment()) {</span>
+<span class="fc" id="L136">            return TransferMatrixCalculator.calculate(getPlane(), from, to);</span>
+        }
+
+<span class="fc" id="L139">        double muFrom = from.getValue(JMadTwissVariable.MU, this.getPlane());</span>
+<span class="fc" id="L140">        double muTo = to.getValue(JMadTwissVariable.MU, this.getPlane());</span>
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (muTo &lt; muFrom) {</span>
+<span class="fc" id="L143">            muTo = muTo + (this.getMaxMu() - muFrom);</span>
+<span class="fc" id="L144">            muFrom = 0.0;</span>
+<span class="fc" id="L145">            return TransferMatrixCalculator.calculate(getPlane(), this.adaptOpticPoint(from, muFrom), this</span>
+<span class="fc" id="L146">                    .adaptOpticPoint(to, muTo));</span>
+        } else {
+<span class="fc" id="L148">            return TransferMatrixCalculator.calculate(getPlane(), from, to);</span>
+        }
+    }
+
+    private OpticPoint adaptOpticPoint(OpticPoint point, double newMu) {
+<span class="fc" id="L153">        OpticPointImpl newPoint = new OpticPointImpl(point.getName());</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (JMadTwissVariable variable : TransferMatrixCalculator.REQUIRED_VARIABLES) {</span>
+<span class="fc" id="L155">            newPoint.setValue(variable.getMadxTwissVariable(getPlane()), point.getValue(variable, this.getPlane()));</span>
+        }
+
+<span class="fc" id="L158">        newPoint.setValue(JMadTwissVariable.MU.getMadxTwissVariable(getPlane()), newMu);</span>
+<span class="fc" id="L159">        return newPoint;</span>
+    }
+
+    private boolean updateMonitorTransferMatrix(Optic optic) {
+
+<span class="fc" id="L164">        OpticPoint from = optic.getPoint(this.startMonitor);</span>
+<span class="fc" id="L165">        OpticPoint to = optic.getPoint(endMonitor);</span>
+
+<span class="pc bpc" id="L167" title="2 of 4 branches missed.">        if (from == null || to == null) {</span>
+<span class="nc" id="L168">            LOGGER.error(&quot;Could not update monitor transfer matrix in &quot; + this.getName()</span>
+                    + &quot; no optic data for monitors.&quot;);
+<span class="nc" id="L170">            this.monitorTransferMatrix = null;</span>
+<span class="nc" id="L171">            return false;</span>
+        }
+
+<span class="fc" id="L174">        this.monitorTransferMatrix = this.calculateTransferMatrix(from, to);</span>
+<span class="fc" id="L175">        return true;</span>
+    }
+
+    @Override
+    public Map&lt;Element, Map&lt;MadxTwissVariable, Double&gt;&gt; calculate(Orbit orbit) {
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">        if (this.monitorTransferMatrix == null) {</span>
+<span class="nc" id="L181">            LOGGER.error(&quot;Segment orbit interpolation calculator not initialized for &quot; + this.getName());</span>
+<span class="nc" id="L182">            return Collections.emptyMap();</span>
+        }
+
+<span class="fc" id="L185">        Map&lt;Element, Map&lt;MadxTwissVariable, Double&gt;&gt; elementValueMapping = new HashMap&lt;Element, Map&lt;MadxTwissVariable, Double&gt;&gt;();</span>
+<span class="fc" id="L186">        double pos_start = this.getMonitorPosition(this.startMonitor, orbit);</span>
+<span class="fc" id="L187">        double pos_end = this.getMonitorPosition(this.endMonitor, orbit);</span>
+
+<span class="fc" id="L189">        double c_seg = this.monitorTransferMatrix.get(0, 0);</span>
+<span class="fc" id="L190">        double s_seg = this.monitorTransferMatrix.get(0, 1);</span>
+
+<span class="fc" id="L192">        double factor = (pos_end - (c_seg * pos_start)) / s_seg;</span>
+
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        for (Element element : this.segmentElements) {</span>
+<span class="fc" id="L195">            Map&lt;MadxTwissVariable, Double&gt; valueMapping = new HashMap&lt;MadxTwissVariable, Double&gt;();</span>
+<span class="fc" id="L196">            elementValueMapping.put(element, valueMapping);</span>
+
+            /* for the monitors we just copy the reading */
+<span class="fc" id="L199">            boolean positionDone = false;</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">            if (element.equals(startMonitor)) {</span>
+<span class="fc" id="L201">                valueMapping.put(JMadTwissVariable.POS.getMadxTwissVariable(getPlane()), pos_start);</span>
+<span class="fc" id="L202">                positionDone = true;</span>
+            }
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            if (element.equals(endMonitor)) {</span>
+<span class="fc" id="L205">                valueMapping.put(JMadTwissVariable.POS.getMadxTwissVariable(getPlane()), pos_end);</span>
+<span class="fc" id="L206">                positionDone = true;</span>
+            }
+
+            /* do the interpolation */
+<span class="fc" id="L210">            Matrix elementMatrix = this.elementMatrices.get(element);</span>
+
+<span class="fc bfc" id="L212" title="All 2 branches covered.">            if (!positionDone) {</span>
+<span class="fc" id="L213">                double c_elem = elementMatrix.get(0, 0);</span>
+<span class="fc" id="L214">                double s_elem = elementMatrix.get(0, 1);</span>
+<span class="fc" id="L215">                double value = c_elem * pos_start + s_elem * factor;</span>
+
+<span class="fc" id="L217">                valueMapping.put(JMadTwissVariable.POS.getMadxTwissVariable(getPlane()), value);</span>
+
+<span class="fc" id="L219">                double cp_elem = elementMatrix.get(1, 0);</span>
+<span class="fc" id="L220">                double sp_elem = elementMatrix.get(1, 1);</span>
+<span class="fc" id="L221">                value = cp_elem * pos_start + sp_elem * factor;</span>
+<span class="fc" id="L222">                valueMapping.put(JMadTwissVariable.P.getMadxTwissVariable(getPlane()), value);</span>
+                
+<span class="fc" id="L224">            } else {</span>
+<span class="fc" id="L225">                double cp_elem = this.monitorTransferMatrix.get(1, 0);</span>
+<span class="fc" id="L226">                double sp_elem = this.monitorTransferMatrix.get(1, 1);</span>
+<span class="fc" id="L227">                double value = cp_elem * pos_start + sp_elem * factor;</span>
+<span class="fc" id="L228">                valueMapping.put(JMadTwissVariable.P.getMadxTwissVariable(getPlane()), value);</span>
+            }
+<span class="fc" id="L230">        }</span>
+
+<span class="fc" id="L232">        return elementValueMapping;</span>
+    }
+
+    private double getMonitorPosition(Element monitor, Orbit orbit) {
+<span class="fc" id="L236">        int index = orbit.getMonitorIndex(monitor.getName());</span>
+<span class="fc" id="L237">        return orbit.getValues(this.getPlane()).get(index);</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L242">        return &quot;segment [&quot; + this.startMonitor.getName() + &quot;--&gt;&quot; + this.endMonitor.getName() + &quot;] for plane [&quot;</span>
+<span class="nc" id="L243">                + this.getPlane() + &quot;]&quot;;</span>
+    }
+
+    @Override
+    public JMadPlane getPlane() {
+<span class="fc" id="L248">        return this.plane;</span>
+    }
+
+    @Override
+    public void setIsCycleStartSegment(boolean isCycleStartSegment) {
+<span class="fc" id="L253">        this.isCycleStartSegment = isCycleStartSegment;</span>
+<span class="fc" id="L254">    }</span>
+
+    private boolean isCycleStartSegment() {
+<span class="fc" id="L257">        return isCycleStartSegment;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

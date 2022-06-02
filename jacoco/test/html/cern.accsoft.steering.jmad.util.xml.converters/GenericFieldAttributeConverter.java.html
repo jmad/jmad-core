@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GenericFieldAttributeConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util.xml.converters</a> &gt; <span class="el_source">GenericFieldAttributeConverter.java</span></div><h1>GenericFieldAttributeConverter.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.util.xml.converters;
+
+import java.lang.reflect.Field;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.ConverterLookup;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.SingleValueConverter;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.mapper.Mapper;
+
+/**
+ * This is a generic converter that can be used by xstream to convert each field of a class into a
+ * {@literal &lt;arrbname value=&quot;...&quot; /&gt;} node.
+ *
+ * @param &lt;T&gt; the type of object to convert
+ */
+public class GenericFieldAttributeConverter&lt;T&gt; implements Converter {
+
+<span class="fc" id="L48">    private static final Logger LOGGER = LoggerFactory.getLogger(GenericFieldAttributeConverter.class);</span>
+
+    /** the xstream mapper to lookup field-names and converters */
+    private final Mapper mapper;
+
+    /** the converter-lookup to lookup converters */
+    private final ConverterLookup converterLookup;
+
+    /** The class which can be handled by the converter */
+    private final Class&lt;T&gt; clazz;
+
+    /**
+     * The constructor needs the xstream-object to get the mapper and the converter-lookup and a class which can then be
+     * converted by this mapper.
+     * 
+     * @param xStream the xstream object
+     * @param clazz the class to be treated by this converter
+     */
+<span class="fc" id="L66">    public GenericFieldAttributeConverter(XStream xStream, Class&lt;T&gt; clazz) {</span>
+<span class="fc" id="L67">        this.mapper = xStream.getMapper();</span>
+<span class="fc" id="L68">        this.converterLookup = xStream.getConverterLookup();</span>
+<span class="fc" id="L69">        this.clazz = clazz;</span>
+<span class="fc" id="L70">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public void marshal(Object object, HierarchicalStreamWriter writer, MarshallingContext ctx) {
+
+<span class="fc" id="L76">        T valueObject = (T) object;</span>
+
+        /*
+         * we use reflection to loop through the fields
+         */
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (Field field : this.clazz.getDeclaredFields()) {</span>
+<span class="fc" id="L82">            SingleValueConverter converter = getConverter(field);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (converter == null) {</span>
+<span class="fc" id="L84">                continue;</span>
+            }
+
+<span class="fc" id="L87">            String fieldAlias = mapper.serializedMember(this.clazz, field.getName());</span>
+
+            /*
+             * ensure that we can access private fields.
+             */
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if (!field.isAccessible()) {</span>
+<span class="fc" id="L93">                field.setAccessible(true);</span>
+            }
+
+<span class="fc" id="L96">            Object value = null;</span>
+            try {
+<span class="fc" id="L98">                value = field.get(valueObject);</span>
+<span class="nc" id="L99">            } catch (Exception e) {</span>
+<span class="nc" id="L100">                LOGGER.error(&quot;Could not get the value from object.&quot;);</span>
+<span class="nc" id="L101">                continue;</span>
+<span class="fc" id="L102">            }</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            if (value != null) {</span>
+<span class="fc" id="L105">                writer.startNode(fieldAlias);</span>
+<span class="fc" id="L106">                writer.addAttribute(&quot;value&quot;, converter.toString(value));</span>
+<span class="fc" id="L107">                writer.endNode();</span>
+            }
+        }
+
+<span class="fc" id="L111">    }</span>
+
+    @Override
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext ctx) {
+
+<span class="fc" id="L116">        T newObject = null;</span>
+        try {
+<span class="fc" id="L118">            newObject = this.clazz.newInstance();</span>
+<span class="nc" id="L119">        } catch (Exception e) {</span>
+<span class="nc" id="L120">            LOGGER.error(&quot;Could not instantiate object of type '&quot; + clazz.getCanonicalName()</span>
+                    + &quot;'. Maybe it does not have a public default constructor?&quot;);
+<span class="nc" id="L122">            return null;</span>
+<span class="fc" id="L123">        }</span>
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        while (reader.hasMoreChildren()) {</span>
+<span class="fc" id="L126">            reader.moveDown();</span>
+<span class="fc" id="L127">            String nodeName = reader.getNodeName();</span>
+<span class="fc" id="L128">            String fieldName = mapper.realMember(this.clazz, nodeName);</span>
+
+            /*
+             * the node name is the field name. So we try to lookup the field.
+             */
+            Field field;
+            try {
+<span class="fc" id="L135">                field = this.clazz.getDeclaredField(fieldName);</span>
+<span class="nc" id="L136">            } catch (Exception e) {</span>
+<span class="nc" id="L137">                LOGGER.error(&quot;No field of name '&quot; + fieldName + &quot;' found in class '&quot; + this.clazz.getCanonicalName()</span>
+                        + &quot;'. Cannot load the value.&quot;, e);
+<span class="nc" id="L139">                reader.moveUp();</span>
+<span class="nc" id="L140">                continue;</span>
+<span class="fc" id="L141">            }</span>
+
+            /*
+             * then we see if we can get a converter. If we dont get one we have to skip the field.
+             */
+<span class="fc" id="L146">            SingleValueConverter converter = getConverter(field);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">            if (converter == null) {</span>
+<span class="nc" id="L148">                reader.moveUp();</span>
+<span class="nc" id="L149">                continue;</span>
+            }
+
+            /*
+             * ensure that privet fields are accessible
+             */
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">            if (!field.isAccessible()) {</span>
+<span class="fc" id="L156">                field.setAccessible(true);</span>
+            }
+
+<span class="fc" id="L159">            Object value = converter.fromString(reader.getAttribute(&quot;value&quot;));</span>
+            try {
+<span class="fc" id="L161">                field.set(newObject, value);</span>
+<span class="nc" id="L162">            } catch (Exception e) {</span>
+<span class="nc" id="L163">                LOGGER.error(&quot;Could not set the value to objec.&quot;, e);</span>
+<span class="fc" id="L164">            }</span>
+
+<span class="fc" id="L166">            reader.moveUp();</span>
+<span class="fc" id="L167">        }</span>
+<span class="fc" id="L168">        return newObject;</span>
+    }
+
+    private SingleValueConverter getConverter(Field field) {
+<span class="fc" id="L172">        Class&lt;?&gt; fieldType = field.getType();</span>
+<span class="fc" id="L173">        String fieldName = field.getName();</span>
+
+        /*
+         * first we see if we can get a converter from the mapper. To make this work, all the fields to be converted
+         * have to be annotated by the
+         * 
+         * @XStreamAsAttribute annotation.
+         */
+<span class="fc" id="L181">        SingleValueConverter singleValueConverter = mapper.getConverterFromItemType(fieldName, fieldType, this.clazz);</span>
+        
+        /*
+         * if this did not succeed then we try to lookup the converter from the ConverterLookup ... but this is then not
+         * necessarily a SingleValueConverter ...
+         */
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        if (singleValueConverter == null) {</span>
+<span class="fc" id="L188">            Converter converter = converterLookup.lookupConverterForType(fieldType);</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">            if (converter instanceof SingleValueConverter) {</span>
+<span class="fc" id="L190">                singleValueConverter = (SingleValueConverter) converter;</span>
+            }
+        }
+
+        /*
+         * if still no success then we have to skip the field
+         */
+<span class="fc bfc" id="L197" title="All 2 branches covered.">        if (singleValueConverter == null) {</span>
+<span class="fc" id="L198">            LOGGER.error(&quot;Could not find single-value converter for type '&quot; + fieldType.getCanonicalName() + &quot;'&quot;);</span>
+        }
+<span class="fc" id="L200">        return singleValueConverter;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public boolean canConvert(Class otherClazz) {
+<span class="fc" id="L206">        return otherClazz.equals(this.clazz);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TfsResultRequestImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.tfs</a> &gt; <span class="el_source">TfsResultRequestImpl.java</span></div><h1>TfsResultRequestImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.result.tfs;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
+import cern.accsoft.steering.jmad.domain.var.MadxVariable;
+import cern.accsoft.steering.jmad.domain.var.TwissVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.PtcTwissVariable;
+import cern.accsoft.steering.jmad.util.ListUtil;
+import cern.accsoft.steering.jmad.util.ListUtil.Mapper;
+
+/**
+ * this class provides a way to define, what results one wants to get back from a MadX twiss - Task.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ * @author muellerg
+ */
+<span class="fc" id="L43">public class TfsResultRequestImpl implements TfsResultRequest {</span>
+
+    /** the variables, which one wants to get back */
+<span class="fc" id="L46">    private final List&lt;TwissVariable&gt; resultVariables = new ArrayList&lt;TwissVariable&gt;();</span>
+
+    /** the element (names) one wants to get back */
+<span class="fc" id="L49">    private final List&lt;String&gt; elementFilters = new ArrayList&lt;String&gt;();</span>
+
+    /** the element (classes) one wants to get back */
+<span class="fc" id="L52">    private final List&lt;MadxElementType&gt; elementTypes = new ArrayList&lt;MadxElementType&gt;();</span>
+
+    /**
+     * adds an filter (element name or wildcard) to requested elements.
+     * 
+     * @param filter the element name / wildcard
+     */
+    public void addElementFilter(String filter) {
+<span class="fc" id="L60">        elementFilters.add(filter);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * adds more filters (element names or wildcards) to the requested elements.
+     * 
+     * @param filters the names wildcards to add
+     */
+    public void addElementFilters(Collection&lt;String&gt; filters) {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (String filter : filters) {</span>
+<span class="nc" id="L70">            this.addElementFilter(filter);</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * adds an MadxElementType to the filters. This represents an element-class in madx
+     * 
+     * @param madxElementType the element type to add to the filters
+     */
+    public void addElementType(MadxElementType madxElementType) {
+<span class="fc" id="L80">        this.elementTypes.add(madxElementType);</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * adds more than one class filters to the request.
+     * 
+     * @param madxElementTypes the MadX element types for which to request results
+     */
+    public void addElementTypes(Collection&lt;MadxElementType&gt; madxElementTypes) {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (MadxElementType madxElementType : madxElementTypes) {</span>
+<span class="nc" id="L90">            this.addElementType(madxElementType);</span>
+<span class="nc" id="L91">        }</span>
+<span class="nc" id="L92">    }</span>
+
+    /**
+     * adds a variable to the list of requested variables.
+     * 
+     * @param resultVariable the variable to add
+     */
+    public void addVariable(TwissVariable resultVariable) {
+<span class="fc" id="L100">        resultVariables.add(resultVariable);</span>
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * adds more variables to the Request
+     * 
+     * @param variables the variables to add
+     */
+    public void addVariables(List&lt;? extends TwissVariable&gt; variables) {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        for (TwissVariable variable : variables) {</span>
+<span class="fc" id="L110">            this.addVariable(variable);</span>
+<span class="fc" id="L111">        }</span>
+<span class="fc" id="L112">    }</span>
+
+    @Override
+    public List&lt;TwissVariable&gt; getResultVariables() {
+<span class="fc" id="L116">        return resultVariables;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getElementPattern() {
+<span class="fc" id="L121">        return elementFilters;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getElementClasses() {
+<span class="fc" id="L126">        return ListUtil.map(this.elementTypes, new Mapper&lt;MadxElementType, String&gt;() {</span>
+            @Override
+            public String map(MadxElementType inobject) {
+<span class="fc" id="L129">                return inobject.getMadxName();</span>
+            }
+        });
+    }
+
+    /**
+     * This is a static factory method for a special result request for an empty table. When this request is used for a
+     * twiss, then only the summary is returned.
+     * &lt;p&gt;
+     * It works like this: Since madx does not know the class UNKNOWN and also not the column UNKNOWN it creates a twiss
+     * file, with only the summary table. This is useful in some cases.
+     * &lt;p&gt;
+     * This is not very nice. Maybe there is a better way to do this?
+     * 
+     * @return a {@link TfsResultRequestImpl} which is ready to be used for twissing, resulting in the summary table
+     *         only.
+     */
+    public static final TfsResultRequest createSummaryOnlyRequest() {
+<span class="fc" id="L147">        TfsResultRequestImpl request = new TfsResultRequestImpl();</span>
+<span class="fc" id="L148">        request.addElementType(MadxElementType.UNKNOWN);</span>
+<span class="fc" id="L149">        request.addVariable(MadxTwissVariable.UNKNOWN);</span>
+<span class="fc" id="L150">        return request;</span>
+    }
+
+    /**
+     * This is a static factory method for a default result request. Only Name is already appended to the list of
+     * requested variables. This way it is ensured, that the TfsResult provides access via element names. The user only
+     * needs to append the elementFilters and additional variables required.
+     * 
+     * @return a {@link TfsResultRequestImpl} which is prepared to enable access of values via element name.
+     */
+    public static final TfsResultRequestImpl createDefaultRequest() {
+<span class="nc" id="L161">        TfsResultRequestImpl request = new TfsResultRequestImpl();</span>
+<span class="nc" id="L162">        request.addVariable(MadxTwissVariable.NAME);</span>
+<span class="nc" id="L163">        return request;</span>
+    }
+
+    @Override
+    public boolean needsPtcTwiss() {
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        for (MadxVariable variable : getResultVariables()) {</span>
+            /*
+             * if one of the variables is a ptc-variable then we will need a ptc-twiss.
+             */
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (variable instanceof PtcTwissVariable) {</span>
+<span class="nc" id="L173">                return true;</span>
+            }
+<span class="nc" id="L175">        }</span>
+<span class="nc" id="L176">        return false;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

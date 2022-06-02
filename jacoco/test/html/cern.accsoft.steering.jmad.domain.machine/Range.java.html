@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Range.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.machine</a> &gt; <span class="el_source">Range.java</span></div><h1>Range.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.machine;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.elem.JMadElementType;
+import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
+import cern.accsoft.steering.jmad.domain.misalign.MisalignmentConfiguration;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+
+/**
+ * This class represents a certain range of a MadX sequence. It manages all the element in this range, the misalignments
+ * of this elements, the filters to apply (e.g. for BPM reading inversions) and knows about its definition in the
+ * {@link JMadModelDefinition}
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class Range {
+
+    /** the listeners */
+<span class="fc" id="L47">    private final List&lt;RangeListener&gt; listeners = new ArrayList&lt;RangeListener&gt;();</span>
+
+    /** All Elements in this sequence */
+<span class="fc" id="L50">    private final List&lt;Element&gt; elements = new ArrayList&lt;Element&gt;();</span>
+
+    /** The keys for retrieval of elements by name */
+<span class="fc" id="L53">    private final Map&lt;String, Integer&gt; keys = new HashMap&lt;String, Integer&gt;();</span>
+
+    /** all misalignments for elements of this Range */
+<span class="fc" id="L56">    private final List&lt;MisalignmentConfiguration&gt; misalignments = new ArrayList&lt;MisalignmentConfiguration&gt;();</span>
+
+    /** the definition of this range */
+<span class="fc" id="L59">    private RangeDefinition rangeDefinition = null;</span>
+
+<span class="fc" id="L61">    private List&lt;NameFilter&gt; monitorInvertFilters = new ArrayList&lt;NameFilter&gt;();</span>
+<span class="fc" id="L62">    private List&lt;NameFilter&gt; correctorInvertFilter = new ArrayList&lt;NameFilter&gt;();</span>
+<span class="fc" id="L63">    private String name = null;</span>
+
+    /**
+     * The constructor.
+     * 
+     * @param rangeDefinition the definition for the range.
+     */
+    public Range(RangeDefinition rangeDefinition) {
+<span class="fc" id="L71">        this(rangeDefinition.getName());</span>
+<span class="fc" id="L72">        this.rangeDefinition = rangeDefinition;</span>
+<span class="fc" id="L73">        this.monitorInvertFilters = new ArrayList&lt;NameFilter&gt;(rangeDefinition.getMonitorInvertFilters());</span>
+<span class="fc" id="L74">        this.correctorInvertFilter = new ArrayList&lt;NameFilter&gt;(rangeDefinition.getCorrectorInvertFilters());</span>
+<span class="fc" id="L75">    }</span>
+
+<span class="fc" id="L77">    public Range(String name) {</span>
+<span class="fc" id="L78">        this.name = name;</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * @param misalignmentConfiguration the {@link MisalignmentConfiguration} to add
+     */
+    public void addMisalignment(MisalignmentConfiguration misalignmentConfiguration) {
+<span class="nc" id="L85">        this.misalignments.add(misalignmentConfiguration);</span>
+<span class="nc" id="L86">        fireAddedMisalignments(Collections.singletonList(misalignmentConfiguration));</span>
+<span class="nc" id="L87">    }</span>
+
+    /**
+     * @param misalignmentConfigurations
+     */
+    public void addMisalignments(List&lt;MisalignmentConfiguration&gt; misalignmentConfigurations) {
+<span class="nc" id="L93">        misalignmentConfigurations.addAll(misalignmentConfigurations);</span>
+<span class="nc" id="L94">        fireAddedMisalignments(misalignmentConfigurations);</span>
+<span class="nc" id="L95">    }</span>
+
+    /**
+     * @return all misalignments in this range
+     */
+    public List&lt;MisalignmentConfiguration&gt; getMisalignmentConfigurations() {
+<span class="nc" id="L101">        return this.misalignments;</span>
+    }
+
+    /**
+     * add one element
+     * 
+     * @param element the element to add.
+     */
+    public void add(Element element) {
+<span class="fc" id="L110">        elements.add(element);</span>
+<span class="fc" id="L111">        keys.put(element.getName(), elements.size() - 1);</span>
+<span class="fc" id="L112">    }</span>
+
+    /**
+     * remove all elements
+     */
+    public void clear() {
+<span class="fc" id="L118">        elements.clear();</span>
+<span class="fc" id="L119">        keys.clear();</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * get the element with the specific name
+     * 
+     * @param elementName the name of the element to retrieve.
+     * @return the element.
+     */
+    public Element getElement(String elementName) {
+<span class="fc" id="L129">        Integer index = keys.get(elementName);</span>
+
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (index == null) {</span>
+<span class="nc" id="L132">            return null;</span>
+        } else {
+<span class="fc" id="L134">            return elements.get(index);</span>
+        }
+    }
+
+    /**
+     * get all elements
+     * 
+     * @return all elements
+     */
+
+    public List&lt;Element&gt; getElements() {
+<span class="fc" id="L145">        return elements;</span>
+    }
+
+    /**
+     * get all elements of a specific type.
+     * 
+     * @param type the type of the elements to retrieve.
+     * @return a Collection of the elements.
+     * @deprecated Use getElements(Element.class)
+     */
+    @Deprecated
+    public List&lt;Element&gt; getElements(JMadElementType type) {
+<span class="fc" id="L157">        ArrayList&lt;Element&gt; selectedElements = new ArrayList&lt;Element&gt;();</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        for (Element element : elements) {</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">            if (type.isTypeOf(element)) {</span>
+<span class="fc" id="L161">                selectedElements.add(element);</span>
+            }
+<span class="fc" id="L163">        }</span>
+
+<span class="fc" id="L165">        return selectedElements;</span>
+    }
+
+    /**
+     * @param elemtClass
+     * @param &lt;C&gt;
+     * @return
+     * @return
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public &lt;C extends Element&gt; List&lt;C&gt; getElements(Class&lt;C&gt; elemtClass) {
+<span class="nc" id="L176">        List&lt;C&gt; selectedElements = new ArrayList&lt;C&gt;();</span>
+
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        for (Element element : elements) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (element.getClass().equals(elemtClass)) {</span>
+<span class="nc" id="L180">                selectedElements.add((C) element);</span>
+            }
+<span class="nc" id="L182">        }</span>
+<span class="nc" id="L183">        return selectedElements;</span>
+    }
+
+    /**
+     * @param type the type for which to search the element names
+     * @return all element-names of the given type.
+     */
+    public List&lt;String&gt; getElementNames(JMadElementType type) {
+<span class="nc" id="L191">        List&lt;Element&gt; selectedElements = getElements(type);</span>
+<span class="nc" id="L192">        ArrayList&lt;String&gt; elementNames = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (Element element : selectedElements) {</span>
+<span class="nc" id="L194">            elementNames.add(element.getName());</span>
+<span class="nc" id="L195">        }</span>
+<span class="nc" id="L196">        return elementNames;</span>
+    }
+
+    /**
+     * @return the name of the Range
+     */
+    public String getName() {
+<span class="nc" id="L203">        return this.name;</span>
+    }
+
+    /**
+     * @return the filters for all correctors to invert.
+     * @see cern.accsoft.steering.jmad.domain.machine.RangeDefinitionImpl#getCorrectorInvertFilters()
+     */
+    public final List&lt;NameFilter&gt; getCorrectorInvertFilters() {
+<span class="fc" id="L211">        return this.correctorInvertFilter;</span>
+    }
+
+    /**
+     * @return the filters for monitors to invert
+     * @see cern.accsoft.steering.jmad.domain.machine.RangeDefinitionImpl#getMonitorInvertFilters()
+     */
+    public final List&lt;NameFilter&gt; getMonitorInvertFilters() {
+<span class="fc" id="L219">        return this.monitorInvertFilters;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L224">        return getName();</span>
+    }
+
+    /**
+     * @return the rangeDefinition
+     */
+    public RangeDefinition getRangeDefinition() {
+<span class="nc" id="L231">        return rangeDefinition;</span>
+    }
+
+    /*
+     * methods concerning listeners
+     */
+
+    /**
+     * notify the listeners, that a {@link MisalignmentConfiguration} has been added
+     * 
+     * @param config {@link MisalignmentConfiguration} which was added
+     */
+    private void fireAddedMisalignments(MisalignmentConfiguration config) {
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        for (RangeListener listener : this.listeners) {</span>
+<span class="nc" id="L245">            listener.addedMisalignments(config);</span>
+<span class="nc" id="L246">        }</span>
+<span class="nc" id="L247">    }</span>
+
+    private void fireAddedMisalignments(List&lt;MisalignmentConfiguration&gt; configs) {
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        for (RangeListener listener : this.listeners) {</span>
+<span class="nc" id="L251">            listener.addedMisalignments(configs);</span>
+<span class="nc" id="L252">        }</span>
+<span class="nc" id="L253">    }</span>
+
+    /**
+     * @param listener the listener to add
+     */
+    public void addListener(RangeListener listener) {
+<span class="fc" id="L259">        this.listeners.add(listener);</span>
+<span class="fc" id="L260">    }</span>
+
+    /**
+     * @param listener the listener to remove
+     */
+    public void removeListener(RangeListener listener) {
+<span class="nc" id="L266">        this.listeners.remove(listener);</span>
+<span class="nc" id="L267">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

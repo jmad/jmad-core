@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelDefinitionUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.io.impl</a> &gt; <span class="el_source">ModelDefinitionUtil.java</span></div><h1>ModelDefinitionUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.modeldefs.io.impl;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import cern.accsoft.steering.jmad.JMadConstants;
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.file.ModelFileDependant;
+import cern.accsoft.steering.jmad.modeldefs.ClassPathModelDefinitionFinder;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.util.FileUtil;
+
+/**
+ * This class contains some utility methods for model definitions
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class ModelDefinitionUtil {
+
+    /**
+     * this is the class relative to which the model-definitions and files will be searched.
+     */
+<span class="fc" id="L53">    public static final Class&lt;?&gt; BASE_CLASS = ClassPathModelDefinitionFinder.class;</span>
+
+    /**
+     * the package name relative to the base class where to search for model-definitions and files
+     */
+    public static final String PACKAGE_OFFSET = &quot;defs&quot;;
+
+    /** the default file extension for xml files */
+    public static final String XML_FILE_EXTENSION = &quot;.jmd.xml&quot;;
+
+    /** the default file extension for json files */
+    public static final String JSON_FILE_EXTENSION = &quot;.jmd.json&quot;;
+
+    /** The extension used for jmad zip files */
+    public static final String ZIP_FILE_EXTENSION = &quot;.jmd.zip&quot;;
+
+    /**
+     * the private constructor to prevent instantiation
+     */
+    private ModelDefinitionUtil() {
+        /* Only static methods */
+    }
+
+    public static String getProposedDefaultFileName(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L77">        return getProposedIdStringFromName(modelDefinition) + getDefaultFileExtension();</span>
+    }
+
+    public static String getDefaultFileExtension() {
+<span class="fc" id="L81">        return XML_FILE_EXTENSION;</span>
+    }
+
+    /**
+     * creates a file name for the given model definition
+     * 
+     * @param modelDefinition the model definition for which to create the filename
+     * @return the filename
+     */
+    public static String getProposedXmlFileName(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L91">        return getProposedIdStringFromName(modelDefinition) + XML_FILE_EXTENSION;</span>
+    }
+
+    /**
+     * creates a json-filename for the given model definition
+     * 
+     * @param modelDefinition the model definition for which to create the filename
+     * @return the filename
+     */
+    public static String getProposedJsonFileName(JMadModelDefinition modelDefinition) {
+<span class="nc" id="L101">        return getProposedIdStringFromName(modelDefinition) + JSON_FILE_EXTENSION;</span>
+    }
+
+    /**
+     * creates an Id for the given model definition from its name. This is done by replacing all '(' and ')' by empty
+     * strings and all spaces by '-'. Note: Neither uniquenes is guaranteed nor that it will be a valid filename for
+     * example.
+     * 
+     * @param modelDefinition the model definition for which to create the id
+     * @return the proposed Id as string
+     */
+    public static String getProposedIdStringFromName(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L113">        return modelDefinition.getName().replaceAll(&quot;\\(&quot;, &quot;&quot;).replaceAll(&quot;\\)&quot;, &quot;&quot;).toLowerCase().replaceAll(&quot; &quot;, &quot;-&quot;);</span>
+    }
+
+    /**
+     * determines if the given name is a model definition xml file
+     * 
+     * @param fileName the file name to check
+     * @return true if it is an xml file name, false if not
+     */
+    public static boolean isXmlFileName(String fileName) {
+<span class="fc" id="L123">        return fileName.toLowerCase().endsWith(XML_FILE_EXTENSION);</span>
+    }
+
+    /**
+     * adds the correct file extension for jmad zip files if necessary
+     * 
+     * @param file the file which shall be a correct jmad zip file
+     * @return the corrected file
+     */
+    public static File ensureZipFileExtension(File file) {
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (isZipFileName(file.getName())) {</span>
+<span class="fc" id="L134">            return file;</span>
+        } else {
+<span class="nc" id="L136">            return new File(file.getAbsolutePath() + ZIP_FILE_EXTENSION);</span>
+        }
+    }
+
+    /**
+     * determines if the given name is a model definition zip file
+     * 
+     * @param fileName the file name to check
+     * @return true if it is a jmad zip file name, false if not
+     */
+    public static boolean isZipFileName(String fileName) {
+<span class="fc" id="L147">        return fileName.toLowerCase(JMadConstants.DEFAULT_LOCALE).endsWith(ZIP_FILE_EXTENSION);</span>
+    }
+
+    /**
+     * collects all the model files which are required by a model definition and its parts
+     * 
+     * @param modelDefinition the {@link JMadModelDefinition} for which to collect the model files
+     * @return all the required model files
+     */
+    public static final Collection&lt;ModelFile&gt; getRequiredModelFiles(JMadModelDefinition modelDefinition) {
+
+<span class="fc" id="L158">        Set&lt;ModelFile&gt; requiredFiles = new HashSet&lt;ModelFile&gt;();</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        for (ModelFileDependant modelFileDependant : getModelFileDependants(modelDefinition)) {</span>
+<span class="fc" id="L160">            requiredFiles.addAll(modelFileDependant.getRequiredFiles());</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">        return requiredFiles;</span>
+    }
+
+    /**
+     * collects all the parts of a model definition that potentially depend on model files
+     * 
+     * @param modelDefinition the model definition for which to collect the dependent classes
+     * @return all the model-file dependent classes
+     */
+    private static final Collection&lt;ModelFileDependant&gt; getModelFileDependants(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L172">        List&lt;ModelFileDependant&gt; modelFileDependants = new ArrayList&lt;ModelFileDependant&gt;();</span>
+
+        /*
+         * XXX: not very nice. Here all parts of a model definition which potentially depend on model files are added
+         * manually to the collection.
+         */
+<span class="fc" id="L178">        modelFileDependants.add(modelDefinition);</span>
+<span class="fc" id="L179">        modelFileDependants.addAll(modelDefinition.getRangeDefinitions());</span>
+<span class="fc" id="L180">        modelFileDependants.addAll(modelDefinition.getOpticsDefinitions());</span>
+<span class="fc" id="L181">        return modelFileDependants;</span>
+    }
+
+    public static final Set&lt;File&gt; modelDefinitionFilesBelow(Path root) {
+<span class="fc" id="L185">        return FileUtil.searchInFor(root, p -&gt; isXmlFileName(p.getFileName().toString()));</span>
+    }
+
+    public static final Set&lt;File&gt; nonIgnoredFilesBelow(Path root) {
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        return FileUtil.searchInFor(root, p -&gt; !p.getFileName().toString().endsWith(&quot;.java&quot;));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

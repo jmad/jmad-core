@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OffsetBlock.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.creating.lang</a> &gt; <span class="el_source">OffsetBlock.java</span></div><h1>OffsetBlock.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
+
+import static java.util.Objects.requireNonNull;
+
+import cern.accsoft.steering.jmad.domain.file.ModelPathOffsetsImpl;
+
+public class OffsetBlock {
+
+    private final ModelPathOffsetsImpl modelPathOffsetsImpl;
+
+<span class="nc" id="L15">    public OffsetBlock(ModelPathOffsetsImpl modelPathOffsetsImpl) {</span>
+<span class="nc" id="L16">        this.modelPathOffsetsImpl = requireNonNull(modelPathOffsetsImpl, &quot;modelPathOffsets must not be null&quot;);</span>
+<span class="nc" id="L17">    }</span>
+
+    public void resource(String offset) {
+<span class="nc" id="L20">        AssertUtil.requireNull(modelPathOffsetsImpl.getResourceOffset(),</span>
+                &quot;resourceOffset was already set! Cannot be set twice!&quot;);
+<span class="nc" id="L22">        modelPathOffsetsImpl.setResourceOffset(offset);</span>
+<span class="nc" id="L23">    }</span>
+
+    public void repository(String offset) {
+<span class="nc" id="L26">        AssertUtil.requireNull(modelPathOffsetsImpl.getRepositoryOffset(),</span>
+                &quot;repositoryOffset was already set! Cannot be set twice!&quot;);
+<span class="nc" id="L28">        modelPathOffsetsImpl.setRepositoryOffset(offset);</span>
+<span class="nc" id="L29">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

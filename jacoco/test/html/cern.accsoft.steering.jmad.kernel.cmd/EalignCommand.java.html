@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EalignCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd</a> &gt; <span class="el_source">EalignCommand.java</span></div><h1>EalignCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: EalignCommand.java,v 1.1 2009-01-15 11:46:26 kfuchsbe Exp $
+ * 
+ * $Date: 2009-01-15 11:46:26 $ $Revision: 1.1 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.kernel.cmd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.misalign.Misalignment;
+import cern.accsoft.steering.jmad.domain.var.enums.EalignVariables;
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * represents the command for the misaligning one or more elements. The elements have to be selected before by the
+ * select command. EALIGN, DX=real,DY=real,DS=real, DPHI=real,DTHETA=real,DPSI=real, MREX=real,MREY=real,
+ * MSCALX=real,MSCALY=real, AREX=real,AREY=real;
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class EalignCommand extends AbstractCommand {
+
+    /** the name of the command */
+    private static final String CMD_NAME = &quot;ealign&quot;;
+
+    /** the misalignment values */
+    private final Misalignment misalignment;
+
+    /**
+     * The default constructor.
+     * 
+     * @param misalignment the misalignment to apply.
+     */
+<span class="nc" id="L60">    public EalignCommand(Misalignment misalignment) {</span>
+<span class="nc" id="L61">        this.misalignment = misalignment;</span>
+<span class="nc" id="L62">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L66">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L71">        ArrayList&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+        /*
+         * define the mapping of the member-vars to the parameter names
+         */
+
+        /*
+         * EALIGN, DX=real,DY=real,DS=real, DPHI=real,DTHETA=real,DPSI=real, MREX=real,MREY=real,
+         * MSCALX=real,MSCALY=real, AREX=real,AREY=real;
+         */
+<span class="nc" id="L81">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.DX.getName(), misalignment.getDeltaX()));</span>
+<span class="nc" id="L82">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.DY.getName(), misalignment.getDeltaY()));</span>
+<span class="nc" id="L83">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.DS.getName(), misalignment.getDeltaS()));</span>
+<span class="nc" id="L84">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.DPHI.getName(), misalignment.getDeltaPhi()));</span>
+<span class="nc" id="L85">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.DTHETA.getName(), misalignment.getDeltaTheta()));</span>
+<span class="nc" id="L86">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.DPSI.getName(), misalignment.getDeltaPsi()));</span>
+<span class="nc" id="L87">        parameters</span>
+<span class="nc" id="L88">                .add(new GenericParameter&lt;&gt;(EalignVariables.MREX.getName(), misalignment.getMonitorReadErrorX()));</span>
+<span class="nc" id="L89">        parameters</span>
+<span class="nc" id="L90">                .add(new GenericParameter&lt;&gt;(EalignVariables.MREY.getName(), misalignment.getMonitorReadErrorY()));</span>
+<span class="nc" id="L91">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.MSCALX.getName(), misalignment.getMonitorScalingErrorX()));</span>
+<span class="nc" id="L92">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.MSCALY.getName(), misalignment.getMonitorScalingErrorY()));</span>
+<span class="nc" id="L93">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.AREX.getName(), misalignment.getApertureErrorX()));</span>
+<span class="nc" id="L94">        parameters.add(new GenericParameter&lt;&gt;(EalignVariables.AREY.getName(), misalignment.getApertureErrorY()));</span>
+
+<span class="nc" id="L96">        return parameters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

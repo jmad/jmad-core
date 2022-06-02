@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Misalignment.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.misalign</a> &gt; <span class="el_source">Misalignment.java</span></div><h1>Misalignment.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: Misalignment.java,v 1.2 2009-01-20 19:43:10 kfuchsbe Exp $
+ * 
+ * $Date: 2009-01-20 19:43:10 $ $Revision: 1.2 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.domain.misalign;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.util.bean.NamedBean;
+
+/**
+ * this class defines values, which describe a misalignment of one or more elements. When communicating with MadX this
+ * always results in a set of &lt;a href=&quot;http://mad.web.cern.ch/mad/error/error_align.html&quot;&gt;EALIGN&lt;/a&gt; commands.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class Misalignment implements NamedBean {
+
+    /** the listeners */
+<span class="nc" id="L46">    private final List&lt;MisalignmentListener&gt; listeners = new ArrayList&lt;MisalignmentListener&gt;();</span>
+
+    /**
+     * DX: The misalignment in the x-direction for the entry of the beam element (default: 0 m). DX&gt;0 displaces the
+     * element in the positive x-direction
+     */
+<span class="nc" id="L52">    private Double deltaX = null;</span>
+
+    /**
+     * DY: The misalignment in the y-direction for the entry of the beam element (default: 0 m). DY&gt;0 displaces the
+     * element in the positive y-direction
+     */
+<span class="nc" id="L58">    private Double deltaY = null;</span>
+
+    /**
+     * DS: The misalignment in the s-direction for the entry of the beam element (default: 0 m). DS&gt;0 displaces the
+     * element in the positive s-direction
+     */
+<span class="nc" id="L64">    private Double deltaS = null;</span>
+
+    /**
+     * DPHI: The rotation around the x-axis. A positive angle gives a greater x-coordinate for the exit than for the
+     * entry (default: 0 rad).
+     */
+<span class="nc" id="L70">    private Double deltaPhi = null;</span>
+
+    /**
+     * DTHETA: The rotation around the y-axis according to the right hand rule (default: 0 rad).
+     */
+<span class="nc" id="L75">    private Double deltaTheta = null;</span>
+
+    /**
+     * DPSI: The rotation around the s-axis according to the right hand rule (default: 0 rad).
+     */
+<span class="nc" id="L80">    private Double deltaPsi = null;</span>
+
+    //
+    // the following values only apply to monitors
+    //
+
+    /**
+     * MREX: The horizontal read error for a monitor. This is ignored if the element is not a monitor If MREX&gt;0 the
+     * reading for x is too high (default: 0 m).
+     */
+<span class="nc" id="L90">    private Double monitorReadErrorX = null;</span>
+
+    /**
+     * MREY: The vertical read error for a monitor. This is ignored if the element is not a monitor If MREY&gt;0, the
+     * reading for y is too high (default: 0 m).
+     */
+<span class="nc" id="L96">    private Double monitorReadErrorY = null;</span>
+
+    /**
+     * MSCALX: The relative horizontal scaling error for a monitor. This is ignored if the element is not a monitor. If
+     * MSCALX&gt;0 the reading for x is too high (default: 0). A value of 0.5 implies the actual reading is multiplied by
+     * 1.5.
+     */
+<span class="nc" id="L103">    private Double monitorScalingErrorX = null;</span>
+
+    /**
+     * MSCALY: The relative vertical scaling error for a monitor. This is ignored if the element is not a monitor. If
+     * MSCALY&gt;0 the reading for y is too high (default: 0). A value of -0.3 implies the actual reading is multiplied by
+     * 0.7.
+     */
+<span class="nc" id="L110">    private Double monitorScalingErrorY = null;</span>
+
+    /**
+     * AREX: The misalignment in the x-direction for the entry of an aperture limit (default: 0 m). AREX&gt;0 displaces the
+     * element in the positive x-direction
+     */
+<span class="nc" id="L116">    private Double apertureErrorX = null;</span>
+
+    /**
+     * AREY: The misalignment in the y-direction for the entry of an aperture limit (default: 0 m). AREY&gt;0 displaces the
+     * element in the positive y-direction
+     */
+<span class="nc" id="L122">    private Double apertureErrorY = null;</span>
+
+    /**
+     * the name of the misalignment
+     */
+    private final String name;
+
+    /**
+     * the constructor-which needs a name
+     * 
+     * @param name the name
+     */
+<span class="nc" id="L134">    public Misalignment(String name) {</span>
+<span class="nc" id="L135">        this.name = name;</span>
+<span class="nc" id="L136">    }</span>
+
+    /*
+     * Getters and setters
+     */
+
+    /**
+     * @return the deltaX
+     */
+    public final Double getDeltaX() {
+<span class="nc" id="L146">        return deltaX;</span>
+    }
+
+    /**
+     * @param deltaX the deltaX to set
+     */
+    public final void setDeltaX(Double deltaX) {
+<span class="nc" id="L153">        this.deltaX = deltaX;</span>
+<span class="nc" id="L154">        fireChangedValues();</span>
+<span class="nc" id="L155">    }</span>
+
+    /**
+     * @return the deltaY
+     */
+    public final Double getDeltaY() {
+<span class="nc" id="L161">        return deltaY;</span>
+    }
+
+    /**
+     * @param deltaY the deltaY to set
+     */
+    public final void setDeltaY(Double deltaY) {
+<span class="nc" id="L168">        this.deltaY = deltaY;</span>
+<span class="nc" id="L169">        fireChangedValues();</span>
+<span class="nc" id="L170">    }</span>
+
+    /**
+     * @return the deltaS
+     */
+    public final Double getDeltaS() {
+<span class="nc" id="L176">        return deltaS;</span>
+    }
+
+    /**
+     * @param deltaS the deltaS to set
+     */
+    public final void setDeltaS(Double deltaS) {
+<span class="nc" id="L183">        this.deltaS = deltaS;</span>
+<span class="nc" id="L184">        fireChangedValues();</span>
+<span class="nc" id="L185">    }</span>
+
+    /**
+     * @return the deltaPhi
+     */
+    public final Double getDeltaPhi() {
+<span class="nc" id="L191">        return deltaPhi;</span>
+    }
+
+    /**
+     * @param deltaPhi the deltaPhi to set
+     */
+    public final void setDeltaPhi(Double deltaPhi) {
+<span class="nc" id="L198">        this.deltaPhi = deltaPhi;</span>
+<span class="nc" id="L199">        fireChangedValues();</span>
+<span class="nc" id="L200">    }</span>
+
+    /**
+     * @return the deltaTheta
+     */
+    public final Double getDeltaTheta() {
+<span class="nc" id="L206">        return deltaTheta;</span>
+    }
+
+    /**
+     * @param deltaTheta the deltaTheta to set
+     */
+    public final void setDeltaTheta(Double deltaTheta) {
+<span class="nc" id="L213">        this.deltaTheta = deltaTheta;</span>
+<span class="nc" id="L214">        fireChangedValues();</span>
+<span class="nc" id="L215">    }</span>
+
+    /**
+     * @return the deltaPsi
+     */
+    public final Double getDeltaPsi() {
+<span class="nc" id="L221">        return deltaPsi;</span>
+    }
+
+    /**
+     * @param deltaPsi the deltaPsi to set
+     */
+    public final void setDeltaPsi(Double deltaPsi) {
+<span class="nc" id="L228">        this.deltaPsi = deltaPsi;</span>
+<span class="nc" id="L229">        fireChangedValues();</span>
+<span class="nc" id="L230">    }</span>
+
+    /**
+     * @return the monitorReadErrorX
+     */
+    public final Double getMonitorReadErrorX() {
+<span class="nc" id="L236">        return monitorReadErrorX;</span>
+    }
+
+    /**
+     * @param monitorReadErrorX the monitorReadErrorX to set
+     */
+    public final void setMonitorReadErrorX(Double monitorReadErrorX) {
+<span class="nc" id="L243">        this.monitorReadErrorX = monitorReadErrorX;</span>
+<span class="nc" id="L244">        fireChangedValues();</span>
+<span class="nc" id="L245">    }</span>
+
+    /**
+     * @return the monitorReadErrorY
+     */
+    public final Double getMonitorReadErrorY() {
+<span class="nc" id="L251">        return monitorReadErrorY;</span>
+    }
+
+    /**
+     * @param monitorReadErrorY the monitorReadErrorY to set
+     */
+    public final void setMonitorReadErrorY(Double monitorReadErrorY) {
+<span class="nc" id="L258">        this.monitorReadErrorY = monitorReadErrorY;</span>
+<span class="nc" id="L259">        fireChangedValues();</span>
+<span class="nc" id="L260">    }</span>
+
+    /**
+     * @return the monitorScalingErrorX
+     */
+    public final Double getMonitorScalingErrorX() {
+<span class="nc" id="L266">        return monitorScalingErrorX;</span>
+    }
+
+    /**
+     * @param monitorScalingErrorX the monitorScalingErrorX to set
+     */
+    public final void setMonitorScalingErrorX(Double monitorScalingErrorX) {
+<span class="nc" id="L273">        this.monitorScalingErrorX = monitorScalingErrorX;</span>
+<span class="nc" id="L274">        fireChangedValues();</span>
+<span class="nc" id="L275">    }</span>
+
+    /**
+     * @return the monitorScalingErrorY
+     */
+    public final Double getMonitorScalingErrorY() {
+<span class="nc" id="L281">        return monitorScalingErrorY;</span>
+    }
+
+    /**
+     * @param monitorScalingErrorY the monitorScalingErrorY to set
+     */
+    public final void setMonitorScalingErrorY(Double monitorScalingErrorY) {
+<span class="nc" id="L288">        this.monitorScalingErrorY = monitorScalingErrorY;</span>
+<span class="nc" id="L289">        fireChangedValues();</span>
+<span class="nc" id="L290">    }</span>
+
+    /**
+     * @return the apertureErrorX
+     */
+    public final Double getApertureErrorX() {
+<span class="nc" id="L296">        return apertureErrorX;</span>
+    }
+
+    /**
+     * @param apertureErrorX the apertureErrorX to set
+     */
+    public final void setApertureErrorX(Double apertureErrorX) {
+<span class="nc" id="L303">        this.apertureErrorX = apertureErrorX;</span>
+<span class="nc" id="L304">        fireChangedValues();</span>
+<span class="nc" id="L305">    }</span>
+
+    /**
+     * @return the apertureErrorY
+     */
+    public final Double getApertureErrorY() {
+<span class="nc" id="L311">        return apertureErrorY;</span>
+    }
+
+    /**
+     * @param apertureErrorY the apertureErrorY to set
+     */
+    public final void setApertureErrorY(Double apertureErrorY) {
+<span class="nc" id="L318">        this.apertureErrorY = apertureErrorY;</span>
+<span class="nc" id="L319">        fireChangedValues();</span>
+<span class="nc" id="L320">    }</span>
+
+    /*
+     * methods concerning listeners
+     */
+
+    /**
+     * notify the listeners, that values have changed
+     */
+    private void fireChangedValues() {
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        for (MisalignmentListener listener : this.listeners) {</span>
+<span class="nc" id="L331">            listener.changedValues(this);</span>
+<span class="nc" id="L332">        }</span>
+<span class="nc" id="L333">    }</span>
+
+    /**
+     * @param listener the listener to add
+     */
+    public void addListener(MisalignmentListener listener) {
+<span class="nc" id="L339">        this.listeners.add(listener);</span>
+<span class="nc" id="L340">    }</span>
+
+    /**
+     * @param listener the listener to remove
+     */
+    public void removeListener(MisalignmentListener listener) {
+<span class="nc" id="L346">        this.listeners.remove(listener);</span>
+<span class="nc" id="L347">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L351">        return this.name;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L356">        return &quot;Misalignment [deltaX=&quot; + deltaX + &quot;, deltaY=&quot; + deltaY + &quot;, deltaS=&quot; + deltaS + &quot;, monitorReadErrorX=&quot;</span>
+                + monitorReadErrorX + &quot;, monitorReadErrorY=&quot; + monitorReadErrorY + &quot;, name=&quot; + name + &quot;]&quot;;
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

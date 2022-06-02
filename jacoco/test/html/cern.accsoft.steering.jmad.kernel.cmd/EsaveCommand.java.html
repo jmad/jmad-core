@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EsaveCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd</a> &gt; <span class="el_source">EsaveCommand.java</span></div><h1>EsaveCommand.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2014 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.kernel.cmd;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * A command that allows to save all machine imperfections into separate table such that after model treatment they can
+ * be accessed and an absolute value of imperfection is returned.
+ * 
+ * @author agorzaws
+ */
+public class EsaveCommand extends AbstractCommand {
+
+    private final File outputFile;
+
+    private static final String CMD_NAME = &quot;esave&quot;;
+
+<span class="nc" id="L26">    public EsaveCommand(File file) {</span>
+<span class="nc" id="L27">        this.outputFile = file;</span>
+<span class="nc" id="L28">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L32">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L37">        ArrayList&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L38">        parameters.add(new GenericParameter&lt;&gt;(&quot;file&quot;, outputFile.getAbsolutePath()));</span>
+<span class="nc" id="L39">        return parameters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

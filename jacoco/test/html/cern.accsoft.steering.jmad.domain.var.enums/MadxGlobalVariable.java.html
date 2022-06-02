@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxGlobalVariable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.var.enums</a> &gt; <span class="el_source">MadxGlobalVariable.java</span></div><h1>MadxGlobalVariable.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.var.enums;
+
+import java.util.Set;
+
+import cern.accsoft.steering.jmad.domain.var.GlobalVariable;
+import cern.accsoft.steering.jmad.domain.var.VariableUtil;
+import cern.accsoft.steering.jmad.util.MadxVarType;
+
+/**
+ * This enum represents madx global variables, which appear in general in the sum-table of the twiss. TODO define units
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L39">public enum MadxGlobalVariable implements GlobalVariable {</span>
+<span class="fc" id="L40">    NAME(MadxVarType.STRING), //</span>
+<span class="fc" id="L41">    TYPE(MadxVarType.STRING), //</span>
+<span class="fc" id="L42">    SEQUENCE(MadxVarType.STRING), //</span>
+
+    /*
+     * beam parameters
+     */
+<span class="fc" id="L47">    PARTICLE(MadxVarType.STRING), //</span>
+<span class="fc" id="L48">    MASS, CHARGE, ENERGY, PC, GAMMA, KBUNCH, BCURRENT, //</span>
+<span class="fc" id="L49">    SIGE, SIGT, NPART, EX, EY, ET, //</span>
+
+    /*
+     * elements of sum-table
+     */
+<span class="fc" id="L54">    LENGTH, ALFA, ORBIT5, GAMMATR, //</span>
+<span class="fc" id="L55">    Q1, Q2, DQ1, DQ2, // DDQ1, DDQ2, --&gt; to be verified... //</span>
+<span class="fc" id="L56">    DXMAX, DYMAX, XCOMAX, YCOMAX, BETXMAX, BETYMAX, //</span>
+<span class="fc" id="L57">    XCORMS, YCORMS, DXRMS, DYRMS, DELTAP, //</span>
+<span class="fc" id="L58">    SYNCH_1, SYNCH_2, SYNCH_3, SYNCH_4, SYNCH_5,</span>
+
+    /*
+     * others
+     */
+<span class="fc" id="L63">    TITLE(MadxVarType.STRING), //</span>
+<span class="fc" id="L64">    ORIGIN(MadxVarType.STRING), //</span>
+<span class="fc" id="L65">    DATE(MadxVarType.STRING), //</span>
+<span class="fc" id="L66">    TIME(MadxVarType.STRING),</span>
+
+    /* if something wrong: */
+<span class="fc" id="L69">    UNKNOWN(&quot;jmad_unknown&quot;, MadxVarType.UNKNOWN);</span>
+
+    private String madxName;
+<span class="fc" id="L72">    private String unit = null;</span>
+<span class="fc" id="L73">    private MadxVarType type = MadxVarType.DOUBLE;</span>
+
+    /*
+     * constructors
+     */
+
+<span class="fc" id="L79">    private MadxGlobalVariable() {</span>
+        /*
+         * we use the lowercae expression as madx name.
+         */
+<span class="fc" id="L83">        this.madxName = this.name().toLowerCase();</span>
+<span class="fc" id="L84">    }</span>
+
+    private MadxGlobalVariable(String unit) {
+<span class="nc" id="L87">        this();</span>
+<span class="nc" id="L88">        this.unit = unit;</span>
+<span class="nc" id="L89">    }</span>
+
+    private MadxGlobalVariable(String madxName, MadxVarType varType) {
+<span class="fc" id="L92">        this(varType);</span>
+<span class="fc" id="L93">        this.madxName = madxName;</span>
+<span class="fc" id="L94">    }</span>
+
+    private MadxGlobalVariable(MadxVarType type) {
+<span class="fc" id="L97">        this();</span>
+<span class="fc" id="L98">        this.type = type;</span>
+<span class="fc" id="L99">    }</span>
+
+    public static final MadxGlobalVariable fromMadxName(String madxName) {
+<span class="nc" id="L102">        return VariableUtil.findFromMadxName(MadxGlobalVariable.class, madxName, MadxGlobalVariable.UNKNOWN);</span>
+    }
+
+    public static final Set&lt;MadxGlobalVariable&gt; allOfType(MadxVarType varType) {
+<span class="nc" id="L106">        return VariableUtil.findFromVarType(MadxGlobalVariable.class, varType);</span>
+    }
+
+    //
+    // methods of interface Variable
+    //
+
+    @Override
+    public String getMadxName() {
+<span class="fc" id="L115">        return this.madxName;</span>
+    }
+
+    @Override
+    public String getUnit() {
+<span class="nc" id="L120">        return this.unit;</span>
+    }
+
+    @Override
+    public MadxVarType getVarType() {
+<span class="nc" id="L125">        return this.type;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L130">        return getMadxName();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L135">        return VariableUtil.toString(this);</span>
+    }
+
+    @Override
+    public Class&lt;?&gt; getValueClass() {
+<span class="nc" id="L140">        return getVarType().getValueClass();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RangeDefinitionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.creating.lang</a> &gt; <span class="el_source">RangeDefinitionBuilder.java</span></div><h1>RangeDefinitionBuilder.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
+
+import static java.util.Objects.requireNonNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.machine.MadxRange;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinitionImpl;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.domain.machine.filter.NameFilter;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
+
+public class RangeDefinitionBuilder {
+
+    private final SequenceDefinition sequenceDefinition;
+    private final String rangeName;
+    private TwissInitialConditionsImpl twissInitialConditions;
+    private String startElementName;
+    private String endElementName;
+
+<span class="nc" id="L29">    private List&lt;NameFilter&gt; monitorInvertFilters = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L30">    private List&lt;NameFilter&gt; correctorInvertFilters = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L31">    private List&lt;ModelFile&gt; postUseFiles = new ArrayList&lt;&gt;();</span>
+    private String rotateStartElementName;
+
+<span class="nc" id="L34">    public RangeDefinitionBuilder(String rangeName, SequenceDefinition sequenceDefinition) {</span>
+<span class="nc" id="L35">        this.rangeName = requireNonNull(rangeName, &quot;rangeName must not be null&quot;);</span>
+<span class="nc" id="L36">        this.sequenceDefinition = requireNonNull(sequenceDefinition, &quot;sequenceDefinition must not be null&quot;);</span>
+<span class="nc" id="L37">        this.twissInitialConditions = new TwissInitialConditionsImpl(</span>
+<span class="nc" id="L38">                sequenceDefinition.getName() + &quot;-&quot; + rangeName + &quot;-twiss&quot;);</span>
+<span class="nc" id="L39">    }</span>
+
+    public RangeDefinition build() {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (twissInitialConditions == null) {</span>
+<span class="nc" id="L43">            throw new IllegalStateException(</span>
+                    &quot;Twiss initial conditions not defined for range '&quot; + rangeName + &quot;'. This is not allowed!&quot;);
+        }
+<span class="nc" id="L46">        RangeDefinitionImpl rangeDefinition = new RangeDefinitionImpl(sequenceDefinition, rangeName, madxRange(),</span>
+                twissInitialConditions);
+<span class="nc" id="L48">        monitorInvertFilters.stream().forEachOrdered(rangeDefinition::addMonitorInvertFilter);</span>
+<span class="nc" id="L49">        correctorInvertFilters.stream().forEachOrdered(rangeDefinition::addCorrectorInvertFilter);</span>
+<span class="nc" id="L50">        postUseFiles.stream().forEachOrdered(rangeDefinition::addPostUseFile);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.rotateStartElementName != null) {</span>
+<span class="nc" id="L52">            rangeDefinition.setStartElementName(rotateStartElementName);</span>
+        }
+<span class="nc" id="L54">        return rangeDefinition;</span>
+
+    }
+
+    private MadxRange madxRange() {
+<span class="nc" id="L59">        MadxRange defaultRange = new MadxRange();</span>
+<span class="nc" id="L60">        String first = Optional.ofNullable(getStartElementName()).orElse(defaultRange.getFirstElementName());</span>
+<span class="nc" id="L61">        String last = Optional.ofNullable(getEndElementName()).orElse(defaultRange.getLastElementName());</span>
+<span class="nc" id="L62">        return new MadxRange(first, last);</span>
+    }
+
+    public TwissInitialConditionsImpl getTwissInitialConditions() {
+<span class="nc" id="L66">        return twissInitialConditions;</span>
+    }
+
+    public void setTwissInitialConditions(TwissInitialConditionsImpl twissInitialConditions) {
+<span class="nc" id="L70">        this.twissInitialConditions = twissInitialConditions;</span>
+<span class="nc" id="L71">    }</span>
+
+    public String getStartElementName() {
+<span class="nc" id="L74">        return startElementName;</span>
+    }
+
+    public void setStartElementName(String startElementName) {
+<span class="nc" id="L78">        this.startElementName = startElementName;</span>
+<span class="nc" id="L79">    }</span>
+
+    public String getEndElementName() {
+<span class="nc" id="L82">        return endElementName;</span>
+    }
+
+    public void setEndElementName(String endElementName) {
+<span class="nc" id="L86">        this.endElementName = endElementName;</span>
+<span class="nc" id="L87">    }</span>
+
+    public String getRangeName() {
+<span class="nc" id="L90">        return rangeName;</span>
+    }
+
+    public void addMonitorInvertFilter(NameFilter filter) {
+<span class="nc" id="L94">        this.monitorInvertFilters.add(filter);</span>
+<span class="nc" id="L95">    }</span>
+
+    public void addCorrectorInvertFilter(NameFilter filter) {
+<span class="nc" id="L98">        this.correctorInvertFilters.add(filter);</span>
+<span class="nc" id="L99">    }</span>
+
+    public void addPostUseFile(ModelFile modelFile) {
+<span class="nc" id="L102">        this.postUseFiles.add(modelFile);</span>
+<span class="nc" id="L103">    }</span>
+
+    public void setRotateStartElementName(String elementName) {
+<span class="nc" id="L106">        this.rotateStartElementName = elementName;</span>
+<span class="nc" id="L107">    }</span>
+
+    public String getRotateStartElementName() {
+<span class="nc" id="L110">        return this.rotateStartElementName;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

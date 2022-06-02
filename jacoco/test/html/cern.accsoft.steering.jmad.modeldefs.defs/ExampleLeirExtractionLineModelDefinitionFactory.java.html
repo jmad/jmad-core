@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExampleLeirExtractionLineModelDefinitionFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.modeldefs.defs</a> &gt; <span class="el_source">ExampleLeirExtractionLineModelDefinitionFactory.java</span></div><h1>ExampleLeirExtractionLineModelDefinitionFactory.java</h1><pre class="source lang-java linenums">/**
+ * 
+ */
+package cern.accsoft.steering.jmad.modeldefs.defs;
+
+import static cern.accsoft.steering.jmad.domain.file.CallableModelFile.ParseType.STRENGTHS;
+import static cern.accsoft.steering.jmad.domain.file.ModelFile.ModelFileLocation.RESOURCE;
+
+import cern.accsoft.steering.jmad.tools.modeldefs.creating.lang.JMadModelDefinitionDslSupport;
+
+/**
+ * This class is the actual model configuration for the leir extraction transfer line.
+ */
+<span class="nc" id="L14">public class ExampleLeirExtractionLineModelDefinitionFactory extends JMadModelDefinitionDslSupport {</span>
+    {
+<span class="nc" id="L16">        name(&quot;Example LEIREXTR&quot;);</span>
+
+<span class="nc" id="L18">        offsets(o -&gt; {</span>
+<span class="nc" id="L19">            o.resource(&quot;exampleleir&quot;);</span>
+<span class="nc" id="L20">        });</span>
+
+<span class="nc" id="L22">        init(i -&gt; {</span>
+<span class="nc" id="L23">            i.call(&quot;lead.madx&quot;).from(RESOURCE);</span>
+<span class="nc" id="L24">            i.call(&quot;leir_extraction_fringe_field_2018.seq&quot;).from(RESOURCE);</span>
+<span class="nc" id="L25">        });</span>
+
+<span class="nc" id="L27">        optics(&quot;leir_extraction_2018&quot;) //</span>
+<span class="nc" id="L28">                .isDefault() //</span>
+<span class="nc" id="L29">                .isDefinedAs(o -&gt; {</span>
+<span class="nc" id="L30">                    o.call(&quot;leir_extraction_2018.str&quot;).from(RESOURCE).parseAs(STRENGTHS);</span>
+<span class="nc" id="L31">                });</span>
+
+<span class="nc" id="L33">        sequence(&quot;eeetl&quot;).isDefault().isDefinedAs(s -&gt; {</span>
+<span class="nc" id="L34">            s.range(&quot;ALL&quot;).isDefault().isDefinedAs(r -&gt; {</span>
+<span class="nc" id="L35">                r.twiss(t -&gt; {</span>
+<span class="nc" id="L36">                    t.betx(4.99920392);</span>
+<span class="nc" id="L37">                    t.dx(0.00159546);</span>
+<span class="nc" id="L38">                    t.bety(5.00038080);</span>
+<span class="nc" id="L39">                    t.calcAtCenter();</span>
+<span class="nc" id="L40">                });</span>
+<span class="nc" id="L41">            });</span>
+<span class="nc" id="L42">        });</span>
+<span class="nc" id="L43">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

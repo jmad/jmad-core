@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateRequestBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.interpolate</a> &gt; <span class="el_source">UpdateRequestBuilder.java</span></div><h1>UpdateRequestBuilder.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id $
+ * 
+ * $Date$ $Revision$ $Author$
+ * 
+ * Copyright CERN ${year}, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.tools.interpolate;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.optics.Optic;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+
+/**
+ * Builder for {@link UpdateRequest} objects.
+ * &lt;p&gt;
+ * Usage example (for a circular machine):
+ * 
+ * &lt;pre&gt;
+ * UpdateRequestBuilder builder = new UpdateRequestBuilder(true);
+ * UpdateRequest request = builder.setOptic(YOUR_OPTIC)
+ *                              .setElements(YOUR_ELEMENTS)
+ *                              .setActiveMonitors(H, YOUR_H_MONITORS)
+ *                              .setActiveMonitors(V, YOUR_V_MONITORS)
+ *                              .build();
+ * &lt;/pre&gt;
+ * 
+ * and later on, when only your active monitors have changed:
+ * 
+ * &lt;pre&gt;
+ * UpdateRequest request = builder.setActiveMonitors(H, YOUR_H_MONITORS)
+ *                              .setActiveMonitors(V, YOUR_V_MONITORS)
+ *                              .build();
+ * &lt;/pre&gt;
+ * 
+ * and so forth and so on...
+ * &lt;p&gt;
+ * This Builder can be reused for multiple update calls and is thread save, as both set-methods and the build method are
+ * synchronized. Therefore it is possible to set optic and elements in one thread and use the builder in another one,
+ * where the actual update is performed.
+ * 
+ * @author muellerg
+ */
+public class UpdateRequestBuilder {
+    /** flag determining if it is a transfer line/linear accelerator or a synchrotron */
+    private boolean isCircularMachine;
+
+    /** the list of elements defining the machine */
+<span class="fc" id="L80">    private List&lt;Element&gt; machineElements = Collections.emptyList();</span>
+    /** flag determining if the elements have been updated */
+<span class="fc" id="L82">    private boolean elementsUpdated = false;</span>
+
+    /** the machine optic defining the optic functions at all elements in the machine */
+<span class="fc" id="L85">    private Optic machineOptic = null;</span>
+    /** flag determining if the optics have been updated */
+<span class="fc" id="L87">    private boolean opticUpdated = false;</span>
+
+    /** the set of monitors to use for the interpolation */
+<span class="fc" id="L90">    private Map&lt;JMadPlane, Set&lt;Element&gt;&gt; interpolationMonitors = new HashMap&lt;JMadPlane, Set&lt;Element&gt;&gt;();</span>
+    /** flag determining if the active monitors have been updated */
+    private Map&lt;JMadPlane, Boolean&gt; monitorsUpdated;
+
+    /**
+     * The constructor of a update request builder.
+     * 
+     * @param isCirularMachine pass &lt;code&gt;true&lt;/code&gt; if this update request builder is for a circular
+     *            machine/synchrotron
+     */
+<span class="fc" id="L100">    public UpdateRequestBuilder(boolean isCirularMachine) {</span>
+<span class="fc" id="L101">        this.isCircularMachine = isCirularMachine;</span>
+<span class="fc" id="L102">        this.monitorsUpdated = new HashMap&lt;JMadPlane, Boolean&gt;();</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (JMadPlane plane : JMadPlane.values()) {</span>
+<span class="fc" id="L104">            this.monitorsUpdated.put(plane, false);</span>
+        }
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * Set the optic to use in the update request.
+     * 
+     * @param optic the optic to use
+     * @return the builder
+     * @throws IllegalArgumentException if null is passed
+     */
+    public synchronized UpdateRequestBuilder setOptic(Optic optic) {
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if (optic == null) {</span>
+<span class="nc" id="L117">            throw new IllegalArgumentException(&quot;optic to create a update request from MUST no be 'null'&quot;);</span>
+        }
+
+<span class="fc" id="L120">        this.machineOptic = optic;</span>
+<span class="fc" id="L121">        this.opticUpdated = true;</span>
+<span class="fc" id="L122">        return this;</span>
+    }
+
+    /**
+     * Set the elements defining the machine.
+     * 
+     * @param elements the list of elements
+     * @return the builder
+     * @throws IllegalArgumentException in case the provided elements are null or an empty is passed
+     */
+    public synchronized UpdateRequestBuilder setElements(List&lt;Element&gt; elements) {
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (elements == null) {</span>
+<span class="nc" id="L134">            throw new IllegalArgumentException(&quot;elements to create a update request with, MUST not be 'null'&quot;);</span>
+        }
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (elements.size() &lt;= 0) {</span>
+<span class="nc" id="L137">            throw new IllegalArgumentException(&quot;at least one element is required to create a update request&quot;);</span>
+        }
+
+<span class="fc" id="L140">        this.elementsUpdated = true;</span>
+<span class="fc" id="L141">        this.machineElements = elements;</span>
+
+<span class="fc" id="L143">        return this;</span>
+    }
+
+    /**
+     * Set the active monitors for a given plane in the builder.
+     * 
+     * @param plane the {@link JMadPlane} to set the active monitors for
+     * @param monitors the set of monitors to set active
+     * @return the builder
+     * @throws IllegalArgumentException if the provided set of monitor elements is null, or does not contain at least
+     *             two monitors
+     */
+    public synchronized UpdateRequestBuilder setActiveMonitors(JMadPlane plane, Set&lt;Element&gt; monitors) {
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (monitors == null) {</span>
+<span class="nc" id="L157">            throw new IllegalArgumentException(&quot;monitors to set active in update request, MUST not be 'null'&quot;);</span>
+        }
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (monitors.size() &lt; 2) {</span>
+<span class="nc" id="L161">            throw new IllegalArgumentException(&quot;there MUST be at least 2 monitors to set active in update request&quot;);</span>
+        }
+
+<span class="fc" id="L164">        this.interpolationMonitors.put(plane, monitors);</span>
+<span class="fc" id="L165">        this.monitorsUpdated.put(plane, true);</span>
+<span class="fc" id="L166">        return this;</span>
+    }
+
+    /**
+     * Create a full update request in case the machine elements changed.
+     * 
+     * @param elements the list of elements to use
+     * @param monitors the list of monitors to use
+     * @param optic the optic to use
+     * @return the builder
+     * @throws IllegalArgumentException if one of the arguments is illegal
+     */
+    public synchronized UpdateRequestBuilder fullUpdate(List&lt;Element&gt; elements, Map&lt;JMadPlane, Set&lt;Element&gt;&gt; monitors,
+            Optic optic) {
+<span class="nc" id="L180">        this.setElements(elements);</span>
+<span class="nc" id="L181">        this.setOptic(optic);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (Entry&lt;JMadPlane, Set&lt;Element&gt;&gt; entry : monitors.entrySet()) {</span>
+<span class="nc" id="L183">            this.setActiveMonitors(entry.getKey(), entry.getValue());</span>
+<span class="nc" id="L184">        }</span>
+<span class="nc" id="L185">        return this;</span>
+    }
+
+    /**
+     * @return the actual request based on the current state of the builder.
+     * @throws IllegalStateException in case one of the constraints is not fulfilled
+     */
+    public synchronized UpdateRequest buildRequest() {
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        if (this.elementsUpdated) {</span>
+            /* optic needs to be correct */
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">            if (!this.opticUpdated) {</span>
+                try {
+<span class="nc" id="L197">                    this.setOptic(this.machineOptic);</span>
+<span class="nc" id="L198">                } catch (Exception e) {</span>
+<span class="nc" id="L199">                    throw new IllegalStateException(&quot;Can not build update request with new elements illegal optic&quot;, e);</span>
+<span class="nc" id="L200">                }</span>
+            }
+
+            /* monitors need to be defined for both planes */
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            for (JMadPlane plane : JMadPlane.values()) {</span>
+<span class="fc" id="L205">                Set&lt;Element&gt; monitors = this.interpolationMonitors.get(plane);</span>
+                try {
+                    /* set the active monitors internally */
+<span class="fc" id="L208">                    this.setActiveMonitors(plane, monitors);</span>
+                    /* flag the structure change for the actual plane */
+<span class="fc" id="L210">                    this.monitorsUpdated.put(plane, true);</span>
+<span class="nc" id="L211">                } catch (Exception e) {</span>
+<span class="nc" id="L212">                    throw new IllegalStateException(</span>
+                            &quot;Can not build update request with new elements, illegal monitors defined for plane [&quot;
+                                    + plane + &quot;]&quot;, e);
+<span class="fc" id="L215">                }</span>
+            }
+        }
+
+        /* check if monitors changed --&gt; optic needs to be available */
+<span class="fc" id="L220">        Map&lt;JMadPlane, Boolean&gt; updateMonitorPlanes = new HashMap&lt;JMadPlane, Boolean&gt;();</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for (JMadPlane plane : JMadPlane.values()) {</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">            if (this.monitorsUpdated.get(plane)) {</span>
+<span class="fc" id="L223">                updateMonitorPlanes.put(plane, true);</span>
+            }
+        }
+
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (updateMonitorPlanes.size() &gt; 0) {</span>
+            /* we need to have elements and optic defined */
+            try {
+<span class="fc" id="L230">                this.setElements(machineElements);</span>
+<span class="fc" id="L231">                this.setOptic(machineOptic);</span>
+<span class="nc" id="L232">            } catch (Exception e) {</span>
+<span class="nc" id="L233">                throw new IllegalStateException(&quot;Can not build request with changed active monitors.&quot;, e);</span>
+<span class="fc" id="L234">            }</span>
+        }
+
+        /* build the request */
+<span class="fc" id="L238">        UpdateRequest request = new UpdateRequestImpl(machineElements, //</span>
+                interpolationMonitors, updateMonitorPlanes,//
+                machineOptic, opticUpdated, //
+                isCircularMachine);
+
+        /* reset the updated flags */
+<span class="fc" id="L244">        this.opticUpdated = false;</span>
+<span class="fc" id="L245">        this.elementsUpdated = false;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (JMadPlane plane : JMadPlane.values()) {</span>
+<span class="fc" id="L247">            this.monitorsUpdated.put(plane, false);</span>
+        }
+
+<span class="fc" id="L250">        return request;</span>
+    }
+
+    private class UpdateRequestImpl implements UpdateRequest {
+
+        private boolean circularMachine;
+
+        private Optic optic;
+        private List&lt;Element&gt; elements;
+
+<span class="fc" id="L260">        private Map&lt;JMadPlane, Set&lt;Element&gt;&gt; monitors = new HashMap&lt;JMadPlane, Set&lt;Element&gt;&gt;();</span>
+
+        private Map&lt;JMadPlane, Boolean&gt; structureUpdate;
+        private boolean opticUpdate;
+
+        /**
+         * The constructor for an update request. All collections passed will be buffered in an internal collection.
+         * 
+         * @param elements the list of elements defining the machine
+         * @param monitors the active monitors to use for interpolation
+         * @param optic the machine optic to use for the interpolation
+         * @param opticUpdate set to &lt;code&gt;true&lt;/code&gt; if optic should be updated
+         * @param isCircularMachine set to &lt;code&gt;true&lt;/code&gt; if machine is a synchrotron
+         * @param structureUpdate a mapping defining which plane must be structural updated, if map is empty, no
+         *            structural update required
+         */
+        public UpdateRequestImpl(List&lt;Element&gt; elements, Map&lt;JMadPlane, Set&lt;Element&gt;&gt; monitors,
+<span class="fc" id="L277">                Map&lt;JMadPlane, Boolean&gt; structureUpdate, Optic optic, boolean opticUpdate, boolean isCircularMachine) {</span>
+<span class="fc" id="L278">            this.circularMachine = isCircularMachine;</span>
+
+            /* check optic update */
+<span class="pc bpc" id="L281" title="2 of 4 branches missed.">            if (opticUpdate &amp;&amp; (optic == null)) {</span>
+<span class="nc" id="L282">                throw new IllegalArgumentException(&quot;Can not create request for&quot;</span>
+                        + &quot; optic update with no optic data provided!!&quot;);
+            }
+<span class="fc" id="L285">            this.opticUpdate = opticUpdate;</span>
+
+            /* ensure that optic and elements are available if structure update requested */
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">            if (structureUpdate.size() &gt; 0) {</span>
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">                if (optic == null) {</span>
+<span class="nc" id="L290">                    throw new IllegalArgumentException(&quot;Can not create request for&quot;</span>
+                            + &quot; structural update with no optic data provided!!&quot;);
+                }
+
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">                if (elements == null) {</span>
+<span class="nc" id="L295">                    throw new IllegalArgumentException(&quot;Can not create request for&quot;</span>
+                            + &quot; structural update with no element data provided!!&quot;);
+                }
+
+                /* we need to update the optic also after creation of the structure */
+<span class="fc" id="L300">                this.opticUpdate = true;</span>
+            }
+
+<span class="fc" id="L303">            this.elements = new ArrayList&lt;Element&gt;(elements);</span>
+<span class="fc" id="L304">            this.optic = optic;</span>
+
+            /* set the flags for the structural update */
+<span class="fc" id="L307">            this.structureUpdate = new HashMap&lt;JMadPlane, Boolean&gt;();</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">            for (JMadPlane plane : JMadPlane.values()) {</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">                if (structureUpdate.containsKey(plane)) {</span>
+<span class="pc bpc" id="L310" title="2 of 4 branches missed.">                    if (structureUpdate.get(plane) &amp;&amp; !monitors.containsKey(plane)) {</span>
+                        /* update requested, but no active monitor data provided */
+<span class="nc" id="L312">                        throw new IllegalArgumentException(&quot;Can not create request for&quot;</span>
+                                + &quot; structural update in plane [&quot; + plane + &quot;] with no monitor data provided!!&quot;);
+                    } else {
+<span class="fc" id="L315">                        this.monitors.put(plane, new HashSet&lt;Element&gt;(monitors.get(plane)));</span>
+<span class="fc" id="L316">                        this.structureUpdate.put(plane, structureUpdate.get(plane));</span>
+                    }
+                } else {
+<span class="nc" id="L319">                    this.structureUpdate.put(plane, false);</span>
+                }
+            }
+<span class="fc" id="L322">        }</span>
+
+        @Override
+        public List&lt;Element&gt; getMachineElements() {
+<span class="fc" id="L326">            return this.elements;</span>
+        }
+
+        @Override
+        public Optic getOptic() {
+<span class="fc" id="L331">            return this.optic;</span>
+        }
+
+        @Override
+        public boolean isCircularMachine() {
+<span class="fc" id="L336">            return this.circularMachine;</span>
+        }
+
+        @Override
+        public boolean updateMachineOptics() {
+<span class="fc" id="L341">            return this.opticUpdate;</span>
+        }
+
+        @Override
+        public Set&lt;Element&gt; getMonitors(JMadPlane plane) {
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">            if (!updateStructure(plane)) {</span>
+<span class="nc" id="L347">                throw new IllegalArgumentException(&quot;No monitor data available for plane [&quot; + plane + &quot;]&quot;);</span>
+            }
+<span class="fc" id="L349">            return this.monitors.get(plane);</span>
+        }
+
+        @Override
+        public boolean updateStructure(JMadPlane plane) {
+<span class="fc" id="L354">            return this.structureUpdate.get(plane);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

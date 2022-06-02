@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractXStreamService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util.xml</a> &gt; <span class="el_source">AbstractXStreamService.java</span></div><h1>AbstractXStreamService.java</h1><pre class="source lang-java linenums">/*
+ * $Id $
+ * 
+ * $Date$ $Revision$ $Author$
+ * 
+ * Copyright CERN ${year}, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.util.xml;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+
+<span class="fc" id="L13">public abstract class AbstractXStreamService&lt;T&gt; extends GenericXStreamService&lt;T&gt; {</span>
+
+    private XStream xStream;
+
+    @Override
+    protected XStream createXStream() {
+<span class="fc" id="L19">        this.xStream = this.newXStreamInstance();</span>
+<span class="fc" id="L20">        this.initializeXStream(this.xStream);</span>
+<span class="fc" id="L21">        this.xStream.addPermission(AnyTypePermission.ANY);</span>
+<span class="fc" id="L22">        return this.xStream;</span>
+    }
+
+    /**
+     * @return a new XStream instance
+     */
+    protected abstract XStream newXStreamInstance();
+
+    /**
+     * Force implementing classes to initialize the {@link XStream} instance used in this service. E.g. register
+     * converters, set aliases, process annotations, ...
+     * 
+     * @param xstream the {@link XStream} instance used in this service
+     */
+    protected abstract void initializeXStream(XStream xstream);
+
+    /**
+     * @return the {@link XStream} used in the service
+     */
+    protected XStream getXstream() {
+<span class="nc" id="L42">        return this.xStream;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

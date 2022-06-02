@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CloneUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util.xml</a> &gt; <span class="el_source">CloneUtil.java</span></div><h1>CloneUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.util.xml;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+
+/**
+ * This is a utility class that uses the XStream mechanism to clone objects. Custom converters can be provided in order
+ * to control behaviour of the cloning.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class CloneUtil {
+
+    private CloneUtil() {
+        /* Only static methods */
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static &lt;T&gt; T clone(Class&lt;T&gt; clazz, T object) {
+<span class="nc" id="L46">        XStream xStream = new XStream();</span>
+<span class="nc" id="L47">        xStream.autodetectAnnotations(true);</span>
+<span class="nc" id="L48">        xStream.processAnnotations(clazz);</span>
+<span class="nc" id="L49">        xStream.addPermission(AnyTypePermission.ANY);</span>
+<span class="nc" id="L50">        return (T) xStream.fromXML(xStream.toXML(object));</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static &lt;T&gt; T clone(Class&lt;T&gt; clazz, T object, Converter converter) {
+<span class="fc" id="L55">        XStream xStream = new XStream();</span>
+<span class="fc" id="L56">        xStream.registerConverter(converter);</span>
+<span class="fc" id="L57">        xStream.autodetectAnnotations(true);</span>
+<span class="fc" id="L58">        xStream.processAnnotations(clazz);</span>
+<span class="fc" id="L59">        xStream.addPermission(AnyTypePermission.ANY);</span>
+<span class="fc" id="L60">        return (T) xStream.fromXML(xStream.toXML(object));</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

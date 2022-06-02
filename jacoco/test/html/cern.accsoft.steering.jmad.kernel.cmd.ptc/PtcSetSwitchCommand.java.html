@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PtcSetSwitchCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd.ptc</a> &gt; <span class="el_source">PtcSetSwitchCommand.java</span></div><h1>PtcSetSwitchCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.kernel.cmd.ptc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.AbstractCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * This class represents the madx-command to initialize the ptc-universe
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="nc" id="L40">public class PtcSetSwitchCommand extends AbstractCommand {</span>
+
+    /** the name of the command */
+    private static final String CMD_NAME = &quot;ptc_setswitch&quot;;
+
+<span class="nc" id="L45">    private Boolean time = null;</span>
+<span class="nc" id="L46">    private Boolean fringe = null;</span>
+<span class="nc" id="L47">    private Boolean nocavity = null;</span>
+<span class="nc" id="L48">    private Boolean exactmis = null;</span>
+<span class="nc" id="L49">    private Boolean totalpath = null;</span>
+<span class="nc" id="L50">    private Boolean radiation = null;</span>
+<span class="nc" id="L51">    private Boolean envelope = null;</span>
+<span class="nc" id="L52">    private Boolean stochastic = null;</span>
+<span class="nc" id="L53">    private Boolean modulation = null;</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L57">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L62">        List&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (time != null) {</span>
+<span class="nc" id="L64">            parameters.add(new GenericParameter&lt;&gt;(&quot;time&quot;, time.toString()));</span>
+        }
+<span class="nc" id="L66">        parameters.add(new GenericParameter&lt;&gt;(&quot;fringe&quot;, fringe));</span>
+<span class="nc" id="L67">        parameters.add(new GenericParameter&lt;&gt;(&quot;nocavity&quot;, nocavity));</span>
+<span class="nc" id="L68">        parameters.add(new GenericParameter&lt;&gt;(&quot;exactmis&quot;, exactmis));</span>
+<span class="nc" id="L69">        parameters.add(new GenericParameter&lt;&gt;(&quot;totalpath&quot;, totalpath));</span>
+<span class="nc" id="L70">        parameters.add(new GenericParameter&lt;&gt;(&quot;radiation&quot;, radiation));</span>
+<span class="nc" id="L71">        parameters.add(new GenericParameter&lt;&gt;(&quot;envelope&quot;, envelope));</span>
+<span class="nc" id="L72">        parameters.add(new GenericParameter&lt;&gt;(&quot;stochastic&quot;, stochastic));</span>
+<span class="nc" id="L73">        parameters.add(new GenericParameter&lt;&gt;(&quot;modulation&quot;, modulation));</span>
+
+<span class="nc" id="L75">        return parameters;</span>
+    }
+
+    public Boolean getTime() {
+<span class="nc" id="L79">        return time;</span>
+    }
+
+    public void setTime(Boolean time) {
+<span class="nc" id="L83">        this.time = time;</span>
+<span class="nc" id="L84">    }</span>
+
+    public Boolean getFringe() {
+<span class="nc" id="L87">        return fringe;</span>
+    }
+
+    public void setFringe(Boolean fringe) {
+<span class="nc" id="L91">        this.fringe = fringe;</span>
+<span class="nc" id="L92">    }</span>
+
+    public Boolean getNocavity() {
+<span class="nc" id="L95">        return nocavity;</span>
+    }
+
+    public void setNocavity(Boolean nocavity) {
+<span class="nc" id="L99">        this.nocavity = nocavity;</span>
+<span class="nc" id="L100">    }</span>
+
+    public Boolean getExactmis() {
+<span class="nc" id="L103">        return exactmis;</span>
+    }
+
+    public void setExactmis(Boolean exactmis) {
+<span class="nc" id="L107">        this.exactmis = exactmis;</span>
+<span class="nc" id="L108">    }</span>
+
+    public Boolean getTotalpath() {
+<span class="nc" id="L111">        return totalpath;</span>
+    }
+
+    public void setTotalpath(Boolean totalpath) {
+<span class="nc" id="L115">        this.totalpath = totalpath;</span>
+<span class="nc" id="L116">    }</span>
+
+    public Boolean getRadiation() {
+<span class="nc" id="L119">        return radiation;</span>
+    }
+
+    public void setRadiation(Boolean radiation) {
+<span class="nc" id="L123">        this.radiation = radiation;</span>
+<span class="nc" id="L124">    }</span>
+
+    public Boolean getEnvelope() {
+<span class="nc" id="L127">        return envelope;</span>
+    }
+
+    public void setEnvelope(Boolean envelope) {
+<span class="nc" id="L131">        this.envelope = envelope;</span>
+<span class="nc" id="L132">    }</span>
+
+    public Boolean getStochastic() {
+<span class="nc" id="L135">        return stochastic;</span>
+    }
+
+    public void setStochastic(Boolean stochastic) {
+<span class="nc" id="L139">        this.stochastic = stochastic;</span>
+<span class="nc" id="L140">    }</span>
+
+    public Boolean getModulation() {
+<span class="nc" id="L143">        return modulation;</span>
+    }
+
+    public void setModulation(Boolean modulation) {
+<span class="nc" id="L147">        this.modulation = modulation;</span>
+<span class="nc" id="L148">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RangeBlock.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.creating.lang</a> &gt; <span class="el_source">RangeBlock.java</span></div><h1>RangeBlock.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
+
+import static java.util.Objects.requireNonNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+public class RangeBlock {
+
+    private final RangeDefinitionBuilder builder;
+<span class="nc" id="L16">    private boolean initialConditionsSpecified = false;</span>
+<span class="nc" id="L17">    private boolean filtersSpecified = false;</span>
+<span class="nc" id="L18">    private boolean postUseSpecified = false;</span>
+
+<span class="nc" id="L20">    public RangeBlock(RangeDefinitionBuilder builder) {</span>
+<span class="nc" id="L21">        this.builder = requireNonNull(builder, &quot;builder must not be null&quot;);</span>
+<span class="nc" id="L22">    }</span>
+
+    public void start(String elementName) {
+<span class="nc" id="L25">        AssertUtil.requireNull(builder.getStartElementName(), &quot;start element already set. Cannot define twice.&quot;);</span>
+<span class="nc" id="L26">        requireNonNull(&quot;elementName must not be null&quot;);</span>
+<span class="nc" id="L27">        this.builder.setStartElementName(elementName);</span>
+<span class="nc" id="L28">    }</span>
+
+    public void end(String elementName) {
+<span class="nc" id="L31">        AssertUtil.requireNull(builder.getEndElementName(), &quot;end element already set. Cannot define twice.&quot;);</span>
+<span class="nc" id="L32">        requireNonNull(&quot;elementName must not be null&quot;);</span>
+<span class="nc" id="L33">        this.builder.setEndElementName(elementName);</span>
+<span class="nc" id="L34">    }</span>
+
+    public void rotateToStartAt(String elementName) {
+<span class="nc" id="L37">        AssertUtil.requireNull(builder.getRotateStartElementName(),</span>
+                &quot;The start element to rotate was already set. Cannot set twice.&quot;);
+<span class="nc" id="L39">        requireNonNull(&quot;elementName must not be null&quot;);</span>
+<span class="nc" id="L40">        this.builder.setRotateStartElementName(elementName);</span>
+<span class="nc" id="L41">    }</span>
+
+    public void invert(Consumer&lt;ElementFilterBlock&gt; block) {
+<span class="nc" id="L44">        AssertUtil.requireFalse(filtersSpecified, &quot;Invert filters were already specified. Cannot specfy twice.&quot;);</span>
+<span class="nc" id="L45">        ElementFilterBlock filterBlock = new ElementFilterBlock(builder);</span>
+<span class="nc" id="L46">        block.accept(filterBlock);</span>
+<span class="nc" id="L47">        filtersSpecified = true;</span>
+<span class="nc" id="L48">    }</span>
+
+    public void onPostUse(Consumer&lt;FileBlock&gt; block) {
+<span class="nc" id="L51">        AssertUtil.requireFalse(postUseSpecified, &quot;postUse filse already specified. Cannot specfy twice.&quot;);</span>
+<span class="nc" id="L52">        List&lt;ModelFileBuilder&gt; modelFileBuilders = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L53">        block.accept(new FileBlock(modelFileBuilders));</span>
+<span class="nc" id="L54">        modelFileBuilders.stream().map(ModelFileBuilder::build).forEachOrdered(builder::addPostUseFile);</span>
+<span class="nc" id="L55">        postUseSpecified = true;</span>
+<span class="nc" id="L56">    }</span>
+
+    public void twiss(Consumer&lt;InitialConditionsBlock&gt; block) {
+<span class="nc" id="L59">        AssertUtil.requireFalse(initialConditionsSpecified,</span>
+                &quot;twiss initial conditions already set. Cannot define twice.&quot;);
+<span class="nc" id="L61">        initialConditionsSpecified = true;</span>
+<span class="nc" id="L62">        block.accept(new InitialConditionsBlock(builder.getTwissInitialConditions()));</span>
+<span class="nc" id="L63">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

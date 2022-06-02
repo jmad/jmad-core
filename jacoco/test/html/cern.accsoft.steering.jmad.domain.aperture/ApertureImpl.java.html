@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApertureImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.aperture</a> &gt; <span class="el_source">ApertureImpl.java</span></div><h1>ApertureImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.aperture;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import cern.accsoft.steering.jmad.JMadConstants;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+
+/**
+ * geometric aperture information for jmad
+ * 
+ * @author muellerg
+ */
+/*
+ * XXX (KF) There is still a lot to refactor. (especially in the reader) This is just the first quick implementation
+ * which is based on a copy of the classes from the online model
+ */
+<span class="nc" id="L42">public class ApertureImpl implements Aperture {</span>
+
+<span class="nc" id="L44">    private final List&lt;ApertureSlice&gt; apertureSlices = new ArrayList&lt;ApertureSlice&gt;();</span>
+<span class="nc" id="L45">    private final Map&lt;String, Double&gt; markerPos = new HashMap&lt;String, Double&gt;();</span>
+
+<span class="nc" id="L47">    private final List&lt;String&gt; missedMarkers = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc" id="L49">    private double aperModelStart = Double.MAX_VALUE;</span>
+<span class="nc" id="L50">    private double aperModelEnd = 0.0;</span>
+
+<span class="nc" id="L52">    private enum Type {</span>
+<span class="nc" id="L53">        MIN {</span>
+
+            @Override
+            public double getValue(ApertureSlice slice, JMadPlane plane) {
+<span class="nc" id="L57">                return slice.getMin(plane);</span>
+            }
+
+        },
+<span class="nc" id="L61">        MAX {</span>
+            @Override
+            public double getValue(ApertureSlice slice, JMadPlane plane) {
+<span class="nc" id="L64">                return slice.getMax(plane);</span>
+            }
+        };
+
+        public abstract double getValue(ApertureSlice slice, JMadPlane plane);
+    }
+
+    @Override
+    public List&lt;Double&gt; getMaxValues(JMadPlane plane, boolean aroundTrajectory) {
+<span class="nc" id="L73">        return getMinMaxValues(Type.MAX, plane, aroundTrajectory);</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getMinValues(JMadPlane plane, boolean aroundTrajectory) {
+<span class="nc" id="L78">        return getMinMaxValues(Type.MIN, plane, aroundTrajectory);</span>
+    }
+
+    private List&lt;Double&gt; getMinMaxValues(Type type, JMadPlane plane, boolean aroundTrajectory) {
+<span class="nc" id="L82">        List&lt;Double&gt; res = new ArrayList&lt;Double&gt;(apertureSlices.size());</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (ApertureSlice slice : getApertureSlices()) {</span>
+<span class="nc" id="L84">            double value = type.getValue(slice, plane);</span>
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (aroundTrajectory) {</span>
+<span class="nc" id="L87">                value += slice.getPos(plane);</span>
+            }
+<span class="nc" id="L89">            res.add(value);</span>
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">        return res;</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getSValues() {
+<span class="nc" id="L96">        List&lt;Double&gt; res = new ArrayList&lt;Double&gt;(apertureSlices.size());</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (ApertureSlice slice : getApertureSlices()) {</span>
+<span class="nc" id="L98">            res.add(slice.getS());</span>
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">        return res;</span>
+
+    }
+
+    @Override
+    public List&lt;Double&gt; getXminValues(boolean aroundTrajectory) {
+<span class="nc" id="L106">        return getMinValues(JMadPlane.H, aroundTrajectory);</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getXmaxValues(boolean aroundTrajectory) {
+<span class="nc" id="L111">        return getMaxValues(JMadPlane.H, aroundTrajectory);</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getYminValues(boolean aroundTrajectory) {
+<span class="nc" id="L116">        return getMinValues(JMadPlane.V, aroundTrajectory);</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getYmaxValues(boolean aroundTrajectory) {
+<span class="nc" id="L121">        return getMinValues(JMadPlane.V, aroundTrajectory);</span>
+    }
+
+    public void addMarker(String name, double pos) {
+<span class="nc" id="L125">        this.markerPos.put(name, new Double(pos));</span>
+<span class="nc" id="L126">    }</span>
+
+    public void addSlice(ApertureSlice newSlice) {
+
+        // TODO: if previous aperture values == markerValue --&gt; overwrite the
+        // values with the own values...
+
+        // first Slice to be added to AperModel
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (this.apertureSlices.size() == 0) {</span>
+<span class="nc" id="L135">            this.apertureSlices.add(newSlice);</span>
+<span class="nc" id="L136">            this.aperModelStart = newSlice.getS();</span>
+<span class="nc" id="L137">            this.aperModelEnd = newSlice.getS();</span>
+<span class="nc" id="L138">            return;</span>
+        }
+
+        // newSlice before first defined slice
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (newSlice.getS() &lt; this.aperModelStart) {</span>
+<span class="nc" id="L143">            this.apertureSlices.add(0, newSlice);</span>
+<span class="nc" id="L144">            this.aperModelStart = newSlice.getS();</span>
+<span class="nc" id="L145">            return;</span>
+        }
+
+        // newSlice after last defined slice
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (newSlice.getS() &gt; this.aperModelEnd) {</span>
+<span class="nc" id="L150">            this.apertureSlices.add(newSlice);</span>
+<span class="nc" id="L151">            this.aperModelEnd = newSlice.getS();</span>
+<span class="nc" id="L152">            return;</span>
+        }
+
+        // Check where the new slice should be added
+        // always append after the last slice!!!
+<span class="nc" id="L157">        int scliceNumber = 0;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        while (scliceNumber &lt; this.apertureSlices.size()) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            if (this.apertureSlices.get(scliceNumber).getS() &lt;= newSlice.getS()) {</span>
+<span class="nc" id="L160">                scliceNumber++;</span>
+<span class="nc" id="L161">                continue;</span>
+            }
+
+            break;
+        }
+
+        // add Slice to Container
+<span class="nc" id="L168">        this.apertureSlices.add(scliceNumber, newSlice);</span>
+<span class="nc" id="L169">    }</span>
+
+    /**
+     * this list will be changed by the reader!
+     * 
+     * @return the list of missed markers
+     */
+    /* XXX (KF) not nice to change a list outside the class */
+    public List&lt;String&gt; getMissedMarkers() {
+<span class="nc" id="L178">        return missedMarkers;</span>
+    }
+
+    public Double getMarkerPos(String markerName) {
+<span class="nc" id="L182">        return this.markerPos.get(markerName.toUpperCase(JMadConstants.DEFAULT_LOCALE));</span>
+    }
+
+    public List&lt;ApertureSlice&gt; getApertureSlices() {
+<span class="nc" id="L186">        return this.apertureSlices;</span>
+    }
+
+    public boolean isIndexLoaded() {
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        return this.markerPos.size() &gt; 0;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

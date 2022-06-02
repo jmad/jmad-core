@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.kernel.cmd</a> &gt; <span class="el_source">PrintCommand.java</span></div><h1>PrintCommand.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.kernel.cmd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.kernel.cmd.param.GenericParameter;
+import cern.accsoft.steering.jmad.kernel.cmd.param.Parameter;
+
+/**
+ * This class implements the MadX-Command 'print' to current output file.
+ * 
+ * @author muellerg
+ */
+public class PrintCommand extends AbstractCommand {
+    private static final String CMD_NAME = &quot;print&quot;;
+
+    private final String printText;
+
+<span class="fc" id="L41">    public PrintCommand(String text) {</span>
+<span class="fc" id="L42">        this.printText = text;</span>
+<span class="fc" id="L43">    }</span>
+
+    @Override
+    public String getName() {
+<span class="fc" id="L47">        return CMD_NAME;</span>
+    }
+
+    @Override
+    public List&lt;Parameter&gt; getParameters() {
+<span class="fc" id="L52">        ArrayList&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L53">        parameters.add(new GenericParameter&lt;&gt;(&quot;text&quot;, this.printText, true));</span>
+
+<span class="fc" id="L55">        return parameters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

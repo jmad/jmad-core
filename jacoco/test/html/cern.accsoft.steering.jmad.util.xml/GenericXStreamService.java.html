@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GenericXStreamService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util.xml</a> &gt; <span class="el_source">GenericXStreamService.java</span></div><h1>GenericXStreamService.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.util.xml;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
+
+public abstract class GenericXStreamService&lt;T&gt; implements PersistenceService&lt;T&gt; {
+
+<span class="fc" id="L46">	private static final Logger LOGGER = LoggerFactory.getLogger(GenericXStreamService.class);</span>
+
+	/** the original xstream xml-converter (singleton) */
+	private final XStream xStream;
+<span class="fc" id="L50">	private final HierarchicalStreamDriver hierarchicalStreamDriver = new XppDriver();</span>
+
+	public GenericXStreamService() {
+<span class="fc" id="L53">		super();</span>
+<span class="fc" id="L54">		this.xStream = createXStream();</span>
+<span class="fc" id="L55">	}</span>
+
+	/**
+	 * This method must be implemented by subclass and has to return a properly
+	 * configured XStream object.
+	 * 
+	 * @return a fully configured xstream object
+	 */
+	protected abstract XStream createXStream();
+
+	/**
+	 * Has to return the class which can be saved by this service. This is used for
+	 * checking and producing an error message, if an object cannot be saved.
+	 * 
+	 * @return The class which can be saved by this persistence service
+	 */
+	protected abstract Class&lt;? extends T&gt; getSaveableClass();
+
+	public synchronized final File save(T object, File destFile, Map&lt;?, ?&gt; context) throws PersistenceServiceException {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		if (!(getSaveableClass().isInstance(object))) {</span>
+<span class="nc" id="L75">			LOGGER.error(</span>
+<span class="nc" id="L76">					&quot;can only save model definitions of type '&quot; + getSaveableClass().getCanonicalName() + &quot;' to file.&quot;);</span>
+<span class="nc" id="L77">			return null;</span>
+		}
+
+<span class="fc" id="L80">		File file = ensureCorrectFileExtension(destFile);</span>
+
+		try {
+<span class="fc" id="L83">			FileWriter writer = new FileWriter(file);</span>
+<span class="fc" id="L84">			writer.write(toXML(object, context));</span>
+<span class="fc" id="L85">			writer.close();</span>
+<span class="nc" id="L86">		} catch (Exception ex) {</span>
+<span class="nc" id="L87">			throw new PersistenceServiceException(&quot;Error writing Object [&quot; + object.toString() + &quot;] of Class [&quot;</span>
+<span class="nc" id="L88">					+ object.getClass().getCanonicalName() + &quot;] to XmlFile [&quot; + file.getAbsolutePath() + &quot;]&quot;, ex);</span>
+<span class="fc" id="L89">		}</span>
+
+<span class="fc" id="L91">		return file;</span>
+	}
+
+	@Override
+	public synchronized final File save(T object, File destFile) throws PersistenceServiceException {
+<span class="fc" id="L96">		return save(object, destFile, null);</span>
+	}
+
+	/**
+	 * adds the correct extension for jmad-model files to the file name if not
+	 * already there.
+	 * 
+	 * @param file
+	 *            the file which shall be a correct jmad xml file
+	 * @return the file
+	 */
+	private File ensureCorrectFileExtension(File file) {
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		if (isCorrectFileName(file.getName())) {</span>
+<span class="fc" id="L109">			return file;</span>
+		} else {
+<span class="nc" id="L111">			return new File(file.getAbsolutePath() + getFileExtension());</span>
+		}
+	}
+
+	/**
+	 * determines if the given name is a correct file name
+	 * 
+	 * @param fileName
+	 *            the file name to check
+	 * @return true if it is an xml file name, false if not
+	 */
+	@Override
+	public final boolean isCorrectFileName(String fileName) {
+<span class="fc" id="L124">		return fileName.toLowerCase().endsWith(getFileExtension());</span>
+	}
+
+	private String toXML(T object, Map&lt;?, ?&gt; context) {
+<span class="fc" id="L128">		DataHolder dataHolder = xStream.newDataHolder();</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		if (context != null) {</span>
+<span class="nc" id="L130">			context.entrySet().forEach(e -&gt; dataHolder.put(e.getKey(), e.getValue()));</span>
+		}
+<span class="fc" id="L132">		StringWriter writer = new StringWriter();</span>
+<span class="fc" id="L133">		xStream.marshal(object, hierarchicalStreamDriver.createWriter(writer), dataHolder);</span>
+<span class="fc" id="L134">		return writer.toString();</span>
+	}
+
+	public void save(T object, OutputStream outStream, Map&lt;?, ?&gt; context) throws PersistenceServiceException {
+		try {
+<span class="fc" id="L139">			OutputStreamWriter writer = new OutputStreamWriter(outStream);</span>
+<span class="fc" id="L140">			writer.write(toXML(object, context));</span>
+<span class="fc" id="L141">			writer.flush();</span>
+<span class="nc" id="L142">		} catch (IOException e) {</span>
+<span class="nc" id="L143">			throw new PersistenceServiceException(&quot;Error writing Object [&quot; + object.toString() + &quot;] of Class [&quot;</span>
+<span class="nc" id="L144">					+ object.getClass().getCanonicalName() + &quot;] to output stream.&quot;, e);</span>
+<span class="fc" id="L145">		}</span>
+<span class="fc" id="L146">	}</span>
+
+	@Override
+	public void save(T object, OutputStream outStream) throws PersistenceServiceException {
+<span class="fc" id="L150">		save(object, outStream, null);</span>
+<span class="fc" id="L151">	}</span>
+
+	@Override
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public synchronized T load(File srcFile) throws PersistenceServiceException {
+
+<span class="nc" id="L157">		T retVal = null;</span>
+		try {
+<span class="nc" id="L159">			retVal = (T) xStream.fromXML(new FileReader(srcFile));</span>
+<span class="nc" id="L160">		} catch (Exception ex) {</span>
+<span class="nc" id="L161">			throw new PersistenceServiceException(&quot;Error loading Object from file [&quot; + srcFile.getAbsolutePath() + &quot;]&quot;,</span>
+					ex);
+<span class="nc" id="L163">		}</span>
+
+<span class="nc" id="L165">		return retVal;</span>
+	}
+
+	@Override
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public synchronized T load(InputStream inputStream) throws PersistenceServiceException {
+<span class="fc" id="L171">		T retVal = null;</span>
+		try {
+<span class="fc" id="L173">			retVal = (T) xStream.fromXML(new InputStreamReader(inputStream));</span>
+<span class="nc" id="L174">		} catch (Exception ex) {</span>
+<span class="nc" id="L175">			throw new PersistenceServiceException(&quot;Error loading Object from Xml stream&quot;, ex);</span>
+<span class="fc" id="L176">		}</span>
+<span class="fc" id="L177">		return retVal;</span>
+	}
+
+	@Override
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public synchronized T clone(T object) throws PersistenceServiceException {
+
+<span class="fc" id="L184">		T retVal = null;</span>
+		try {
+<span class="fc" id="L186">			retVal = (T) xStream.fromXML(xStream.toXML(object));</span>
+<span class="nc" id="L187">		} catch (Exception ex) {</span>
+
+<span class="nc" id="L189">			String className = object.getClass().getCanonicalName();</span>
+
+<span class="nc" id="L191">			throw new PersistenceServiceException(&quot;Error cloning Object of Class [&quot; + className + &quot;]&quot;, ex);</span>
+<span class="fc" id="L192">		}</span>
+
+<span class="fc" id="L194">		return retVal;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

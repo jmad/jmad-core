@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MatchResultRequestImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.match</a> &gt; <span class="el_source">MatchResultRequestImpl.java</span></div><h1>MatchResultRequestImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.domain.result.match;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.domain.result.match.input.MadxVaryParameter;
+import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraint;
+import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethod;
+import cern.accsoft.steering.jmad.domain.result.match.methods.MatchMethodLmdif;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
+
+<span class="fc" id="L34">public class MatchResultRequestImpl implements MatchResultRequest {</span>
+
+<span class="fc" id="L36">    private String sequenceName = null;</span>
+<span class="fc" id="L37">    private MatchMethod matchMethod = new MatchMethodLmdif();</span>
+<span class="fc" id="L38">    private final List&lt;MadxVaryParameter&gt; varyParameters = new ArrayList&lt;MadxVaryParameter&gt;();</span>
+<span class="fc" id="L39">    private final List&lt;MatchConstraint&gt; matchConstraints = new ArrayList&lt;MatchConstraint&gt;();</span>
+
+<span class="fc" id="L41">    private TwissInitialConditions initTwiss = null;</span>
+<span class="fc" id="L42">    private String saveBetaName = null;</span>
+
+    @Override
+    public List&lt;MadxVaryParameter&gt; getMadxVaryParameters() {
+<span class="fc" id="L46">        return this.varyParameters;</span>
+    }
+
+    public void addMadxVaryParameter(MadxVaryParameter varyParameter) {
+<span class="fc" id="L50">        this.varyParameters.add(varyParameter);</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public List&lt;MatchConstraint&gt; getMatchConstraints() {
+<span class="fc" id="L55">        return this.matchConstraints;</span>
+    }
+
+    public void addMatchConstraint(MatchConstraint matchConstraint) {
+<span class="fc" id="L59">        this.matchConstraints.add(matchConstraint);</span>
+<span class="fc" id="L60">    }</span>
+
+    @Override
+    public MatchMethod getMatchMethod() {
+<span class="fc" id="L64">        return this.matchMethod;</span>
+    }
+
+    public void setMatchMethod(MatchMethod matchMethod) {
+<span class="nc" id="L68">        this.matchMethod = matchMethod;</span>
+<span class="nc" id="L69">    }</span>
+
+    @Override
+    public String getSequenceName() {
+<span class="fc" id="L73">        return this.sequenceName;</span>
+    }
+
+    @Override
+    public void setSequenceName(String sequenceName) {
+<span class="fc" id="L78">        this.sequenceName = sequenceName;</span>
+<span class="fc" id="L79">    }</span>
+
+    public void setInitTwiss(TwissInitialConditions initTwiss) {
+        /* TODO: Set non available values for matching to zero if necessary */
+<span class="nc" id="L83">        this.initTwiss = initTwiss;</span>
+<span class="nc" id="L84">    }</span>
+
+    @Override
+    public TwissInitialConditions getInitialOpticsValues() {
+<span class="fc" id="L88">        return this.initTwiss;</span>
+    }
+
+    public void setSaveBetaName(String saveBetaName) {
+<span class="nc" id="L92">        this.saveBetaName = saveBetaName;</span>
+<span class="nc" id="L93">    }</span>
+
+    @Override
+    public String getSaveBetaName() {
+<span class="fc" id="L97">        return this.saveBetaName;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

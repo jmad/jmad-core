@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.util;
+
+import static java.util.stream.Collectors.toSet;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.util.io.TextFileParser;
+import cern.accsoft.steering.jmad.util.io.TextFileParserException;
+import cern.accsoft.steering.jmad.util.io.impl.TextFileParserImpl;
+
+/**
+ * This class contains some useful static methods for handling files
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public final class FileUtil {
+
+    /** The logger for the class */
+<span class="fc" id="L57">    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);</span>
+
+    /**
+     * private constructor to prevent instantiation
+     */
+    private FileUtil() {
+        /* only static methods */
+    }
+
+    /**
+     * creates the given dir and enables access for all users if wanted.
+     * 
+     * @param dir the dir to create
+     * @param globalAccess if true, give rights to all users, if false permissions are not changed
+     */
+    public static void createDir(File dir, boolean globalAccess) {
+<span class="pc bpc" id="L73" title="1 of 4 branches missed.">        if ((!dir.exists()) &amp;&amp; (!dir.mkdirs())) {</span>
+<span class="nc" id="L74">            LOGGER.warn(&quot;failed to create directory '&quot; + dir.getAbsolutePath() + &quot;'.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (globalAccess) {</span>
+<span class="fc" id="L78">            dir.setReadable(true, false);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if (!dir.setWritable(true, false)) {</span>
+<span class="nc" id="L80">                LOGGER.warn(&quot;failed to allow write for all users on directory '&quot; + dir.getAbsolutePath() + &quot;'.&quot;);</span>
+            }
+        }
+<span class="fc" id="L83">    }</span>
+
+    /**
+     * recursively deletes the dir and all its content
+     * 
+     * @param dir the dir to delete
+     * @return true if successful, false otherwise.
+     */
+    public static boolean deleteDir(File dir) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (dir.isDirectory()) {</span>
+<span class="fc" id="L93">            String[] children = dir.list();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            for (int i = 0; i &lt; children.length; i++) {</span>
+<span class="fc" id="L95">                boolean success = deleteDir(new File(dir, children[i]));</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                if (!success) {</span>
+<span class="nc" id="L97">                    return false;</span>
+                }
+            }
+        }
+<span class="fc" id="L101">        return dir.delete();</span>
+    }
+
+    /**
+     * Copy a file in the File system. Uses {@link FileReader} and {@link FileWriter} to copy the files content.
+     * 
+     * @param source the source file
+     * @param destination the destination file to save the content to
+     * @throws IOException
+     */
+    public static void copyFile(File source, File destination) throws IOException {
+<span class="nc" id="L112">        FileReader inFile = new FileReader(source);</span>
+<span class="nc" id="L113">        FileWriter outFile = new FileWriter(destination);</span>
+        int content;
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        while ((content = inFile.read()) != -1) {</span>
+<span class="nc" id="L117">            outFile.write(content);</span>
+        }
+
+<span class="nc" id="L120">        inFile.close();</span>
+<span class="nc" id="L121">        outFile.close();</span>
+<span class="nc" id="L122">    }</span>
+
+    /**
+     * Returns the last N lines of the given file. If the file has less lines than the requested ones, it will return
+     * all the lines of the file. Thus, the returned list can also be empty.
+     * 
+     * @param file the file from which to retrieve the last lines
+     * @param requestedNumberOfLines the number of lines to retrieve
+     * @return the last lines, as requested.
+     */
+    public static List&lt;String&gt; tail(File file, int requestedNumberOfLines) {
+<span class="fc" id="L133">        TextFileParser parser = new TextFileParserImpl();</span>
+        List&lt;String&gt; lines;
+        try {
+<span class="fc" id="L136">            lines = parser.parse(file);</span>
+<span class="nc" id="L137">        } catch (TextFileParserException e) {</span>
+<span class="nc" id="L138">            throw new RuntimeException(&quot;Error while loading file&quot;, e);</span>
+<span class="fc" id="L139">        }</span>
+
+<span class="fc" id="L141">        int numberOfLines = lines.size();</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (numberOfLines &gt; requestedNumberOfLines) {</span>
+<span class="fc" id="L143">            return new ArrayList&lt;String&gt;(lines.subList(numberOfLines - requestedNumberOfLines, numberOfLines));</span>
+        } else {
+<span class="fc" id="L145">            return new ArrayList&lt;String&gt;(lines);</span>
+        }
+    }
+
+    public static Set&lt;File&gt; searchInFor(Path root, Predicate&lt;? super Path&gt; filterPredicate) {
+<span class="fc" id="L150">        try (Stream&lt;Path&gt; stream = Files.walk(root)) {</span>
+            // @formatter:off
+<span class="fc" id="L152">            return stream</span>
+<span class="fc" id="L153">                    .filter(Files::isRegularFile)</span>
+<span class="fc" id="L154">                    .filter(filterPredicate)</span>
+<span class="fc" id="L155">                    .map(Path::toFile)</span>
+<span class="fc" id="L156">                    .collect(toSet());</span>
+            // @formatter:on
+<span class="nc" id="L158">        } catch (IOException e) {</span>
+<span class="nc" id="L159">            throw new RuntimeException(&quot;Directory &quot; + root + &quot; cannot be searched.&quot;, e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

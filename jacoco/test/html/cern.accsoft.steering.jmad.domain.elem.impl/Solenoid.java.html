@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Solenoid.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.elem.impl</a> &gt; <span class="el_source">Solenoid.java</span></div><h1>Solenoid.java</h1><pre class="source lang-java linenums">package cern.accsoft.steering.jmad.domain.elem.impl;
+
+import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
+
+
+/**
+ * Reresents in jmad a madx element of type
+ * &lt;a href=&quot;http://mad.web.cern.ch/mad/madx.old/Introduction/solenoid.html&quot;&gt;SOLENOID&lt;/a&gt;.
+ *
+ * @author kaifox
+ */
+public class Solenoid extends AbstractElement {
+
+    /**
+     * The solenoid strength Ks (default: 0 rad/m). For positive KS and positive particle charge,
+     * the solenoid field points in the direction of increasing s.
+     */
+    private static final String ATTR_KS = &quot;ks&quot;;
+
+    /**
+     * The solenoid integrated strength Ks*L (default: 0 rad).
+     * This additional attribute is needed only when using the thin solenoid, where L=0!
+     */
+    private static final String ATTR_KSI = &quot;ksi&quot;;
+
+    /**
+     * default constructor to enforce that the element has a madx element type and a
+     * name.
+     *
+     * @param madxElementType the type of the element, as it is represented in MadX
+     * @param name            the name of the solenoid
+     */
+    public Solenoid(MadxElementType madxElementType, String name) {
+<span class="fc" id="L34">        super(madxElementType, name);</span>
+
+<span class="fc" id="L36">        addAttribute(ATTR_KS);</span>
+<span class="fc" id="L37">        addAttribute(ATTR_KSI);</span>
+<span class="fc" id="L38">    }</span>
+
+    public void setKs(double ks) {
+<span class="nc" id="L41">        setAttribute(ATTR_KS, ks);</span>
+<span class="nc" id="L42">    }</span>
+
+    public double getKs() {
+<span class="nc" id="L45">        return getAttribute(ATTR_KS);</span>
+    }
+
+    public void setKsi(double ksi) {
+<span class="nc" id="L49">        setAttribute(ATTR_KSI, ksi);</span>
+<span class="nc" id="L50">    }</span>
+
+    public double getKsi() {
+<span class="nc" id="L53">        return getAttribute(ATTR_KSI);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

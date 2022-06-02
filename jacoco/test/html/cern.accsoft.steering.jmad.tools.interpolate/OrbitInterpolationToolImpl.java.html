@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrbitInterpolationToolImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.interpolate</a> &gt; <span class="el_source">OrbitInterpolationToolImpl.java</span></div><h1>OrbitInterpolationToolImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ * This file is part of JMad. Copyright (c) 2008-2011, CERN. All rights reserved. Licensed under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.tools.interpolate;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import cern.accsoft.steering.jmad.JMadException;
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.optics.Optic;
+import cern.accsoft.steering.jmad.domain.orbit.Orbit;
+import cern.accsoft.steering.jmad.domain.types.enums.JMadPlane;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+
+<span class="fc" id="L28">public class OrbitInterpolationToolImpl implements OrbitInterpolationTool {</span>
+
+    /** the calculators doing the actual calculation job */
+<span class="fc" id="L31">    private List&lt;OrbitSegmentCalculator&gt; calculators = new ArrayList&lt;OrbitSegmentCalculator&gt;();</span>
+
+    /**
+     * Create the internal structure for the interpolation. This method assumes,that the list of elements provided
+     * describe a complete machine. A calculator for the given plane is created for each region in the machine that is
+     * defined by a starting monitor and a ending monitor. If isCircularMachine is set to &lt;code&gt;true&lt;/code&gt; the region
+     * from the last monitor in the machine sequence to the first one is treated as a region as well. Otherwise there is
+     * no interpolation performed before the first and after the last monitor.
+     * 
+     * @param plane the {@link JMadPlane} for which to create the interpolation structure
+     * @param elements the list of {@link Element}s to create the structure from
+     * @param monitors the monitors to use for the interpolations
+     * @param isCircularMachine set to &lt;code&gt;true&lt;/code&gt; if the machine described by the list of elements is a circular
+     *            accelerator
+     * @return &lt;code&gt;true&lt;/code&gt; if the creation of the structure was successful
+     */
+    private boolean createStructure(JMadPlane plane, List&lt;Element&gt; elements, Set&lt;Element&gt; monitors,
+            boolean isCircularMachine) {
+        /* clean up */
+<span class="fc" id="L50">        this.clearStructure(plane);</span>
+
+<span class="fc" id="L52">        List&lt;Element&gt; lattice = this.sortElementsByPosition(elements);</span>
+<span class="fc" id="L53">        List&lt;Element&gt; elementsBeforeFirstMonitor = new ArrayList&lt;Element&gt;();</span>
+<span class="fc" id="L54">        Element firstMonitor = null;</span>
+<span class="fc" id="L55">        boolean segmentInsertActive = false;</span>
+<span class="fc" id="L56">        OrbitSegmentCalculator calculator = null;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (Element element : lattice) {</span>
+<span class="pc bpc" id="L58" title="1 of 6 branches missed.">            if (isCircularMachine &amp;&amp; !segmentInsertActive &amp;&amp; !monitors.contains(element)) {</span>
+                /* not a monitor and we are not in a segment yet */
+                /* save all the elements for the 'last' calculator */
+<span class="fc" id="L61">                elementsBeforeFirstMonitor.add(element);</span>
+<span class="fc" id="L62">                continue;</span>
+            }
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (monitors.contains(element)) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">                if (!segmentInsertActive) {</span>
+                    /* this is our first monitor */
+<span class="fc" id="L68">                    calculator = this.createNewCalculator(plane, element);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                    if (isCircularMachine) {</span>
+<span class="fc" id="L70">                        firstMonitor = element;</span>
+                    }
+<span class="fc" id="L72">                    segmentInsertActive = true;</span>
+<span class="fc" id="L73">                    continue;</span>
+                } else {
+                    /* the end of the current segment */
+<span class="fc" id="L76">                    calculator.setEndSegmentMonitor(element);</span>
+<span class="fc" id="L77">                    this.calculators.add(calculator);</span>
+
+                    /* and we start with the next segment */
+<span class="fc" id="L80">                    calculator = this.createNewCalculator(plane, element);</span>
+<span class="fc" id="L81">                    continue;</span>
+                }
+            }
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (segmentInsertActive) {</span>
+                /* we are in the segment, so just add all elements to the current calculator */
+<span class="fc" id="L87">                calculator.addElementToCalculate(element);</span>
+            }
+<span class="fc" id="L89">        }</span>
+
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if (isCircularMachine &amp;&amp; calculator != null) {</span>
+            /* add the elements before the first monitor to the last segment */
+<span class="fc bfc" id="L93" title="All 2 branches covered.">            for (Element element : elementsBeforeFirstMonitor) {</span>
+<span class="fc" id="L94">                calculator.addElementToCalculate(element);</span>
+<span class="fc" id="L95">            }</span>
+
+            /* and end the segment with the first monitor */
+<span class="fc" id="L98">            calculator.setEndSegmentMonitor(firstMonitor);</span>
+<span class="fc" id="L99">            calculator.setIsCycleStartSegment(true);</span>
+<span class="fc" id="L100">            this.calculators.add(calculator);</span>
+        }
+
+<span class="fc" id="L103">        return true;</span>
+    }
+
+    private OrbitSegmentCalculator createNewCalculator(JMadPlane plane, Element startSegmentMonitor) {
+<span class="fc" id="L107">        OrbitSegmentCalculator calculator = new SimpleOrbitSegmentCalculator(plane);</span>
+<span class="fc" id="L108">        calculator.setStartSegmentMonitor(startSegmentMonitor);</span>
+<span class="fc" id="L109">        return calculator;</span>
+    }
+
+    private List&lt;Element&gt; sortElementsByPosition(List&lt;Element&gt; elements) {
+<span class="fc" id="L113">        LinkedList&lt;Element&gt; sorted = new LinkedList&lt;Element&gt;();</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for (Element element : elements) {</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            if (element.getName().toUpperCase().startsWith(&quot;DRIFT&quot;)) {</span>
+<span class="fc" id="L117">                continue; // XXX maybe there is a better solution, for now just get rid of these!!</span>
+            }
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">            if (!sorted.isEmpty()) {</span>
+<span class="fc" id="L121">                Element first = sorted.getFirst();</span>
+<span class="fc" id="L122">                Element last = sorted.getLast();</span>
+
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">                if (first.getPosition().getValue() &gt; element.getPosition().getValue()) {</span>
+<span class="nc" id="L125">                    sorted.addFirst(element);</span>
+<span class="nc" id="L126">                    continue;</span>
+                }
+
+                /* if same position we add after */
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">                if (last.getPosition().getValue() &lt;= element.getPosition().getValue()) {</span>
+<span class="fc" id="L131">                    sorted.addLast(element);</span>
+<span class="fc" id="L132">                    continue;</span>
+                }
+<span class="nc" id="L134">            } else {</span>
+                /* first element so just add */
+<span class="fc" id="L136">                sorted.add(element);</span>
+<span class="fc" id="L137">                continue;</span>
+            }
+
+<span class="nc" id="L140">            int i = 0;</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            for (Element sortedElement : sorted) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                if (element.getPosition().getValue() &lt; sortedElement.getPosition().getValue()) {</span>
+                    /* found the first element after the current, replace */
+<span class="nc" id="L144">                    break;</span>
+                }
+
+<span class="nc" id="L147">                i++;</span>
+<span class="nc" id="L148">            }</span>
+
+<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (i &gt; sorted.size()) {</span>
+<span class="nc" id="L151">                sorted.addLast(element);</span>
+            } else {
+<span class="nc" id="L153">                sorted.add(i, element);</span>
+            }
+<span class="nc" id="L155">        }</span>
+
+<span class="fc" id="L157">        return sorted;</span>
+    }
+
+    /**
+     * Clear the internal structure used for the orbit interpolation.
+     * 
+     * @param plane the {@link JMadPlane} for which to clear the interpolation structure.
+     */
+    private void clearStructure(JMadPlane plane) {
+<span class="fc" id="L166">        Iterator&lt;OrbitSegmentCalculator&gt; iterator = this.calculators.iterator();</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">            if (iterator.next().getPlane() == plane) {</span>
+<span class="nc" id="L169">                iterator.remove();</span>
+            }
+        }
+<span class="fc" id="L172">    }</span>
+
+    /**
+     * Update the calculators with the given optic.
+     * 
+     * @param optic the {@link Optic} to use for the update
+     * @throws JMadException in case the structure is not yet created, or one of the calculators can not be updated.
+     */
+    private void updateToOptic(Optic optic) throws JMadException {
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (this.calculators.size() == 0) {</span>
+<span class="nc" id="L182">            throw new JMadException(&quot;Could not update to optic, machine structure not defined.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        for (OrbitSegmentCalculator calculator : this.calculators) {</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">            if (!calculator.update(optic)) {</span>
+<span class="nc" id="L187">                throw new JMadException(&quot;Could not update to optic, update failed for &quot; + calculator.getName());</span>
+            }
+<span class="fc" id="L189">        }</span>
+<span class="fc" id="L190">    }</span>
+
+    @Override
+    public synchronized OrbitInterpolationResult interpolate(OrbitInterpolationRequest request) throws JMadException {
+<span class="fc" id="L194">        Orbit orbit = request.getOrbit();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if (orbit == null) {</span>
+<span class="nc" id="L196">            throw new JMadException(&quot;Could not interpolate, no orbit data provided.&quot;);</span>
+        }
+
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        if (this.calculators.size() == 0) {</span>
+<span class="nc" id="L200">            throw new JMadException(&quot;Could not interpolate, interpolation tool no properly updated&quot;);</span>
+        }
+
+<span class="fc" id="L203">        OrbitInterpolationResultImpl result = new OrbitInterpolationResultImpl();</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        for (OrbitSegmentCalculator calculator : this.calculators) {</span>
+<span class="fc" id="L205">            Map&lt;Element, Map&lt;MadxTwissVariable, Double&gt;&gt; valueMapping = calculator.calculate(request.getOrbit());</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">            if (valueMapping.size() == 0) {</span>
+<span class="nc" id="L207">                throw new JMadException(&quot;Could not interpolate, calculation of &quot; + calculator.getName() + &quot; failed&quot;);</span>
+            }
+
+<span class="fc" id="L210">            result.addValuesPerPlane(calculator.getPlane(), valueMapping);</span>
+<span class="fc" id="L211">        }</span>
+
+<span class="fc" id="L213">        result.create();</span>
+<span class="fc" id="L214">        return result;</span>
+    }
+
+    @Override
+    public synchronized void update(UpdateRequest request) throws JMadException {
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (JMadPlane plane : JMadPlane.values()) {</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">            if (request.updateStructure(plane)) {</span>
+<span class="fc" id="L221">                this.createStructure(plane, request.getMachineElements(), request.getMonitors(plane), request</span>
+<span class="fc" id="L222">                        .isCircularMachine());</span>
+            }
+        }
+
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        if (request.updateMachineOptics()) {</span>
+<span class="fc" id="L227">            this.updateToOptic(request.getOptic());</span>
+        }
+<span class="fc" id="L229">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

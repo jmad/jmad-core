@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MadxElementType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.elem</a> &gt; <span class="el_source">MadxElementType.java</span></div><h1>MadxElementType.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.elem;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.accsoft.steering.jmad.util.ListUtil;
+
+/**
+ * The values of this enum represent exactly the (currently implemented) madx element classes. Every
+ * {@link MadxElementType} is also associated with one (more general) jmad-internal type. This {@link JMadElementType}
+ * then determines which class-instance represents the type in jmad. (e.g. there is only one class for bends in jmad)
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L40">public enum MadxElementType {</span>
+    /*
+     * some types that are also mapped to a special element type in jmad
+     */
+<span class="fc" id="L44">    MARKER(JMadElementType.MARKER), //</span>
+<span class="fc" id="L45">    KICKER(JMadElementType.CORRECTOR), //</span>
+<span class="fc" id="L46">    VKICKER(JMadElementType.CORRECTOR), //</span>
+<span class="fc" id="L47">    HKICKER(JMadElementType.CORRECTOR), //</span>
+<span class="fc" id="L48">    TKICKER(JMadElementType.CORRECTOR), //</span>
+<span class="fc" id="L49">    MONITOR(JMadElementType.MONITOR), //</span>
+<span class="fc" id="L50">    VMONITOR(JMadElementType.MONITOR), //</span>
+<span class="fc" id="L51">    HMONITOR(JMadElementType.MONITOR), //</span>
+<span class="fc" id="L52">    RBEND(JMadElementType.BEND), //</span>
+<span class="fc" id="L53">    SBEND(JMadElementType.BEND), //</span>
+<span class="fc" id="L54">    QUADRUPOLE(JMadElementType.QUADRUPOLE), //</span>
+<span class="fc" id="L55">    SEXTUPOLE(JMadElementType.SEXTUPOLE), //</span>
+<span class="fc" id="L56">    OCTUPOLE(JMadElementType.OCTUPOLE), //</span>
+<span class="fc" id="L57">    BEAMBEAM(JMadElementType.BEAMBEAM), //</span>
+<span class="fc" id="L58">    SOLENOID(JMadElementType.SOLENOID), //</span>
+
+    /*
+     * The following types are not (yet) mapped to a corresponding type in jmad
+     */
+<span class="fc" id="L63">    INSTRUMENT(JMadElementType.UNKNOWN), //</span>
+<span class="fc" id="L64">    PLACEHOLDER(JMadElementType.UNKNOWN), //</span>
+<span class="fc" id="L65">    MULTIPOLE(JMadElementType.UNKNOWN), //</span>
+<span class="fc" id="L66">    RFCAVITY(JMadElementType.UNKNOWN), //</span>
+<span class="fc" id="L67">    RCOLLIMATOR(JMadElementType.UNKNOWN), //</span>
+<span class="fc" id="L68">    COLLIMATOR(JMadElementType.UNKNOWN), //</span>
+
+    /*
+     * the following is for elements which have not (yet) a corresponding type here
+     */
+<span class="fc" id="L73">    UNKNOWN(JMadElementType.UNKNOWN) {</span>
+        @Override
+        public String getMadxName() {
+            /*
+             * this has no associated madx-type! -&gt; returns a special value
+             */
+<span class="fc" id="L79">            return &quot;jmad_unknown&quot;;</span>
+        }
+    };
+
+    /**
+     * The (more generic) jmad - element type which is associated with this madx element-type.
+     */
+    private JMadElementType elementType;
+
+<span class="fc" id="L88">    private MadxElementType(JMadElementType elementType) {</span>
+<span class="fc" id="L89">        this.elementType = elementType;</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * compares case insensitive.
+     * 
+     * @param madxName a name as e.g. given in a madx sequence.
+     * @return true, if the given string equals the name, false if not
+     */
+    public boolean equalsMadxName(String madxName) {
+<span class="fc" id="L99">        return this.name().equalsIgnoreCase(madxName);</span>
+    }
+
+    /**
+     * returns true, of the JMad element-type for the {@link MadxElementType} corresponds to the given one.
+     * 
+     * @param other the element type to compare with
+     * @return true, if they are the same
+     */
+    public boolean equalsJMadElementType(JMadElementType other) {
+<span class="nc" id="L109">        return this.elementType.equals(other);</span>
+    }
+
+    /**
+     * this method must return the correct name of this type (in madx this is called element-class). If the type has not
+     * associated class in madx (which should be only the case for UNKNOWN) then it must return &lt;code&gt;null&lt;/code&gt;.
+     * 
+     * @return the class name for use in madx
+     */
+    public String getMadxName() {
+<span class="fc" id="L119">        return this.name().toLowerCase();</span>
+    }
+
+    /**
+     * returns an madx-element-type from the given madx-name
+     * 
+     * @param madxName the name used in madx
+     * @return the {@link MadxElementType} which corresponds to the name
+     */
+    public static MadxElementType fromMadXName(String madxName) {
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for (MadxElementType type : MadxElementType.values()) {</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            if (type.equalsMadxName(madxName)) {</span>
+<span class="fc" id="L131">                return type;</span>
+            }
+        }
+<span class="fc" id="L134">        return MadxElementType.UNKNOWN;</span>
+    }
+
+    /**
+     * returns all the madx-element-types, which correspond to the given (jmad-internal) {@link JMadElementType}.
+     * 
+     * @param elementType the {@link JMadElementType} for which to find the madx-types
+     * @return all the madx element types.
+     */
+    public static List&lt;MadxElementType&gt; fromElementType(JMadElementType elementType) {
+<span class="nc" id="L144">        List&lt;MadxElementType&gt; madxElementTypes = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (MadxElementType type : MadxElementType.values()) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (type.equalsJMadElementType(elementType)) {</span>
+<span class="nc" id="L147">                madxElementTypes.add(type);</span>
+            }
+        }
+<span class="nc" id="L150">        return madxElementTypes;</span>
+    }
+
+    /**
+     * finds all the names of the madx-element-types for one (jmad-internal) {@link JMadElementType}.
+     * 
+     * @param elementType the {@link JMadElementType} for which to find the madx-names
+     * @return the names of all madx-element-types for the given {@link JMadElementType}
+     */
+    public static List&lt;String&gt; fromElementTypeAsStrings(JMadElementType elementType) {
+<span class="nc" id="L160">        List&lt;MadxElementType&gt; madxElementTypes = fromElementType(elementType);</span>
+<span class="nc" id="L161">        return ListUtil.toString(madxElementTypes);</span>
+    }
+
+    /**
+     * @return the (more general) Element-Type associated with this element
+     */
+    public JMadElementType getElementType() {
+<span class="fc" id="L168">        return elementType;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

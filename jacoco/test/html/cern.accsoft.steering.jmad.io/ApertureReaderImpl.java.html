@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApertureReaderImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.io</a> &gt; <span class="el_source">ApertureReaderImpl.java</span></div><h1>ApertureReaderImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.io;
+
+import java.io.File;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.aperture.AperType;
+import cern.accsoft.steering.jmad.domain.aperture.Aperture;
+import cern.accsoft.steering.jmad.domain.aperture.ApertureImpl;
+import cern.accsoft.steering.jmad.domain.aperture.ApertureSlice;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResult;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxApertureVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+
+/*
+ * XXX a lot!
+ * 
+ * XXX (Using constants/enums instead of names ) This is still only a rough adaption of the copied version from the
+ * online model
+ * 
+ * XXX detect for copy paste! (update/load!?)
+ */
+/**
+ * this is the implementation of the loader for aperture data
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="nc" id="L55">public class ApertureReaderImpl implements ApertureReader {</span>
+
+    /** The logger for the class */
+<span class="nc" id="L58">    private static final Logger LOGGER = LoggerFactory.getLogger(ApertureImpl.class);</span>
+
+    private static final double MARKER_VALUE = 9.0;
+
+    /** allowed PositionError of 100 um **/
+    private static final double POSITION_ERROR = 1e-4;
+
+    /** the factor on position to identify beam 4 */
+    private static final double POSITION_FACTOR_BEAM4 = -1e3;
+
+    /** the default value for aperture */
+    /* XXX GM please check */
+    private static final double DEFAULT_APERTURE_VALUE = 0.05;
+
+    @Override
+    public Aperture readIndex(File file) {
+<span class="nc" id="L74">        return loadApertureIndexFile(file);</span>
+    }
+
+    @Override
+    public void readValues(File file, Aperture aperture) {
+<span class="nc" id="L79">        loadAperturePartFile(file, aperture);</span>
+<span class="nc" id="L80">    }</span>
+
+    /**
+     * Read in the correct Name/Position relation from an ApertureIndexFile
+     * &lt;p&gt;
+     * which also contains APERTYPE and the ON_AP/ON_ELEM flags... such that we initialize the Sequence of
+     * ApertureElements with the right positions according to the machine we are using...
+     * &lt;p&gt;
+     * All VacuumMarkers are skipped {@literal --&gt;} ElementNames starts with V
+     * 
+     * @param indexFile The file from which to read the aperture-index
+     * @return an object containing all the aperture information
+     */
+    public Aperture loadApertureIndexFile(File indexFile) {
+<span class="nc" id="L94">        TfsFileParser parser = new TfsFileParser(indexFile);</span>
+        try {
+<span class="nc" id="L96">            parser.parse();</span>
+<span class="nc" id="L97">        } catch (TfsFileParserException e) {</span>
+<span class="nc" id="L98">            LOGGER.error(&quot;Error while loading aperture index file '&quot; + indexFile + &quot;'&quot;, e);</span>
+<span class="nc" id="L99">            return null;</span>
+<span class="nc" id="L100">        }</span>
+<span class="nc" id="L101">        TfsResult result = parser.getResult();</span>
+
+<span class="nc" id="L103">        LOGGER.info(&quot;Loading ApertureModel with ApertureIndex File --&gt; need to add Aperture Values by Add -&gt; Aperture Part!!!&quot;);</span>
+<span class="nc" id="L104">        return this.loadApertureInformation(result, false);</span>
+
+    }
+
+    /**
+     * Fill the Aperture Model with Element Positions, ApertureTypes and filter non-Aperture Elements as well as Markers
+     * &lt;p&gt;
+     * depending on the s-position all Slices are added at the right position to the model... and the model is updated
+     * accordingly
+     * 
+     * @param tfsResult the {@link TfsResult} to read from
+     * @param readAperVals if &lt;code&gt;true&lt;/code&gt; read also ApertureValues to the model
+     * @return an object containing the aperture information
+     */
+    private Aperture loadApertureInformation(TfsResult tfsResult, boolean readAperVals) {
+
+<span class="nc" id="L120">        ApertureImpl aperture = new ApertureImpl();</span>
+
+<span class="nc" id="L122">        List&lt;String&gt; names = tfsResult.getStringData(MadxTwissVariable.NAME);</span>
+<span class="nc" id="L123">        List&lt;Double&gt; sValues = tfsResult.getDoubleData(MadxTwissVariable.S);</span>
+
+<span class="nc" id="L125">        List&lt;Double&gt; isAp = tfsResult.getDoubleData(MadxApertureVariable.ON_AP);</span>
+<span class="nc" id="L126">        List&lt;Double&gt; isElem = tfsResult.getDoubleData(MadxApertureVariable.ON_ELEM);</span>
+
+<span class="nc" id="L128">        List&lt;Double&gt; aper1 = tfsResult.getDoubleData(MadxApertureVariable.APER_1);</span>
+<span class="nc" id="L129">        List&lt;Double&gt; aper2 = tfsResult.getDoubleData(MadxApertureVariable.APER_2);</span>
+<span class="nc" id="L130">        List&lt;Double&gt; aper3 = tfsResult.getDoubleData(MadxApertureVariable.APER_3);</span>
+<span class="nc" id="L131">        List&lt;Double&gt; aper4 = tfsResult.getDoubleData(MadxApertureVariable.APER_4);</span>
+
+<span class="nc" id="L133">        List&lt;String&gt; aperTypeStrings = tfsResult.getStringData(MadxApertureVariable.APERTYPE);</span>
+
+<span class="nc bnc" id="L135" title="All 10 branches missed.">        if (names == null || sValues == null || aperTypeStrings == null || isAp == null || isElem == null) {</span>
+<span class="nc" id="L136">            LOGGER.error(&quot;Missing Columns in ApertureIndex Aperture Index should contain: &quot;</span>
+                    + &quot;[name, s, apertype, on_ap, on_elem]&quot;);
+        }
+
+<span class="nc" id="L140">        List&lt;Double&gt; xValues = null;</span>
+<span class="nc" id="L141">        List&lt;Double&gt; yValues = null;</span>
+
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (readAperVals) {</span>
+<span class="nc" id="L144">            xValues = tfsResult.getDoubleData(MadxTwissVariable.X);</span>
+<span class="nc" id="L145">            yValues = tfsResult.getDoubleData(MadxTwissVariable.Y);</span>
+        }
+
+<span class="nc" id="L148">        ApertureSlice newSlice = null;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        for (int i = 0; i &lt; sValues.size(); i++) {</span>
+
+            // Filter all VacuumMarkers
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (names.get(i).toUpperCase().startsWith(&quot;V&quot;)) {</span>
+<span class="nc" id="L153">                continue;</span>
+            }
+
+            // it is a marker... we are interested in ;) --&gt;
+            // DispersionSuppressors and such
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if ((isAp.get(i) &lt; 0)</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">                    &amp;&amp; (isElem.get(i) == 1)</span>
+<span class="nc bnc" id="L160" title="All 4 branches missed.">                    || ((aper1.get(i) &gt;= MARKER_VALUE) || (aper2.get(i) &gt;= MARKER_VALUE)</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">                            || (aper3.get(i) &gt;= MARKER_VALUE) || (aper4.get(i) &gt;= MARKER_VALUE))</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                    || names.get(i).toUpperCase().contains(&quot;.DS.&quot;)) {</span>
+<span class="nc" id="L163">                aperture.addMarker(names.get(i), sValues.get(i));</span>
+            }
+
+            // Either its a Drift or no ApertureInformation provided
+<span class="nc bnc" id="L167" title="All 4 branches missed.">            if ((isAp.get(i) &lt; 1) || (isElem.get(i) &lt; 1)) {</span>
+<span class="nc" id="L168">                continue;</span>
+            }
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (readAperVals) { // --&gt; only create ApertureIndex</span>
+
+<span class="nc bnc" id="L173" title="All 6 branches missed.">                if ((aper1.get(i) &gt;= MARKER_VALUE) || (aper2.get(i) &gt;= MARKER_VALUE) || (aper3.get(i) &gt;= MARKER_VALUE)</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                        || (aper4.get(i) &gt;= MARKER_VALUE)) {</span>
+
+                    // Found a marker --&gt; put in Markers List...
+                    // addMarker(names[i], s[i]);
+
+                    // put Marker into Sequence for update ApertureValues as
+                    // Reference point if not full apertures are loaded but only
+                    // parts...
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                    if (i == 0) {</span>
+                        // first Element in Sequence --&gt; create dummyAperture
+<span class="nc" id="L184">                        newSlice = new ApertureSlice(AperType.valueOf(aperTypeStrings.get(i)), MARKER_VALUE,</span>
+<span class="nc" id="L185">                                MARKER_VALUE, MARKER_VALUE, MARKER_VALUE, sValues.get(i));</span>
+                    } else {
+                        // create new Slice with Values of the previous Aperture
+<span class="nc" id="L188">                        newSlice = new ApertureSlice(newSlice.getType(), newSlice.getAper1(), newSlice.getAper2(),</span>
+<span class="nc" id="L189">                                newSlice.getAper3(), newSlice.getAper4(), sValues.get(i));</span>
+                    }
+
+                } else {
+<span class="nc" id="L193">                    newSlice = new ApertureSlice(AperType.valueOf(aperTypeStrings.get(i)), aper1.get(i), aper2.get(i),</span>
+<span class="nc" id="L194">                            aper3.get(i), aper4.get(i), sValues.get(i));</span>
+                }
+
+<span class="nc" id="L197">                newSlice.setX(xValues.get(i));</span>
+<span class="nc" id="L198">                newSlice.setY(yValues.get(i));</span>
+            } else {
+                /* only read aper index */
+<span class="nc" id="L201">                newSlice = new ApertureSlice(AperType.valueOf(aperTypeStrings.get(i)), sValues.get(i));</span>
+            }
+
+<span class="nc" id="L204">            aperture.addSlice(newSlice);</span>
+        }
+<span class="nc" id="L206">        LOGGER.info(&quot;ApertureIndex loaded...&quot;);</span>
+<span class="nc" id="L207">        return aperture;</span>
+    }
+
+    /**
+     * Read ApertureValues to the already defined MachineApertureSequence
+     * 
+     * @param read the {@link TfsResult} to read from
+     * @param aperture the aperture data-object to update
+     */
+    private void updateApertureValues(TfsResult read, ApertureImpl aperture) {
+
+<span class="nc" id="L218">        boolean isBeam4 = false;</span>
+
+<span class="nc" id="L220">        List&lt;String&gt; names = read.getStringData(&quot;NAME&quot;);</span>
+<span class="nc" id="L221">        List&lt;Double&gt; sValues = read.getDoubleData(&quot;S&quot;);</span>
+
+<span class="nc" id="L223">        List&lt;Double&gt; aper1 = read.getDoubleData(&quot;APER_1&quot;);</span>
+<span class="nc" id="L224">        List&lt;Double&gt; aper2 = read.getDoubleData(&quot;APER_2&quot;);</span>
+<span class="nc" id="L225">        List&lt;Double&gt; aper3 = read.getDoubleData(&quot;APER_3&quot;);</span>
+<span class="nc" id="L226">        List&lt;Double&gt; aper4 = read.getDoubleData(&quot;APER_4&quot;);</span>
+<span class="nc" id="L227">        List&lt;Double&gt; xValues = read.getDoubleData(&quot;X&quot;);</span>
+<span class="nc" id="L228">        List&lt;Double&gt; yValues = read.getDoubleData(&quot;Y&quot;);</span>
+
+        int index;
+<span class="nc" id="L231">        int dataReadStart = -1;</span>
+<span class="nc" id="L232">        int dataReadEnd = -1;</span>
+<span class="nc" id="L233">        double modelUpdateStartPos = -1.0;</span>
+
+<span class="nc" id="L235">        double modelStart = -1.0;</span>
+<span class="nc" id="L236">        double modelDiff = -1.0;</span>
+<span class="nc" id="L237">        double dataStart = -1.0;</span>
+<span class="nc" id="L238">        double dataDiff = -1.0;</span>
+<span class="nc" id="L239">        String actElement = null;</span>
+        // Check for ordering of Markers to detect a reverse order (B2 &lt;--&gt; B4)
+<span class="nc bnc" id="L241" title="All 2 branches missed.">        for (index = 0; index &lt; names.size(); index++) {</span>
+
+            // Filter all VacuumMarkers
+<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (names.get(index).toUpperCase().startsWith(&quot;V&quot;)) {</span>
+<span class="nc" id="L245">                continue;</span>
+            }
+
+<span class="nc" id="L248">            actElement = names.get(index).toUpperCase();</span>
+<span class="nc" id="L249">            Double markerPos = aperture.getMarkerPos(actElement);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            if (markerPos == null) {</span>
+<span class="nc bnc" id="L251" title="All 4 branches missed.">                if ((aper1.get(index) &gt;= MARKER_VALUE) || (aper2.get(index) &gt;= MARKER_VALUE)</span>
+<span class="nc bnc" id="L252" title="All 4 branches missed.">                        || (aper3.get(index) &gt;= MARKER_VALUE) || (aper4.get(index) &gt;= MARKER_VALUE)) {</span>
+<span class="nc" id="L253">                    LOGGER.warn(&quot;Load ApertureValues --&gt; MARKER [&quot; + actElement + &quot;] not loaded to Model...&quot;);</span>
+
+                    // Track missed markers...
+<span class="nc" id="L256">                    aperture.getMissedMarkers().add(actElement);</span>
+                }
+            } else {
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                if (modelStart &lt; 0.0) {</span>
+<span class="nc" id="L260">                    modelStart = markerPos;</span>
+<span class="nc" id="L261">                    dataStart = sValues.get(index);</span>
+
+                    // Save the DataIndex of the first DataMarker
+                    // which was found in the Model
+<span class="nc" id="L265">                    dataReadStart = index;</span>
+
+                    // and the MarkerPosition of the model
+                    // where to start updating too
+<span class="nc" id="L269">                    modelUpdateStartPos = modelStart;</span>
+                } else {
+<span class="nc" id="L271">                    modelDiff = -modelStart;</span>
+<span class="nc" id="L272">                    modelStart = markerPos;</span>
+<span class="nc" id="L273">                    modelDiff += (modelStart);</span>
+
+<span class="nc" id="L275">                    dataDiff = -dataStart;</span>
+<span class="nc" id="L276">                    dataStart = sValues.get(index);</span>
+<span class="nc" id="L277">                    dataDiff += dataStart;</span>
+
+                    // Save Index of the last DataMarker
+                    // which was found in the Model
+<span class="nc" id="L281">                    dataReadEnd = index;</span>
+
+<span class="nc bnc" id="L283" title="All 2 branches missed.">                    if (modelDiff &lt; (POSITION_FACTOR_BEAM4 * POSITION_ERROR)) {</span>
+
+                        // more then 0.1m negative PositionDifference between
+                        // identical Markers --&gt; assuming BEAM4 (B2 Sequence
+                        // starting from the opposite end)
+
+<span class="nc" id="L289">                        isBeam4 = true;</span>
+<span class="nc" id="L290">                        modelDiff *= -1;</span>
+
+                    } else {
+<span class="nc" id="L293">                        isBeam4 = false;</span>
+                    }
+
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                    if (Math.abs(modelDiff - dataDiff) &gt; POSITION_ERROR) {</span>
+<span class="nc" id="L297">                        LOGGER.warn(&quot;Model to NewData Distance Error between two Markers = &quot;</span>
+<span class="nc" id="L298">                                + Math.abs(modelDiff - dataDiff) + &quot; @MARKER [&quot; + actElement + &quot;]&quot;);</span>
+                    }
+                }
+            }
+        }
+
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        if (isBeam4) {</span>
+<span class="nc" id="L305">            LOGGER.info(&quot;Detected BEAM4 Sequence was loaded as ApertureIndex --&gt; nomX = -x &quot;</span>
+                    + &quot;and ApertureValues are read in reverse Order&quot;);
+
+            // Start from the index of the last
+            // Marker found in the Model and B2 Sequence
+<span class="nc" id="L310">            index = dataReadEnd;</span>
+
+            // swap dataReadEnd and dataReadStart for ease of reading
+<span class="nc" id="L313">            dataReadEnd = dataReadStart;</span>
+        } else {
+<span class="nc" id="L315">            index = dataReadStart;</span>
+        }
+
+<span class="nc" id="L318">        ApertureSlice lastSlice = null;</span>
+<span class="nc" id="L319">        boolean reading = false;</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        for (ApertureSlice actSlice : aperture.getApertureSlices()) {</span>
+
+<span class="nc bnc" id="L322" title="All 2 branches missed.">            if (actSlice.getS() == modelUpdateStartPos) {</span>
+<span class="nc" id="L323">                reading = true;</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">            } else if (actSlice.getS() &lt; modelUpdateStartPos) {</span>
+<span class="nc" id="L325">                lastSlice = actSlice; // keep the lastSlice info...</span>
+            }
+
+<span class="nc bnc" id="L328" title="All 2 branches missed.">            if (reading) {</span>
+
+<span class="nc bnc" id="L330" title="All 8 branches missed.">                if (((index &gt; dataReadEnd) &amp;&amp; !isBeam4) || ((index &lt; dataReadEnd) &amp;&amp; isBeam4)) {</span>
+<span class="nc" id="L331">                    break;</span>
+                }
+
+<span class="nc" id="L334">                System.out.println(names.get(index));</span>
+                // Filter all VacuumMarkers
+<span class="nc bnc" id="L336" title="All 2 branches missed.">                while (names.get(index).toUpperCase().startsWith(&quot;V&quot;)) {</span>
+                    // move Index
+<span class="nc bnc" id="L338" title="All 2 branches missed.">                    if (isBeam4) {</span>
+<span class="nc" id="L339">                        index--;</span>
+                    } else {
+<span class="nc" id="L341">                        index++;</span>
+                    }
+                }
+
+                // NO Vacuum Marker so --&gt; Set nominal Trajectory
+<span class="nc bnc" id="L346" title="All 2 branches missed.">                if (isBeam4) {</span>
+<span class="nc" id="L347">                    actSlice.setX(-xValues.get(index));</span>
+                } else {
+<span class="nc" id="L349">                    actSlice.setX(xValues.get(index));</span>
+                }
+<span class="nc" id="L351">                actSlice.setY(yValues.get(index));</span>
+
+                // Check if Marker
+<span class="nc bnc" id="L354" title="All 4 branches missed.">                if ((aper1.get(index) &gt;= MARKER_VALUE) || (aper2.get(index) &gt;= MARKER_VALUE)</span>
+<span class="nc bnc" id="L355" title="All 4 branches missed.">                        || (aper3.get(index) &gt;= MARKER_VALUE) || (aper4.get(index) &gt;= MARKER_VALUE)) {</span>
+
+                    // Found a marker --&gt; put in Markers List...
+<span class="nc" id="L358">                    aperture.addMarker(names.get(index).toUpperCase(), actSlice.getS());</span>
+
+                    // only update ApertureSlice if Marker is already known...
+                    // otherwise iterator is screwed up...
+<span class="nc bnc" id="L362" title="All 2 branches missed.">                    if (!aperture.getMissedMarkers().contains(names.get(index))) {</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">                        if (lastSlice == null) {</span>
+<span class="nc" id="L364">                            actSlice.setApertureValues(DEFAULT_APERTURE_VALUE, DEFAULT_APERTURE_VALUE,</span>
+                                    DEFAULT_APERTURE_VALUE, DEFAULT_APERTURE_VALUE);
+                        } else {
+<span class="nc" id="L367">                            actSlice.setApertureValues(lastSlice.getAper1(), lastSlice.getAper2(),</span>
+<span class="nc" id="L368">                                    lastSlice.getAper3(), lastSlice.getAper4());</span>
+                        }
+                    }
+
+                } else {
+<span class="nc" id="L373">                    actSlice.setApertureValues(aper1.get(index), aper2.get(index), aper3.get(index), aper4.get(index));</span>
+                }
+
+<span class="nc" id="L376">                System.out.println(&quot;Element [&quot; + names.get(index) + &quot;] @ &quot; + actSlice.getS() + &quot;with idx = &quot; + index);</span>
+
+                // move Index
+<span class="nc bnc" id="L379" title="All 2 branches missed.">                if (isBeam4) {</span>
+<span class="nc" id="L380">                    index--;</span>
+                } else {
+<span class="nc" id="L382">                    index++;</span>
+                }
+
+                // keep reference to last Slice for Markers
+<span class="nc" id="L386">                lastSlice = actSlice;</span>
+            }
+<span class="nc" id="L388">        }</span>
+
+<span class="nc" id="L390">    }</span>
+
+    /**
+     * Load in (full) ApertureInformation from the specified TFS-File
+     * &lt;p&gt;
+     * If ApertureIndex was read before, only ApertureInformation are updated for the specified Sequence, otherwise
+     * ApertureIndex is generated if TFS-File contains ALL Information (apertype, on_ap, on_elem, name, s)
+     * 
+     * @param file the file from which to load the information
+     */
+    public void loadApertureFile(File file) {
+<span class="nc" id="L401">        TfsFileParser parser = new TfsFileParser(file);</span>
+        try {
+<span class="nc" id="L403">            parser.parse();</span>
+<span class="nc" id="L404">        } catch (TfsFileParserException e) {</span>
+<span class="nc" id="L405">            LOGGER.error(&quot;Error while loading file '&quot; + file.getAbsolutePath() + &quot;'&quot;, e);</span>
+<span class="nc" id="L406">            return;</span>
+<span class="nc" id="L407">        }</span>
+<span class="nc" id="L408">        TfsResult read = parser.getResult();</span>
+<span class="nc" id="L409">        List&lt;String&gt; keys = read.getKeys();</span>
+
+<span class="nc bnc" id="L411" title="All 8 branches missed.">        if (!keys.contains(&quot;NAME&quot;) || !keys.contains(&quot;S&quot;) || !keys.contains(&quot;APER_1&quot;) || !keys.contains(&quot;APER_2&quot;)</span>
+<span class="nc bnc" id="L412" title="All 6 branches missed.">                || !keys.contains(&quot;APER_3&quot;) || !keys.contains(&quot;APER_4&quot;) || !keys.contains(&quot;APERTYPE&quot;)</span>
+<span class="nc bnc" id="L413" title="All 4 branches missed.">                || !keys.contains(&quot;ON_AP&quot;) || !keys.contains(&quot;ON_ELEM&quot;)) {</span>
+
+<span class="nc" id="L415">            LOGGER.error(&quot;Missing Columns in Aperture File: [&quot; + file.getAbsolutePath()</span>
+                    + &quot;]\nFull Aperture Table should contain: &quot;
+                    + &quot;[name, s, apertype, on_ap, on_elem, aper_1, aper_2, aper_3, aper_4]&quot;
+                    + &quot; or you need to load an appropriate ApertureIndex file before!!&quot;);
+<span class="nc" id="L419">            return;</span>
+
+        }
+
+<span class="nc" id="L423">        LOGGER.info(&quot;Updating ApertureModel by loading ApertureSlices from provided full ApertureFile&quot;);</span>
+
+        // Load ApertureIndex and Update ApertureInformations
+<span class="nc" id="L426">        this.loadApertureInformation(read, true);</span>
+<span class="nc" id="L427">    }</span>
+
+    /**
+     * loads the aperture information from the given file into the data object.
+     * 
+     * @param file The file from which to load the data
+     * @param aperture the object to update with the information
+     */
+    public void loadAperturePartFile(File file, Aperture aperture) {
+
+<span class="nc bnc" id="L437" title="All 2 branches missed.">        if (!(aperture instanceof ApertureImpl)) {</span>
+<span class="nc" id="L438">            LOGGER.warn(&quot;aperture object is not a instance of '&quot; + ApertureImpl.class.getCanonicalName()</span>
+                    + &quot;'. cannot add data to it.&quot;);
+<span class="nc" id="L440">            return;</span>
+        }
+
+<span class="nc" id="L443">        TfsFileParser parser = new TfsFileParser(file);</span>
+        try {
+<span class="nc" id="L445">            parser.parse();</span>
+<span class="nc" id="L446">        } catch (TfsFileParserException e) {</span>
+<span class="nc" id="L447">            LOGGER.error(&quot;Error while loading file '&quot; + file.getAbsolutePath() + &quot;'&quot;, e);</span>
+<span class="nc" id="L448">            return;</span>
+<span class="nc" id="L449">        }</span>
+<span class="nc" id="L450">        TfsResult read = parser.getResult();</span>
+<span class="nc" id="L451">        List&lt;String&gt; keys = read.getKeys();</span>
+
+<span class="nc bnc" id="L453" title="All 8 branches missed.">        if (!keys.contains(&quot;NAME&quot;) || !keys.contains(&quot;S&quot;) || !keys.contains(&quot;APER_1&quot;) || !keys.contains(&quot;APER_2&quot;)</span>
+<span class="nc bnc" id="L454" title="All 4 branches missed.">                || !keys.contains(&quot;APER_3&quot;) || !keys.contains(&quot;APER_4&quot;)) {</span>
+<span class="nc" id="L455">            LOGGER.error(&quot;Missing Columns in AperturePart File: [&quot; + file.getAbsolutePath()</span>
+                    + &quot;]\nAperture Table should contain: &quot; + &quot;[name, s, aper_1, aper_2, aper_3, aper_4]&quot;);
+<span class="nc" id="L457">            return;</span>
+        }
+
+<span class="nc bnc" id="L460" title="All 2 branches missed.">        if (!((ApertureImpl) aperture).isIndexLoaded()) {</span>
+<span class="nc" id="L461">            LOGGER.error(&quot;You need to load an appropriate ApertureIndex file before loading Aperture Parts!!&quot;);</span>
+<span class="nc" id="L462">            return;</span>
+
+        }
+<span class="nc" id="L465">        LOGGER.info(&quot;Updating ApertureModel by loading ApertureValues APER_[1..4] and extracting MarkerInformations&quot;);</span>
+
+        // Update new ApertureValues to existing ApertureIndex
+<span class="nc" id="L468">        this.updateApertureValues(read, (ApertureImpl) aperture);</span>
+<span class="nc" id="L469">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

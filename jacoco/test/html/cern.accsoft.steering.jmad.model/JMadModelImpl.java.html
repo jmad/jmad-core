@@ -1,0 +1,1332 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model</a> &gt; <span class="el_source">JMadModelImpl.java</span></div><h1>JMadModelImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+/*******************************************************************************
+ * This file is part of JMad. Copyright (c) 2008-2011, CERN. All rights reserved. Licensed under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.model;
+
+import static java.util.Collections.singletonList;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import cern.accsoft.steering.jmad.JMadException;
+import cern.accsoft.steering.jmad.domain.aperture.Aperture;
+import cern.accsoft.steering.jmad.domain.beam.Beam;
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.elem.ElementAttributeReader;
+import cern.accsoft.steering.jmad.domain.elem.ElementListener;
+import cern.accsoft.steering.jmad.domain.elem.MadxElementType;
+import cern.accsoft.steering.jmad.domain.elem.impl.AbstractElement;
+import cern.accsoft.steering.jmad.domain.elem.impl.ElementFactory;
+import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
+import cern.accsoft.steering.jmad.domain.file.CallableModelFile;
+import cern.accsoft.steering.jmad.domain.file.CallableModelFile.ParseType;
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.domain.file.TableModelFile;
+import cern.accsoft.steering.jmad.domain.knob.AbstractKnob;
+import cern.accsoft.steering.jmad.domain.knob.Knob;
+import cern.accsoft.steering.jmad.domain.knob.KnobListener;
+import cern.accsoft.steering.jmad.domain.knob.attribute.ElementAttribute;
+import cern.accsoft.steering.jmad.domain.knob.strength.SimpleStrength;
+import cern.accsoft.steering.jmad.domain.knob.strength.Strength;
+import cern.accsoft.steering.jmad.domain.machine.ApertureDefinition;
+import cern.accsoft.steering.jmad.domain.machine.Range;
+import cern.accsoft.steering.jmad.domain.machine.RangeDefinition;
+import cern.accsoft.steering.jmad.domain.machine.RangeListener;
+import cern.accsoft.steering.jmad.domain.machine.SequenceDefinition;
+import cern.accsoft.steering.jmad.domain.misalign.MisalignmentConfiguration;
+import cern.accsoft.steering.jmad.domain.optics.Optic;
+import cern.accsoft.steering.jmad.domain.optics.OpticImpl;
+import cern.accsoft.steering.jmad.domain.result.Result;
+import cern.accsoft.steering.jmad.domain.result.ResultType;
+import cern.accsoft.steering.jmad.domain.result.StrengthResult;
+import cern.accsoft.steering.jmad.domain.result.match.MatchResult;
+import cern.accsoft.steering.jmad.domain.result.match.MatchResultImpl;
+import cern.accsoft.steering.jmad.domain.result.match.MatchResultRequest;
+import cern.accsoft.steering.jmad.domain.result.match.input.MadxVaryParameter;
+import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraint;
+import cern.accsoft.steering.jmad.domain.result.match.input.MatchConstraintLocal;
+import cern.accsoft.steering.jmad.domain.result.match.output.MadxVaryResult;
+import cern.accsoft.steering.jmad.domain.result.match.output.MatchConstraintResultGlobal;
+import cern.accsoft.steering.jmad.domain.result.match.output.MatchConstraintResultLocal;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResult;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequest;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsResultRequestImpl;
+import cern.accsoft.steering.jmad.domain.result.tfs.TfsSummary;
+import cern.accsoft.steering.jmad.domain.result.track.DynapResult;
+import cern.accsoft.steering.jmad.domain.result.track.DynapResultRequest;
+import cern.accsoft.steering.jmad.domain.result.track.TrackResult;
+import cern.accsoft.steering.jmad.domain.result.track.TrackResultRequest;
+import cern.accsoft.steering.jmad.domain.track.TrackInitialCondition;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditions;
+import cern.accsoft.steering.jmad.domain.twiss.TwissInitialConditionsImpl;
+import cern.accsoft.steering.jmad.domain.twiss.TwissListener;
+import cern.accsoft.steering.jmad.domain.var.custom.StrengthVarSet;
+import cern.accsoft.steering.jmad.domain.var.enums.EalignVariables;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
+import cern.accsoft.steering.jmad.domain.var.enums.MadxTwissVariable;
+import cern.accsoft.steering.jmad.io.ApertureReader;
+import cern.accsoft.steering.jmad.io.ApertureReaderImpl;
+import cern.accsoft.steering.jmad.kernel.JMadKernel;
+import cern.accsoft.steering.jmad.kernel.JMadKernelImpl;
+import cern.accsoft.steering.jmad.kernel.MadxTerminatedException;
+import cern.accsoft.steering.jmad.kernel.cmd.CallCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.Command;
+import cern.accsoft.steering.jmad.kernel.cmd.EOptionCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.FreeText;
+import cern.accsoft.steering.jmad.kernel.cmd.SaveBetaCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.SetEqual;
+import cern.accsoft.steering.jmad.kernel.cmd.SetListEqual;
+import cern.accsoft.steering.jmad.kernel.cmd.UseCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.ptc.PtcEndCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.table.ReadMyTableCommand;
+import cern.accsoft.steering.jmad.kernel.cmd.table.ReadTableCommand;
+import cern.accsoft.steering.jmad.kernel.task.CycleSequence;
+import cern.accsoft.steering.jmad.kernel.task.GetMisalignmentsTask;
+import cern.accsoft.steering.jmad.kernel.task.GetValues;
+import cern.accsoft.steering.jmad.kernel.task.RunMatch;
+import cern.accsoft.steering.jmad.kernel.task.RunTwiss;
+import cern.accsoft.steering.jmad.kernel.task.SetBeam;
+import cern.accsoft.steering.jmad.kernel.task.SetMisalignmentsTask;
+import cern.accsoft.steering.jmad.kernel.task.ptc.InitPtcTask;
+import cern.accsoft.steering.jmad.kernel.task.ptc.RunPtcTwiss;
+import cern.accsoft.steering.jmad.kernel.task.track.DynapTask;
+import cern.accsoft.steering.jmad.kernel.task.track.TrackTask;
+import cern.accsoft.steering.jmad.model.manage.StrengthVarManager;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinition;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
+import cern.accsoft.steering.jmad.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class JMadModelImpl implements JMadModel, ElementAttributeReader {
+
+    /**
+     * The logger for the class
+     */
+<span class="fc" id="L121">    protected static final Logger LOGGER = LoggerFactory.getLogger(JMadModelImpl.class);</span>
+
+    /**
+     * The definition of the model
+     */
+<span class="fc" id="L126">    private JMadModelDefinition modelDefinition = null;</span>
+
+    /**
+     * The last loaded optics definition
+     */
+<span class="fc" id="L131">    private OpticsDefinition activeOpticsDefinition = null;</span>
+
+    /**
+     * The last loaded range definition
+     */
+<span class="fc" id="L136">    private RangeDefinition activeRangeDefinition = null;</span>
+
+    /**
+     * The active Range
+     */
+<span class="fc" id="L141">    private Range activeRange = null;</span>
+
+    /**
+     * The actually loaded aperture data. Might be null.
+     */
+<span class="fc" id="L146">    private Aperture aperture = null;</span>
+
+    /**
+     * The kernel for this model to be injected by spring
+     */
+    private JMadKernel kernel;
+
+    /**
+     * The last calculated optics-values
+     */
+<span class="fc" id="L156">    private Optic optics = new OpticImpl();</span>
+
+    /**
+     * The startup configuration defines which optics are loaded per default
+     */
+<span class="fc" id="L161">    private JMadModelStartupConfiguration startupConfiguration = new JMadModelStartupConfiguration();</span>
+
+    /**
+     * The Manager which keeps all model-specific knobs
+     */
+    private final KnobManager knobManager;
+
+    /**
+     * The file finder for model files to be injected by spring
+     */
+    private ModelFileFinderManager modelFileFinderManager;
+
+    /**
+     * The listeners
+     */
+<span class="fc" id="L176">    private final List&lt;JMadModelListener&gt; listeners = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Keeps track of all the strengths and variables
+     */
+    private StrengthVarManager strengthVarManager;
+
+    /**
+     * true, if some strengthes have been set since last recalc of optics
+     */
+<span class="fc" id="L186">    protected boolean dirtyModel = false;</span>
+
+    /**
+     * the twiss initial conditions. Shall also be present, if no active range is selected. Therefore they are set to
+     * empty ones by default.
+     */
+<span class="fc" id="L192">    private TwissInitialConditions twissInitialConditions = new TwissInitialConditionsImpl();</span>
+
+    /**
+     * The mode defines which kind of twiss is used
+     */
+<span class="fc" id="L197">    private ModelMode modelMode = ModelMode.MADX;</span>
+
+    /**
+     * The listener, which is added to all elemnts in order to update the madx-instance correctly, when element values
+     * change.
+     */
+<span class="fc" id="L203">    private final ElementListener elementListener = new ElementListener() {</span>
+        @Override
+        public void changedAttribute(Element element, String attributeName) {
+<span class="fc" id="L206">            String name = element.getName() + Element.ATTR_SEPARATOR + attributeName;</span>
+            try {
+<span class="fc" id="L208">                setValue(name, element.getAttribute(attributeName));</span>
+<span class="nc" id="L209">            } catch (JMadModelException e) {</span>
+<span class="nc" id="L210">                LOGGER.error(&quot;Error while passing new element-attribute value '&quot; + name + &quot;' to MadX.&quot;, e);</span>
+<span class="fc" id="L211">            }</span>
+<span class="fc" id="L212">        }</span>
+    };
+
+    /**
+     * The listener which is added to all strengths in order to update the madx-instance, when one of the element values
+     * chages.
+     */
+<span class="fc" id="L219">    private final KnobListener strengthListener = new KnobListener() {</span>
+        @Override
+        public void changedValue(Knob strength) {
+            try {
+<span class="fc" id="L223">                set(strength);</span>
+<span class="nc" id="L224">            } catch (JMadModelException e) {</span>
+<span class="nc" id="L225">                LOGGER.error(&quot;Error while passing new value for strength '&quot; + strength.getName() + &quot;' to MadX.&quot;, e);</span>
+<span class="fc" id="L226">            }</span>
+<span class="fc" id="L227">        }</span>
+    };
+
+    /**
+     * the listener to be notified when the twiss-initial conditions are changed.
+     */
+<span class="fc" id="L233">    private final TwissListener twissListener = new TwissListener() {</span>
+
+        /**
+         * @param twiss
+         */
+        @Override
+        public void changedTwiss(TwissInitialConditions twiss) {
+<span class="nc" id="L240">            dirtyModel = true;</span>
+<span class="nc" id="L241">            fireBecameDirty();</span>
+<span class="nc" id="L242">        }</span>
+    };
+
+<span class="fc" id="L245">    public JMadModelImpl() {</span>
+<span class="fc" id="L246">        twissInitialConditions.addListener(this.twissListener);</span>
+<span class="fc" id="L247">        this.knobManager = new KnobManagerImpl(this);</span>
+<span class="fc" id="L248">    }</span>
+
+    /**
+     * ensures, that the model is initialized.
+     *
+     * @throws JMadModelException if the initialization fails
+     */
+    private void ensureInit() throws JMadModelException {
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if (!isInitialized()) {</span>
+<span class="nc" id="L257">            LOGGER.debug(&quot;Model is not yet initialized. Starting init.&quot;);</span>
+<span class="nc" id="L258">            init();</span>
+        }
+<span class="fc" id="L260">    }</span>
+
+    public void setModelDefinition(JMadModelDefinition modelDefinition) {
+<span class="fc" id="L263">        this.modelDefinition = modelDefinition;</span>
+<span class="fc" id="L264">    }</span>
+
+    @Override
+    public void init() throws JMadModelException {
+<span class="fc" id="L268">        LOGGER.debug(&quot;initializing model.&quot;);</span>
+
+        /*
+         * first we have to start the kernel
+         */
+        try {
+<span class="fc" id="L274">            getKernel().start();</span>
+<span class="nc" id="L275">        } catch (JMadException e) {</span>
+<span class="nc" id="L276">            throw new JMadModelException(&quot;Error while initializing model.&quot;, e);</span>
+<span class="fc" id="L277">        }</span>
+
+        /*
+         * if we have no model definition then we are done
+         */
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">        if (getModelDefinition() == null) {</span>
+<span class="nc" id="L283">            return;</span>
+        }
+
+        /*
+         * If we have a model definition then we first of all run all the init files.
+         */
+<span class="fc" id="L289">        processModelFiles(getModelDefinition().getInitFiles());</span>
+
+        /* load the available beams for later use to the model */
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        for (SequenceDefinition sequenceDefinition : getModelDefinition().getSequenceDefinitions()) {</span>
+<span class="fc" id="L293">            Beam beam = sequenceDefinition.getBeam();</span>
+
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">            if (beam != null) {</span>
+                /* set sequence in beam for resbeam command */
+<span class="fc" id="L297">                beam.setSequence(sequenceDefinition.getName());</span>
+                try {
+<span class="fc" id="L299">                    getKernel().execute(new SetBeam(beam));</span>
+<span class="nc" id="L300">                } catch (JMadException e) {</span>
+<span class="nc" id="L301">                    throw new JMadModelException(&quot;Error defining beam for sequence [&quot; + sequenceDefinition.getName()</span>
+                            + &quot;] during model initialization.&quot;, e);
+<span class="fc" id="L303">                }</span>
+            }
+<span class="fc" id="L305">        }</span>
+
+        /*
+         * then we decide if we should load some default ranges and optics.
+         */
+
+<span class="fc" id="L311">        OpticsDefinition opticsDefinition = getStartupConfiguration().getInitialOpticsDefinition();</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">        if (opticsDefinition == null) {</span>
+<span class="fc" id="L313">            opticsDefinition = getModelDefinition().getDefaultOpticsDefinition();</span>
+        }
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">        if (opticsDefinition == null) {</span>
+<span class="nc" id="L316">            throw new JMadModelException(</span>
+                    &quot;Neither a initial optic (in the startup configuration), nor a default optics is defined.&quot;
+                            + &quot;Cannot correctly initialize the model.&quot;);
+        }
+<span class="fc" id="L320">        setActiveOpticsDefinition(opticsDefinition);</span>
+
+<span class="fc" id="L322">        RangeDefinition rangeDefinition = getStartupConfiguration().getInitialRangeDefinition();</span>
+<span class="pc bpc" id="L323" title="2 of 4 branches missed.">        if ((rangeDefinition == null) &amp;&amp; getStartupConfiguration().isLoadDefaultRange()) {</span>
+<span class="fc" id="L324">            rangeDefinition = getModelDefinition().getDefaultRangeDefinition();</span>
+        }
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">        if (rangeDefinition != null) {</span>
+<span class="fc" id="L327">            setActiveRangeDefinition(rangeDefinition);</span>
+        }
+<span class="fc" id="L329">        calcOptics();</span>
+<span class="fc" id="L330">    }</span>
+
+    private void processModelFiles(List&lt;ModelFile&gt; modelFiles) {
+<span class="fc" id="L333">        boolean containsStrengthFile = false;</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        for (ModelFile modelFile : modelFiles) {</span>
+<span class="pc bpc" id="L335" title="1 of 2 branches missed.">            if ((modelFile instanceof CallableModelFile) &amp;&amp; (ParseType.STRENGTHS == ((CallableModelFile) modelFile)</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">                    .getParseType())) {</span>
+<span class="fc" id="L337">                containsStrengthFile = true;</span>
+<span class="fc" id="L338">                break;</span>
+            }
+<span class="fc" id="L340">        }</span>
+
+<span class="fc bfc" id="L342" title="All 2 branches covered.">        if (containsStrengthFile) {</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">            for (Strength strength : strengthVarManager.getStrengthVarSet().getStrengths()) {</span>
+<span class="fc" id="L344">                strength.removeListener(this.strengthListener);</span>
+<span class="fc" id="L345">            }</span>
+        }
+
+<span class="fc bfc" id="L348" title="All 2 branches covered.">        for (ModelFile modelFile : modelFiles) {</span>
+<span class="fc" id="L349">            File file = getModelFileFinder().getFile(modelFile, getKernel());</span>
+<span class="pc bpc" id="L350" title="1 of 2 branches missed.">            if (modelFile instanceof CallableModelFile) {</span>
+<span class="fc" id="L351">                this.call(file);</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">                if (ParseType.STRENGTHS == ((CallableModelFile) modelFile).getParseType()) {</span>
+<span class="fc" id="L353">                    strengthVarManager.load(file);</span>
+                }
+<span class="nc bnc" id="L355" title="All 2 branches missed.">            } else if (modelFile instanceof TableModelFile) {</span>
+<span class="nc" id="L356">                this.readTable(file, ((TableModelFile) modelFile).getTableName());</span>
+            } else {
+<span class="nc" id="L358">                LOGGER.error(&quot;Do not know what to do with modelFile of class '&quot; + modelFile.getClass().getName() + &quot;'&quot;);</span>
+            }
+<span class="fc" id="L360">        }</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        if (containsStrengthFile) {</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">            for (Strength strength : this.strengthVarManager.getStrengthVarSet().getStrengths()) {</span>
+<span class="fc" id="L363">                strength.addListener(this.strengthListener);</span>
+<span class="fc" id="L364">            }</span>
+        }
+<span class="fc" id="L366">    }</span>
+
+    /**
+     * instructs madx to read a table from a file.
+     * &lt;p&gt;
+     * If a tableName is given, then the {@link ReadMyTableCommand} is used and the table is stored in the given table
+     * name. If the name is &lt;code&gt;null&lt;/code&gt;, then the tablename must be given in the file.
+     *
+     * @param file      the file from which to load the table
+     * @param tableName the name of the table (lowercase!)
+     */
+    public void readTable(File file, String tableName) {
+        Command cmd;
+<span class="nc bnc" id="L379" title="All 2 branches missed.">        if (tableName == null) {</span>
+<span class="nc" id="L380">            cmd = new ReadTableCommand(file);</span>
+        } else {
+<span class="nc" id="L382">            cmd = new ReadMyTableCommand(file, tableName);</span>
+        }
+        try {
+<span class="nc" id="L385">            this.kernel.execute(cmd);</span>
+<span class="nc" id="L386">        } catch (JMadException e) {</span>
+<span class="nc" id="L387">            LOGGER.error(&quot;Could not load table '&quot; + file.getAbsolutePath() + &quot;'&quot;);</span>
+<span class="nc" id="L388">        }</span>
+<span class="nc" id="L389">    }</span>
+
+    @Override
+    public void reset() throws JMadModelException {
+<span class="nc" id="L393">        cleanup();</span>
+<span class="nc" id="L394">        init();</span>
+<span class="nc" id="L395">    }</span>
+
+    /**
+     * @return true if the model is initialized, false otherwise.
+     */
+    @Override
+    public boolean isInitialized() {
+        /*
+         * is satisfying at the moment, might be refined sometime
+         */
+<span class="fc" id="L405">        return getKernel().isMadxRunning();</span>
+    }
+
+    @Override
+    public void cleanup() throws JMadModelException {
+        try {
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">            if (getKernel().isMadxRunning()) {</span>
+<span class="fc" id="L412">                getKernel().stop();</span>
+            }
+<span class="nc" id="L414">        } catch (JMadException e) {</span>
+<span class="nc" id="L415">            throw new JMadModelException(&quot;Error while stopping MadX-Kernel.&quot;, e);</span>
+<span class="fc" id="L416">        }</span>
+
+<span class="fc" id="L418">        this.activeOpticsDefinition = null;</span>
+<span class="fc" id="L419">        this.activeRangeDefinition = null;</span>
+<span class="fc" id="L420">        this.activeRange = null;</span>
+
+<span class="fc" id="L422">        optics = new OpticImpl();</span>
+<span class="fc" id="L423">        this.knobManager.cleanup();</span>
+<span class="fc" id="L424">    }</span>
+
+    @Override
+    public synchronized JMadKernel getKernel() {
+<span class="fc" id="L428">        return this.kernel;</span>
+    }
+
+    @Override
+    public List&lt;Double&gt; getValues(List&lt;String&gt; valueNames) throws JMadModelException {
+<span class="fc" id="L433">        return this.getValuesResult(valueNames).getDoubleValues();</span>
+    }
+
+    @Override
+    public Map&lt;String, Double&gt; getValueMap(Collection&lt;String&gt; valueNames) throws JMadModelException {
+<span class="nc" id="L438">        Map&lt;String, Double&gt; mapping = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L439" title="All 2 branches missed.">        for (Strength strength : this.getValuesResult(valueNames).getValues()) {</span>
+<span class="nc" id="L440">            mapping.put(strength.getMadxName(), strength.getTotalValue());</span>
+<span class="nc" id="L441">        }</span>
+<span class="nc" id="L442">        return mapping;</span>
+    }
+
+    private StrengthResult getValuesResult(Collection&lt;String&gt; valueNames) throws JMadModelException {
+
+<span class="fc" id="L447">        ensureInit();</span>
+
+<span class="fc" id="L449">        StrengthResult valuesResult = null;</span>
+
+        try {
+<span class="fc" id="L452">            Result result = getKernel().execute(new GetValues(valueNames));</span>
+<span class="pc bpc" id="L453" title="1 of 2 branches missed.">            if (ResultType.VALUES_RESULT != result.getResultType()) {</span>
+<span class="nc" id="L454">                throw new JMadModelException(&quot;GetValues returned wrong type of result!&quot;);</span>
+            }
+<span class="fc" id="L456">            valuesResult = (StrengthResult) result;</span>
+<span class="nc" id="L457">        } catch (JMadException e) {</span>
+<span class="nc" id="L458">            throw new JMadModelException(&quot;Error executing getValues.&quot;, e);</span>
+<span class="fc" id="L459">        }</span>
+<span class="fc" id="L460">        return valuesResult;</span>
+    }
+
+    @Override
+    public double getValue(String valueName) throws JMadModelException {
+<span class="fc" id="L465">        List&lt;Double&gt; values = getValues(singletonList(valueName));</span>
+<span class="pc bpc" id="L466" title="1 of 2 branches missed.">        if (values.size() != 1) {</span>
+<span class="nc" id="L467">            throw new JMadModelException(&quot;Result contains &quot; + values.size() + &quot; values, but should contain one.&quot;);</span>
+        }
+<span class="fc" id="L469">        return values.get(0);</span>
+    }
+
+    /**
+     * calculates the actual optics-values and stores them in the internal Optics-object. This can be retrieved by
+     * &lt;code&gt;getOptics()&lt;/code&gt;
+     *
+     * @return the optics-object
+     * @throws JMadModelException if the calculation of the optics fails
+     */
+    private Optic calcOptics() throws JMadModelException {
+<span class="pc bpc" id="L480" title="1 of 2 branches missed.">        if (getActiveRange() == null) {</span>
+<span class="nc" id="L481">            return optics;</span>
+        }
+
+<span class="fc" id="L484">        this.optics = OpticUtil.calcOptic(this);</span>
+<span class="fc" id="L485">        dirtyModel = false;</span>
+<span class="fc" id="L486">        fireOpticsChanged();</span>
+<span class="fc" id="L487">        return optics;</span>
+    }
+
+    /**
+     * creates all the element-objects for the active range by twissing and reading in the names and types of the
+     * elements.
+     *
+     * @throws JMadModelException if the reading of the active range fails
+     */
+    private void readActiveRange() throws JMadModelException {
+<span class="fc" id="L497">        activeRange.clear();</span>
+<span class="fc" id="L498">        this.knobManager.cleanup();</span>
+
+<span class="fc" id="L500">        TfsResultRequestImpl resultRequest = new TfsResultRequestImpl();</span>
+
+        /* request all elements */
+<span class="fc" id="L503">        resultRequest.addElementFilter(&quot;.*&quot;);</span>
+
+        /* request name, type and position. */
+<span class="fc" id="L506">        resultRequest.addVariable(MadxTwissVariable.NAME);</span>
+<span class="fc" id="L507">        resultRequest.addVariable(MadxTwissVariable.KEYWORD);</span>
+<span class="fc" id="L508">        resultRequest.addVariable(MadxTwissVariable.S);</span>
+
+<span class="fc" id="L510">        TfsResult tfsResult = twiss(resultRequest);</span>
+<span class="fc" id="L511">        List&lt;String&gt; names = tfsResult.getStringData(MadxTwissVariable.NAME);</span>
+<span class="fc" id="L512">        List&lt;String&gt; keywords = tfsResult.getStringData(MadxTwissVariable.KEYWORD);</span>
+<span class="fc" id="L513">        List&lt;Double&gt; positions = tfsResult.getDoubleData(MadxTwissVariable.S);</span>
+
+<span class="fc bfc" id="L515" title="All 2 branches covered.">        for (int i = 0; i &lt; names.size(); i++) {</span>
+<span class="fc" id="L516">            String name = names.get(i);</span>
+<span class="fc" id="L517">            String keyword = keywords.get(i);</span>
+<span class="fc" id="L518">            MadxElementType madxElementType = MadxElementType.fromMadXName(keyword);</span>
+<span class="fc" id="L519">            Element element = ElementFactory.createElement(madxElementType, name);</span>
+<span class="pc bpc" id="L520" title="1 of 2 branches missed.">            if (element != null) {</span>
+<span class="pc bpc" id="L521" title="1 of 2 branches missed.">                if (element instanceof AbstractElement) {</span>
+<span class="fc" id="L522">                    ((AbstractElement) element).setAttributesReader(this);</span>
+                }
+<span class="fc" id="L524">                element.setPosition(positions.get(i));</span>
+<span class="fc" id="L525">                activeRange.add(element);</span>
+                /* finally we register this model as listener */
+<span class="fc" id="L527">                element.addListener(this.elementListener);</span>
+            }
+        }
+<span class="fc" id="L530">        dirtyModel = true;</span>
+<span class="fc" id="L531">        fireBecameDirty();</span>
+<span class="fc" id="L532">        fireElementsChanged();</span>
+<span class="fc" id="L533">    }</span>
+
+    @Override
+    public void readAttributes(Element element) throws JMadModelException {
+<span class="fc" id="L537">        readAttributes(singletonList(element));</span>
+<span class="fc" id="L538">    }</span>
+
+    @Override
+    public void readAttributes(Collection&lt;Element&gt; elements) throws JMadModelException {
+<span class="fc" id="L542">        ensureInit();</span>
+
+        /*
+         * first of all we deactivate the listeners.
+         */
+<span class="fc bfc" id="L547" title="All 2 branches covered.">        for (Element element : elements) {</span>
+<span class="fc" id="L548">            element.setListenersEnabled(false);</span>
+<span class="fc" id="L549">            element.setAttributesInitialized(true); /* this has to be set here to prevent call loops */</span>
+<span class="fc" id="L550">        }</span>
+
+<span class="fc" id="L552">        ArrayList&lt;String&gt; valueNames = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L554" title="All 2 branches covered.">        for (Element element : elements) {</span>
+<span class="fc" id="L555">            List&lt;String&gt; attributeNames = element.getAttributeNames();</span>
+
+<span class="fc bfc" id="L557" title="All 2 branches covered.">            for (String attributeName : attributeNames) {</span>
+<span class="fc" id="L558">                valueNames.add(element.getName() + Element.ATTR_SEPARATOR + attributeName);</span>
+<span class="fc" id="L559">            }</span>
+<span class="fc" id="L560">        }</span>
+
+<span class="fc" id="L562">        List&lt;Double&gt; values = getValues(valueNames);</span>
+
+<span class="pc bpc" id="L564" title="1 of 2 branches missed.">        if (values.size() != valueNames.size()) {</span>
+<span class="nc" id="L565">            throw new JMadModelException(</span>
+<span class="nc" id="L566">                    &quot;Amount of returned Values (&quot; + values.size() + &quot;) differs from requested ones (&quot; + valueNames</span>
+<span class="nc" id="L567">                            .size() + &quot;).&quot;);</span>
+        }
+
+<span class="fc" id="L570">        int index = 0;</span>
+<span class="fc bfc" id="L571" title="All 2 branches covered.">        for (Element element : elements) {</span>
+<span class="fc" id="L572">            List&lt;String&gt; attributeNames = element.getAttributeNames();</span>
+<span class="fc bfc" id="L573" title="All 2 branches covered.">            for (String attributeName : attributeNames) {</span>
+<span class="fc" id="L574">                element.setAttribute(attributeName, values.get(index));</span>
+<span class="fc" id="L575">                index++;</span>
+<span class="fc" id="L576">            }</span>
+<span class="fc" id="L577">        }</span>
+
+        /* finally we re-activate the listeners */
+<span class="fc bfc" id="L580" title="All 2 branches covered.">        for (Element element : elements) {</span>
+<span class="fc" id="L581">            element.setListenersEnabled(true);</span>
+<span class="fc" id="L582">        }</span>
+<span class="fc" id="L583">    }</span>
+
+    /**
+     * sends the misalignment-commands to madx
+     *
+     * @param misalignmentConfigurations the misalignment-configurations from which to create the commands
+     */
+    protected void setMisalignments(List&lt;MisalignmentConfiguration&gt; misalignmentConfigurations) {
+
+<span class="nc bnc" id="L592" title="All 2 branches missed.">        if (getKernel().isMadxRunning()) {</span>
+            try {
+<span class="nc" id="L594">                getKernel().execute(new SetMisalignmentsTask(misalignmentConfigurations));</span>
+<span class="nc" id="L595">            } catch (JMadException e) {</span>
+<span class="nc" id="L596">                LOGGER.error(&quot;Error while setting Misalignment.&quot;, e);</span>
+<span class="nc" id="L597">            }</span>
+        }
+<span class="nc" id="L599">        dirtyModel = true;</span>
+<span class="nc" id="L600">        fireBecameDirty();</span>
+<span class="nc" id="L601">    }</span>
+
+    //
+    // twiss methods
+    //
+
+    @Override
+    public TfsResult twiss(TfsResultRequest resultRequest) throws JMadModelException {
+<span class="fc" id="L609">        return this.twiss(resultRequest, getTwissInitialConditions());</span>
+    }
+
+    @Override
+    public TfsResult twissToFile(TfsResultRequest resultRequest, File tfsFile) throws JMadModelException {
+<span class="nc" id="L614">        return this.twissToFile(resultRequest, getTwissInitialConditions(), tfsFile);</span>
+    }
+
+    @Override
+    public TfsResult twissToFile(TfsResultRequest resultRequest, TwissInitialConditions customTwissInitialConditions,
+            File tfsFile) throws JMadModelException {
+
+<span class="nc" id="L621">        boolean keepOutput = ((JMadKernelImpl) this.getKernel()).isKeepOutputFile();</span>
+<span class="nc" id="L622">        ((JMadKernelImpl) this.getKernel()).setKeepOutputFile(true);</span>
+
+<span class="nc" id="L624">        TfsResult tfsResult = this.twiss(resultRequest, customTwissInitialConditions);</span>
+
+        try {
+<span class="nc" id="L627">            FileUtil.copyFile(this.getKernel().getOutputFile(), tfsFile);</span>
+<span class="nc" id="L628">            this.getKernel().getOutputFile().delete();</span>
+<span class="nc" id="L629">            ((JMadKernelImpl) this.getKernel()).setKeepOutputFile(keepOutput);</span>
+
+<span class="nc" id="L631">        } catch (Exception e) {</span>
+<span class="nc" id="L632">            throw new JMadModelException(&quot;Could not write twiss output to File [&quot; + tfsFile.getAbsolutePath() + &quot;]&quot;, e);</span>
+<span class="nc" id="L633">        }</span>
+
+<span class="nc" id="L635">        return tfsResult;</span>
+    }
+
+    @Override
+    public TfsResult twiss(TfsResultRequest resultRequest, TwissInitialConditions customTwissInitialConditions)
+            throws JMadModelException {
+<span class="fc" id="L641">        ensureInit();</span>
+
+<span class="fc" id="L643">        Result result = null;</span>
+        try {
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">            if (ModelMode.PTC == getMode()) {</span>
+<span class="nc" id="L646">                getKernel().execute(new InitPtcTask());</span>
+<span class="nc" id="L647">                processModelFiles(getActiveOpticsDefinition().getPostPtcUniverseFiles());</span>
+<span class="nc" id="L648">                result = getKernel().execute(new RunPtcTwiss(customTwissInitialConditions, resultRequest));</span>
+<span class="nc" id="L649">                getKernel().execute(new PtcEndCommand());</span>
+            } else {
+<span class="fc" id="L651">                result = getKernel().execute(new RunTwiss(customTwissInitialConditions, resultRequest));</span>
+            }
+<span class="nc" id="L653">        } catch (JMadException e) {</span>
+<span class="nc" id="L654">            throw new JMadModelException(&quot;Error executing twiss.&quot;, e);</span>
+<span class="fc" id="L655">        }</span>
+
+<span class="pc bpc" id="L657" title="2 of 4 branches missed.">        if ((resultRequest != null) &amp;&amp; (result == null)) {</span>
+<span class="nc" id="L658">            throw new JMadModelException(&quot;ResultRequest was not null, but twiss returned no result!&quot;);</span>
+        }
+
+<span class="pc bpc" id="L661" title="2 of 4 branches missed.">        if ((result != null) &amp;&amp; (ResultType.TFS_RESULT != result.getResultType())) {</span>
+<span class="nc" id="L662">            throw new JMadModelException(&quot;Twiss returned wrong type of result!&quot;);</span>
+        }
+
+<span class="fc" id="L665">        return (TfsResult) result;</span>
+
+    }
+
+    @Override
+    public DynapResult dynap(DynapResultRequest dynapResultRequest, TrackInitialCondition trackInitialCondition)
+            throws JMadModelException {
+<span class="fc" id="L672">        Result result = null;</span>
+        try {
+<span class="fc" id="L674">            result = this.getKernel().execute(new DynapTask(trackInitialCondition, dynapResultRequest));</span>
+<span class="nc" id="L675">        } catch (JMadException e) {</span>
+<span class="nc" id="L676">            throw new JMadModelException(&quot;Error executing dynap.&quot;, e);</span>
+<span class="fc" id="L677">        }</span>
+
+<span class="pc bpc" id="L679" title="2 of 4 branches missed.">        if ((result != null) &amp;&amp; ((ResultType.DYNAP_RESULT != result.getResultType()))) {</span>
+<span class="nc" id="L680">            throw new JMadModelException(&quot;Dynap returned wrong type of result!&quot;);</span>
+        }
+
+<span class="fc" id="L683">        return (DynapResult) result;</span>
+    }
+
+    @Override
+    public TrackResult track(TrackResultRequest trackResultRequest, TrackInitialCondition trackInitialCondition)
+            throws JMadModelException {
+<span class="fc" id="L689">        Result result = null;</span>
+        try {
+<span class="fc" id="L691">            result = this.getKernel().execute(new TrackTask(trackInitialCondition, trackResultRequest));</span>
+<span class="nc" id="L692">        } catch (JMadException e) {</span>
+<span class="nc" id="L693">            throw new JMadModelException(&quot;Error executing tracking.&quot;, e);</span>
+<span class="fc" id="L694">        }</span>
+
+<span class="pc bpc" id="L696" title="2 of 4 branches missed.">        if ((result != null) &amp;&amp; ((ResultType.TRACK_RESULT != result.getResultType()))) {</span>
+<span class="nc" id="L697">            throw new JMadModelException(&quot;Tracking returned wrong type of result!&quot;);</span>
+        }
+
+<span class="fc" id="L700">        return (TrackResult) result;</span>
+    }
+
+    /**
+     * @return the actual twiss
+     */
+    @Override
+    public TwissInitialConditions getTwissInitialConditions() {
+<span class="fc" id="L708">        return this.twissInitialConditions;</span>
+    }
+
+    public void set(Knob strength) throws JMadModelException {
+        /** here we have to set always the total value (value+offset) */
+<span class="fc" id="L713">        setValue(strength.getName(), strength.getTotalValue());</span>
+<span class="fc" id="L714">    }</span>
+
+    @Override
+    public void setValue(String name, double value) throws JMadModelException {
+<span class="fc" id="L718">        ensureInit();</span>
+<span class="fc" id="L719">        dirtyModel = true;</span>
+        try {
+<span class="fc" id="L721">            getKernel().execute(new SetEqual(name, value));</span>
+<span class="nc" id="L722">        } catch (JMadException e) {</span>
+<span class="nc" id="L723">            throw new JMadModelException(&quot;Unable to set value '&quot; + name + &quot;' with value &quot; + value, e);</span>
+<span class="fc" id="L724">        }</span>
+<span class="fc" id="L725">        fireBecameDirty();</span>
+<span class="fc" id="L726">    }</span>
+
+    @Override
+    public void setValues(Map&lt;String, Double&gt; valueNamePairs) throws JMadModelException {
+<span class="nc" id="L730">        ensureInit();</span>
+<span class="nc" id="L731">        dirtyModel = true;</span>
+        try {
+<span class="nc" id="L733">            getKernel().execute(new SetListEqual(valueNamePairs));</span>
+<span class="nc" id="L734">        } catch (JMadException e) {</span>
+<span class="nc" id="L735">            throw new JMadModelException(&quot;Unable to set values from give Value-Name Map&quot;, e);</span>
+<span class="nc" id="L736">        }</span>
+<span class="nc" id="L737">        fireBecameDirty();</span>
+<span class="nc" id="L738">    }</span>
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+<span class="nc" id="L743">            cleanup();</span>
+<span class="nc" id="L744">        } catch (JMadModelException e) {</span>
+<span class="nc" id="L745">            LOGGER.warn(&quot;Error during model - cleanup!&quot;, e);</span>
+<span class="nc" id="L746">        }</span>
+<span class="nc" id="L747">        LOGGER.debug(&quot;model was garbage-collected.&quot;);</span>
+<span class="nc" id="L748">        super.finalize();</span>
+<span class="nc" id="L749">    }</span>
+
+    @Override
+    public Optic getOptics() throws JMadModelException {
+<span class="fc" id="L753">        calcOpticsIfDirty();</span>
+<span class="fc" id="L754">        return optics;</span>
+    }
+
+    @Override
+    public void calcOpticsIfDirty() throws JMadModelException {
+<span class="fc bfc" id="L759" title="All 2 branches covered.">        if (dirtyModel) {</span>
+<span class="fc" id="L760">            calcOptics();</span>
+        }
+<span class="fc" id="L762">    }</span>
+
+    @Override
+    public KnobManager getKnobManager() {
+<span class="fc" id="L766">        return this.knobManager;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L771">        StringBuilder stringBuilder = new StringBuilder();</span>
+<span class="nc" id="L772">        stringBuilder.append(this.getModelDefinition().getName());</span>
+
+<span class="nc" id="L774">        RangeDefinition rangeDefinition = this.getActiveRangeDefinition();</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">        if (rangeDefinition != null) {</span>
+<span class="nc" id="L776">            stringBuilder.append(&quot; - &quot; + rangeDefinition.getSequenceDefinition().getName());</span>
+        }
+
+<span class="nc" id="L779">        return stringBuilder.toString();</span>
+    }
+
+    @Override
+    public void setActiveOpticsDefinition(OpticsDefinition newActiveOpticsDefinition) throws JMadModelException {
+<span class="pc bpc" id="L784" title="1 of 2 branches missed.">        if (newActiveOpticsDefinition == null) {</span>
+<span class="nc" id="L785">            return;</span>
+        }
+<span class="fc" id="L787">        this.knobManager.cleanup();</span>
+
+<span class="pc bpc" id="L789" title="1 of 2 branches missed.">        if (isInitialized()) {</span>
+<span class="fc" id="L790">            processModelFiles(newActiveOpticsDefinition.getInitFiles());</span>
+        }
+<span class="fc" id="L792">        this.activeOpticsDefinition = newActiveOpticsDefinition;</span>
+
+        /*
+         * ensure current active range is active XXX: this is only required as the current ABP Optics are not matched
+         * correctly. during matching the lhcb2 sequence is always the last active sequence and inside madx it is not
+         * possible to determine which sequence is active. therefore reload the last active range on java level.
+         */
+<span class="fc" id="L799">        RangeDefinition rangeDefinition = getActiveRangeDefinition();</span>
+<span class="fc bfc" id="L800" title="All 2 branches covered.">        if (rangeDefinition != null) {</span>
+<span class="fc" id="L801">            this.setActiveRangeDefinition(getActiveRangeDefinition());</span>
+        }
+
+<span class="fc" id="L804">        LOGGER.info(&quot;Set new active optics: '&quot; + this.activeOpticsDefinition.getName() + &quot;'.&quot;);</span>
+
+<span class="fc" id="L806">        this.dirtyModel = true;</span>
+<span class="fc" id="L807">        fireOpticsDefinitionChanged();</span>
+<span class="fc" id="L808">    }</span>
+
+    @Override
+    public OpticsDefinition getActiveOpticsDefinition() {
+<span class="fc" id="L812">        return activeOpticsDefinition;</span>
+    }
+
+    @Override
+    public void setActiveRangeDefinition(RangeDefinition rangeDefinition) throws JMadModelException {
+
+<span class="fc" id="L818">        Range range = new Range(rangeDefinition);</span>
+
+<span class="fc" id="L820">        System.out.println(getActiveOpticsDefinition());</span>
+<span class="pc bpc" id="L821" title="1 of 2 branches missed.">        if (getKernel().isMadxRunning()) {</span>
+<span class="fc" id="L822">            Beam beam = rangeDefinition.getSequenceDefinition().getBeam();</span>
+
+            try {
+<span class="pc bpc" id="L825" title="1 of 2 branches missed.">                if (beam == null) {</span>
+<span class="nc" id="L826">                    LOGGER.warn(&quot;No active beam. This is ok, &quot; + &quot;if beam command was provided in an init-command!?&quot;);</span>
+                } else {
+                    /* set sequence in beam for resbeam command */
+<span class="fc" id="L829">                    beam.setSequence(rangeDefinition.getSequenceDefinition().getName());</span>
+<span class="fc" id="L830">                    getKernel().execute(new SetBeam(beam));</span>
+                }
+<span class="nc" id="L832">            } catch (JMadException e) {</span>
+<span class="nc" id="L833">                throw new JMadModelException(&quot;could not set Beam to '&quot; + beam + &quot;' in model '&quot; + this + &quot;'.&quot;, e);</span>
+<span class="fc" id="L834">            }</span>
+
+            try {
+<span class="fc bfc" id="L837" title="All 2 branches covered.">                if (rangeDefinition.getStartElementName() != null) {</span>
+<span class="fc" id="L838">                    getKernel().execute(new CycleSequence(rangeDefinition));</span>
+                }
+
+<span class="nc" id="L841">            } catch (JMadException e) {</span>
+<span class="nc" id="L842">                throw new JMadModelException(&quot;could not cycle the sequence '&quot; + beam + &quot;' in model '&quot; + this + &quot;'.&quot;, e);</span>
+<span class="fc" id="L843">            }</span>
+
+            try {
+<span class="fc" id="L846">                getKernel().execute(new UseCommand(rangeDefinition.getSequenceDefinition().getName(),</span>
+<span class="fc" id="L847">                        rangeDefinition.getMadxRange()));</span>
+<span class="nc" id="L848">            } catch (JMadException e) {</span>
+<span class="nc" id="L849">                throw new JMadModelException(&quot;error in excuting use command '&quot; + beam + &quot;' in model '&quot; + this + &quot;'.&quot;,</span>
+                        e);
+<span class="fc" id="L851">            }</span>
+
+            try {
+                /* ensure, that the ealigns are not added together */
+<span class="fc" id="L855">                getKernel().execute(new EOptionCommand(null, false));</span>
+
+<span class="nc" id="L857">            } catch (JMadException e) {</span>
+<span class="nc" id="L858">                throw new JMadModelException(</span>
+<span class="nc" id="L859">                        &quot;could not exececute EOption command '&quot; + range.getName() + &quot;' in model '&quot; + this + &quot;'.&quot;, e);</span>
+<span class="fc" id="L860">            }</span>
+
+<span class="fc" id="L862">            processModelFiles(rangeDefinition.getPostUseFiles());</span>
+
+        }
+
+        /**
+         * range is still the same as before --&gt; most likely optic change! We stop here.
+         */
+<span class="fc bfc" id="L869" title="All 2 branches covered.">        if (this.activeRangeDefinition == rangeDefinition) {</span>
+<span class="fc" id="L870">            return;</span>
+        }
+
+<span class="fc" id="L873">        this.aperture = null;</span>
+<span class="fc" id="L874">        this.activeRangeDefinition = rangeDefinition;</span>
+<span class="fc" id="L875">        activeRange = range;</span>
+
+<span class="fc" id="L877">        activeRange.addListener(new RangeListener() {</span>
+            @Override
+            public void addedMisalignments(MisalignmentConfiguration misalignmentConfiguration) {
+<span class="nc" id="L880">                misalignmentConfiguration.addListener(changedMisalignmentConfiguration -&gt; //</span>
+<span class="nc" id="L881">                        setMisalignments(singletonList(changedMisalignmentConfiguration)));</span>
+<span class="nc" id="L882">                setMisalignments(singletonList(misalignmentConfiguration));</span>
+<span class="nc" id="L883">            }</span>
+
+            @Override
+            public void addedMisalignments(List&lt;MisalignmentConfiguration&gt; misalignmentConfigurations) {
+<span class="nc" id="L887">                setMisalignments(misalignmentConfigurations);</span>
+<span class="nc" id="L888">            }</span>
+        });
+
+        TwissInitialConditions newTwissInitialConditions;
+<span class="fc" id="L892">        newTwissInitialConditions = rangeDefinition.getTwiss().clone();</span>
+<span class="fc" id="L893">        setTwissInitialConditions(newTwissInitialConditions);</span>
+
+<span class="pc bpc" id="L895" title="1 of 2 branches missed.">        if (getKernel().isMadxRunning()) {</span>
+<span class="fc" id="L896">            readActiveRange();</span>
+        }
+
+<span class="fc" id="L899">        fireRangeChanged(activeRange);</span>
+<span class="fc" id="L900">    }</span>
+
+    public void setTwissInitialConditions(TwissInitialConditions twissInitialConditions) {
+<span class="fc" id="L903">        this.twissInitialConditions.removeListener(this.twissListener);</span>
+<span class="fc" id="L904">        this.twissInitialConditions = twissInitialConditions;</span>
+<span class="fc" id="L905">        this.twissInitialConditions.addListener(this.twissListener);</span>
+<span class="fc" id="L906">    }</span>
+
+    @Override
+    public Range getActiveRange() {
+<span class="fc" id="L910">        return activeRange;</span>
+    }
+
+    @Override
+    public void addListener(JMadModelListener listener) {
+<span class="fc" id="L915">        listeners.add(listener);</span>
+<span class="fc" id="L916">    }</span>
+
+    @Override
+    public void removeListener(JMadModelListener listener) {
+<span class="nc" id="L920">        listeners.remove(listener);</span>
+<span class="nc" id="L921">    }</span>
+
+    /**
+     * notifies all listeners, that the elements were changed
+     */
+    private void fireElementsChanged() {
+<span class="fc bfc" id="L927" title="All 2 branches covered.">        for (JMadModelListener listener : listeners) {</span>
+<span class="fc" id="L928">            listener.elementsChanged();</span>
+<span class="fc" id="L929">        }</span>
+<span class="fc" id="L930">    }</span>
+
+    /**
+     * notifies all listeners, that some (or all) optics values have changed.
+     */
+    private void fireOpticsChanged() {
+<span class="fc bfc" id="L936" title="All 2 branches covered.">        for (JMadModelListener listener : listeners) {</span>
+<span class="fc" id="L937">            listener.opticsChanged();</span>
+<span class="fc" id="L938">        }</span>
+<span class="fc" id="L939">    }</span>
+
+    /**
+     * notifies all listeners, that a different range is now active
+     *
+     * @param range the new active range
+     */
+    private void fireRangeChanged(Range range) {
+<span class="fc bfc" id="L947" title="All 2 branches covered.">        for (JMadModelListener listener : listeners) {</span>
+<span class="fc" id="L948">            listener.rangeChanged(range);</span>
+<span class="fc" id="L949">        }</span>
+<span class="fc" id="L950">    }</span>
+
+    @Override
+    public void execute(String cmd) {
+<span class="fc" id="L954">        FreeText textCmd = new FreeText();</span>
+<span class="fc" id="L955">        textCmd.setText(cmd);</span>
+        try {
+<span class="fc" id="L957">            getKernel().execute(textCmd);</span>
+<span class="nc" id="L958">        } catch (MadxTerminatedException e) {</span>
+<span class="nc" id="L959">            throw new RuntimeException(&quot;Madx Terminated while executing command '&quot; + textCmd + &quot;'.&quot;, e);</span>
+<span class="nc" id="L960">        } catch (JMadException e) {</span>
+<span class="nc" id="L961">            LOGGER.error(&quot;error while executing command + '&quot; + cmd + &quot;' in madx.&quot;, e);</span>
+<span class="fc" id="L962">        }</span>
+
+<span class="fc" id="L964">    }</span>
+
+    @Override
+    public void call(File file) {
+        try {
+<span class="fc" id="L969">            getKernel().execute(new CallCommand(file));</span>
+<span class="nc" id="L970">        } catch (MadxTerminatedException e) {</span>
+<span class="nc" id="L971">            throw new RuntimeException(&quot;Madx Terminated while calling file '&quot; + file.getAbsolutePath() + &quot;'.&quot;, e);</span>
+<span class="nc" id="L972">        } catch (JMadException e) {</span>
+<span class="nc" id="L973">            LOGGER.error(&quot;Error while calling file '&quot; + file.getAbsolutePath() + &quot;'.&quot;, e);</span>
+<span class="fc" id="L974">        }</span>
+<span class="fc" id="L975">    }</span>
+
+    /**
+     * notify all listeners, that some values changed, so that the actual data is no longer valid.
+     */
+    protected void fireBecameDirty() {
+<span class="fc bfc" id="L981" title="All 2 branches covered.">        for (JMadModelListener listener : listeners) {</span>
+<span class="fc" id="L982">            listener.becameDirty();</span>
+<span class="fc" id="L983">        }</span>
+<span class="fc" id="L984">    }</span>
+
+    private void fireOpticsDefinitionChanged() {
+<span class="fc bfc" id="L987" title="All 2 branches covered.">        for (JMadModelListener listener : listeners) {</span>
+<span class="fc" id="L988">            listener.opticsDefinitionChanged();</span>
+<span class="fc" id="L989">        }</span>
+<span class="fc" id="L990">    }</span>
+
+    @Override
+    public JMadModelDefinition getModelDefinition() {
+<span class="fc" id="L994">        return this.modelDefinition;</span>
+    }
+
+    @Override
+    public RangeDefinition getActiveRangeDefinition() {
+<span class="fc" id="L999">        return this.activeRangeDefinition;</span>
+    }
+
+    @Override
+    public MatchResult match(MatchResultRequest resultRequest) throws JMadModelException {
+
+<span class="pc bpc" id="L1005" title="1 of 2 branches missed.">        if (resultRequest.getMadxVaryParameters().size() &lt; 1) {</span>
+<span class="nc" id="L1006">            throw new JMadModelException(&quot;At least one Vary Parameter is needed for Matching&quot;);</span>
+        }
+
+<span class="pc bpc" id="L1009" title="1 of 2 branches missed.">        if (resultRequest.getMatchConstraints().size() &lt; 1) {</span>
+<span class="nc" id="L1010">            throw new JMadModelException(&quot;At least one Constraint is needed for Matching&quot;);</span>
+        }
+
+<span class="fc" id="L1013">        ensureInit();</span>
+
+<span class="pc bpc" id="L1015" title="1 of 2 branches missed.">        if (resultRequest.getSequenceName() == null) {</span>
+<span class="fc" id="L1016">            resultRequest.setSequenceName(this.activeRangeDefinition.getSequenceDefinition().getName());</span>
+        }
+
+<span class="fc" id="L1019">        Result result = null;</span>
+        try {
+<span class="fc" id="L1021">            result = getKernel().execute(new RunMatch(resultRequest, getTwissInitialConditions()));</span>
+<span class="nc" id="L1022">        } catch (JMadException e) {</span>
+<span class="nc" id="L1023">            throw new JMadModelException(&quot;Error executing matching.&quot;, e);</span>
+<span class="fc" id="L1024">        }</span>
+
+<span class="pc bpc" id="L1026" title="1 of 2 branches missed.">        if (result == null) {</span>
+<span class="nc" id="L1027">            throw new JMadModelException(&quot;Matching returned no result!&quot;);</span>
+        }
+
+<span class="pc bpc" id="L1030" title="1 of 2 branches missed.">        if (ResultType.MATCH_RESULT != result.getResultType()) {</span>
+<span class="nc" id="L1031">            throw new JMadModelException(&quot;Matching returned wrong type of result!&quot;);</span>
+        }
+
+<span class="fc" id="L1034">        MatchResultImpl matchResult = (MatchResultImpl) result;</span>
+
+        // Check if successful
+<span class="pc bpc" id="L1037" title="1 of 2 branches missed.">        if (matchResult.getFinalPenalty() &lt;= resultRequest.getMatchMethod().getTolerance()) {</span>
+<span class="fc" id="L1038">            matchResult.setSuccessful(true);</span>
+        } else {
+<span class="nc" id="L1040">            matchResult.setSuccessful(false);</span>
+        }
+
+        // Get global Optics Values from TwissSummary
+<span class="fc" id="L1044">        TfsSummary twissSummary = this.calcTwissSummary();</span>
+
+        // Prepare TfsRequest for local Constraints
+<span class="fc" id="L1047">        TfsResultRequestImpl tfsReq = new TfsResultRequestImpl();</span>
+<span class="fc" id="L1048">        Map&lt;String, Map&lt;String, Double&gt;&gt; localConstraints = new HashMap&lt;&gt;(0);</span>
+
+<span class="fc bfc" id="L1050" title="All 2 branches covered.">        for (MatchConstraint mC : resultRequest.getMatchConstraints()) {</span>
+<span class="pc bpc" id="L1051" title="1 of 2 branches missed.">            if (mC.isGlobal()) {</span>
+<span class="fc bfc" id="L1052" title="All 2 branches covered.">                for (String gP : mC.getParameterSettings().keySet()) {</span>
+<span class="fc" id="L1053">                    MatchConstraintResultGlobal mCrG = new MatchConstraintResultGlobal(gP,</span>
+<span class="fc" id="L1054">                            twissSummary.getDoubleValue(gP));</span>
+<span class="fc" id="L1055">                    mCrG.setTargetValue(mC.getParameterSettings().get(gP));</span>
+<span class="fc" id="L1056">                    matchResult.addConstrainParameterResult(mCrG);</span>
+<span class="fc" id="L1057">                }</span>
+            } else {
+<span class="nc" id="L1059">                MatchConstraintLocal mCL = (MatchConstraintLocal) mC;</span>
+
+                // Only read out local Constraints if they are for a single
+                // Element... Copy Element/ConstraintNames and Values to Map for
+                // readOut and update of TargetValue
+<span class="nc bnc" id="L1064" title="All 2 branches missed.">                if (mCL.getMadxRange().isElement()) {</span>
+<span class="nc" id="L1065">                    localConstraints.put(mCL.getMadxRange().getMadxString(), mCL.getParameterSettings());</span>
+                }
+            }
+<span class="fc" id="L1068">        }</span>
+
+<span class="pc bpc" id="L1070" title="1 of 2 branches missed.">        if (!localConstraints.isEmpty()) {</span>
+
+<span class="nc bnc" id="L1072" title="All 2 branches missed.">            for (Entry&lt;String, Map&lt;String, Double&gt;&gt; entry : localConstraints.entrySet()) {</span>
+
+<span class="nc" id="L1074">                tfsReq.addElementFilter(entry.getKey());</span>
+
+<span class="nc bnc" id="L1076" title="All 2 branches missed.">                for (String var : entry.getValue().keySet()) {</span>
+<span class="nc" id="L1077">                    MadxTwissVariable newVar = MadxTwissVariable.fromMadxName(var);</span>
+
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">                    if (!tfsReq.getResultVariables().contains(newVar)) {</span>
+<span class="nc" id="L1080">                        tfsReq.addVariable(newVar);</span>
+                    }
+<span class="nc" id="L1082">                }</span>
+<span class="nc" id="L1083">            }</span>
+
+            // Better add this, otherwise no iteration
+            // through names possible, obviously ;)
+<span class="nc" id="L1087">            tfsReq.addVariable(MadxTwissVariable.NAME);</span>
+
+<span class="nc" id="L1089">            TfsResult twissResult = this.twiss(tfsReq);</span>
+
+<span class="nc bnc" id="L1091" title="All 2 branches missed.">            for (Entry&lt;String, Map&lt;String, Double&gt;&gt; gP : localConstraints.entrySet()) {</span>
+
+<span class="nc" id="L1093">                int elIdx = twissResult.getElementIndex(gP.getKey());</span>
+
+<span class="nc bnc" id="L1095" title="All 2 branches missed.">                for (Entry&lt;String, Double&gt; entry : gP.getValue().entrySet()) {</span>
+<span class="nc" id="L1096">                    MadxTwissVariable newVar = MadxTwissVariable.fromMadxName(entry.getKey());</span>
+
+<span class="nc" id="L1098">                    MatchConstraintResultLocal mCrL = new MatchConstraintResultLocal(</span>
+<span class="nc" id="L1099">                            gP + Element.ATTR_SEPARATOR + entry.getKey(), //</span>
+<span class="nc" id="L1100">                            twissResult.getDoubleData(newVar).get(elIdx));</span>
+<span class="nc" id="L1101">                    mCrL.setTargetValue(entry.getValue());</span>
+
+<span class="nc" id="L1103">                    matchResult.addConstrainParameterResult(mCrL);</span>
+<span class="nc" id="L1104">                }</span>
+<span class="nc" id="L1105">            }</span>
+        }
+
+        // update Model
+<span class="fc bfc" id="L1109" title="All 2 branches covered.">        for (MadxVaryResult rPar : ((MatchResult) result).getVaryParameterResults()) {</span>
+<span class="fc bfc" id="L1110" title="All 2 branches covered.">            for (MadxVaryParameter vPar : resultRequest.getMadxVaryParameters()) {</span>
+<span class="pc bpc" id="L1111" title="1 of 2 branches missed.">                if (vPar.getName().equals(rPar.getName())) {</span>
+<span class="pc bpc" id="L1112" title="1 of 2 branches missed.">                    if (vPar.getMadxParameter() instanceof ElementAttribute) {</span>
+<span class="nc" id="L1113">                        ((ElementAttribute) vPar.getMadxParameter()).setValue(rPar.getFinalValue());</span>
+<span class="pc bpc" id="L1114" title="1 of 2 branches missed.">                    } else if (vPar.getMadxParameter() instanceof SimpleStrength) {</span>
+<span class="fc" id="L1115">                        ((AbstractKnob) vPar.getMadxParameter()).setValue(rPar.getFinalValue());</span>
+                    }
+                }
+<span class="fc" id="L1118">            }</span>
+<span class="fc" id="L1119">        }</span>
+
+<span class="fc" id="L1121">        this.dirtyModel = true;</span>
+
+<span class="fc" id="L1123">        return (MatchResult) result;</span>
+    }
+
+    @Override
+    public void saveBeta(String name, String location, boolean runDummyTwiss) throws JMadModelException {
+
+<span class="nc" id="L1129">        ensureInit();</span>
+
+        try {
+<span class="nc" id="L1132">            getKernel().execute(</span>
+<span class="nc" id="L1133">                    new SaveBetaCommand(name, location, this.activeRangeDefinition.getSequenceDefinition().getName()));</span>
+<span class="nc bnc" id="L1134" title="All 2 branches missed.">            if (runDummyTwiss) {</span>
+<span class="nc" id="L1135">                this.execute(&quot;twiss;&quot;);</span>
+            }
+<span class="nc" id="L1137">        } catch (JMadException e) {</span>
+<span class="nc" id="L1138">            throw new JMadModelException(&quot;Error executing saveBeta.&quot;, e);</span>
+<span class="nc" id="L1139">        }</span>
+<span class="nc" id="L1140">    }</span>
+
+    @Override
+    public TfsSummary calcTwissSummary() throws JMadModelException {
+<span class="fc" id="L1144">        TfsResult result = twiss(TfsResultRequestImpl.createSummaryOnlyRequest());</span>
+<span class="fc" id="L1145">        return result.getSummary();</span>
+    }
+
+    @Override
+    public Aperture getAperture() {
+<span class="nc" id="L1150">        return this.aperture;</span>
+    }
+
+    @Override
+    public void loadAperture() {
+<span class="nc bnc" id="L1155" title="All 2 branches missed.">        if (this.aperture != null) {</span>
+<span class="nc" id="L1156">            LOGGER.info(&quot;Aperture already loaded. Nothing to do.&quot;);</span>
+<span class="nc" id="L1157">            return;</span>
+        }
+<span class="nc" id="L1159">        ApertureDefinition definition = getActiveRangeDefinition().getApertureDefinition();</span>
+<span class="nc bnc" id="L1160" title="All 2 branches missed.">        if (definition == null) {</span>
+<span class="nc" id="L1161">            LOGGER.warn(&quot;No aperture defined for current range. Nothing to do.&quot;);</span>
+<span class="nc" id="L1162">            return;</span>
+        }
+
+<span class="nc" id="L1165">        ApertureReader reader = new ApertureReaderImpl();</span>
+
+<span class="nc" id="L1167">        ModelFileFinder finder = getModelFileFinder();</span>
+<span class="nc" id="L1168">        Aperture newAperture = reader.readIndex(finder.getFile(definition.getIndexFile(), getKernel()));</span>
+
+<span class="nc bnc" id="L1170" title="All 2 branches missed.">        for (ModelFile modelFile : definition.getPartFiles()) {</span>
+<span class="nc" id="L1171">            reader.readValues(finder.getFile(modelFile, getKernel()), newAperture);</span>
+<span class="nc" id="L1172">        }</span>
+<span class="nc" id="L1173">        this.aperture = newAperture;</span>
+<span class="nc" id="L1174">    }</span>
+
+    @Override
+    public ModelFileFinder getModelFileFinder() {
+<span class="pc bpc" id="L1178" title="1 of 2 branches missed.">        if (getModelFileFinderManager() == null) {</span>
+<span class="nc" id="L1179">            LOGGER.warn(&quot;ModelDefinitionManager not configured!&quot;);</span>
+<span class="nc" id="L1180">            return null;</span>
+
+        }
+<span class="fc" id="L1183">        return getModelFileFinderManager().getModelFileFinder(getModelDefinition());</span>
+    }
+
+    @Override
+    public StrengthVarSet getStrengthsAndVars() {
+<span class="nc" id="L1188">        return this.strengthVarManager.getStrengthVarSet();</span>
+    }
+
+    public void setKernel(JMadKernel kernel) {
+<span class="fc" id="L1192">        this.kernel = kernel;</span>
+<span class="fc" id="L1193">    }</span>
+
+    @Override
+    public JMadModelStartupConfiguration getStartupConfiguration() {
+<span class="fc" id="L1197">        return startupConfiguration;</span>
+    }
+
+    public void setModelFileFinderManager(ModelFileFinderManager modelFileFinderManager) {
+<span class="fc" id="L1201">        this.modelFileFinderManager = modelFileFinderManager;</span>
+<span class="fc" id="L1202">    }</span>
+
+    public ModelFileFinderManager getModelFileFinderManager() {
+<span class="fc" id="L1205">        return modelFileFinderManager;</span>
+    }
+
+    @Override
+    public void setStartupConfiguration(JMadModelStartupConfiguration startupConfiguration) {
+<span class="nc" id="L1210">        this.startupConfiguration = startupConfiguration;</span>
+<span class="nc" id="L1211">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L1215">        return getName();</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L1220">        StringBuilder stringBuilder = new StringBuilder();</span>
+<span class="nc" id="L1221">        stringBuilder.append(&quot;Model [&quot; + this.getModelDefinition().getName() + &quot;]&quot;);</span>
+
+<span class="nc" id="L1223">        RangeDefinition rangeDefinition = this.getActiveRangeDefinition();</span>
+<span class="nc bnc" id="L1224" title="All 2 branches missed.">        if (rangeDefinition != null) {</span>
+<span class="nc" id="L1225">            stringBuilder.append(&quot; - Sequence [&quot; + rangeDefinition.getSequenceDefinition().getName() + &quot;]&quot;);</span>
+<span class="nc" id="L1226">            stringBuilder.append(&quot; - Range [&quot; + rangeDefinition.getName() + &quot;]&quot;);</span>
+        }
+
+<span class="nc" id="L1229">        OpticsDefinition opticDefinition = this.getActiveOpticsDefinition();</span>
+<span class="nc bnc" id="L1230" title="All 2 branches missed.">        if (opticDefinition != null) {</span>
+<span class="nc" id="L1231">            stringBuilder.append(&quot; - Optic [&quot; + opticDefinition.getName() + &quot;]&quot;);</span>
+        }
+
+<span class="nc" id="L1234">        return stringBuilder.toString();</span>
+    }
+
+    @Override
+    public ModelMode getMode() {
+<span class="fc" id="L1239">        return this.modelMode;</span>
+    }
+
+    @Override
+    public void setMode(ModelMode modelMode) {
+<span class="nc" id="L1244">        this.modelMode = modelMode;</span>
+<span class="nc" id="L1245">    }</span>
+
+    @Override
+    public void setTitle(String title) {
+<span class="nc" id="L1249">        this.execute(&quot;title,\&quot;&quot; + title + &quot;\&quot;;&quot;);</span>
+<span class="nc" id="L1250">    }</span>
+
+    @Override
+    public List&lt;MisalignmentConfiguration&gt; getMisalignments() {
+        // TODO
+<span class="nc" id="L1255">        List&lt;MisalignmentConfiguration&gt; toReturn = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="nc" id="L1257">            TfsResult misalignmentsRaw = getMisalignmentsRaw();</span>
+<span class="nc" id="L1258">            toReturn = convertToMisalignments(misalignmentsRaw);</span>
+<span class="nc" id="L1259">        } catch (JMadModelException e) {</span>
+<span class="nc" id="L1260">            LOGGER.warn(&quot;Cannot complete the misalignment retrival task due: &quot;, e);</span>
+<span class="nc" id="L1261">        }</span>
+<span class="nc" id="L1262">        return toReturn;</span>
+    }
+
+    private TfsResult getMisalignmentsRaw() throws JMadModelException {
+<span class="nc" id="L1266">        ensureInit();</span>
+
+<span class="nc" id="L1268">        TfsResult valuesResult = null;</span>
+        try {
+            // XXX first approach ONLY QUADRUPOLES information is extracted!
+<span class="nc" id="L1271">            Result result = getKernel().execute(new GetMisalignmentsTask(&quot;MQ.*&quot;));</span>
+<span class="nc bnc" id="L1272" title="All 2 branches missed.">            if (ResultType.TFS_RESULT != result.getResultType()) {</span>
+<span class="nc" id="L1273">                throw new JMadModelException(&quot;GetValues returned wrong type of result!&quot;);</span>
+            }
+<span class="nc" id="L1275">            valuesResult = (TfsResult) result;</span>
+<span class="nc" id="L1276">        } catch (JMadException e) {</span>
+<span class="nc" id="L1277">            LOGGER.warn(&quot;Cannot complete the misalignment retrival task due: &quot;, e);</span>
+<span class="nc" id="L1278">        }</span>
+<span class="nc" id="L1279">        return valuesResult;</span>
+    }
+
+    private List&lt;MisalignmentConfiguration&gt; convertToMisalignments(TfsResult misalignmentsRaw) {
+<span class="nc" id="L1283">        List&lt;MisalignmentConfiguration&gt; toReturn = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L1284" title="All 2 branches missed.">        for (String oneElement : misalignmentsRaw.getStringData(MadxGlobalVariable.NAME)) {</span>
+<span class="nc" id="L1285">            Integer elementIndex = misalignmentsRaw.getElementIndex(oneElement);</span>
+<span class="nc" id="L1286">            MisalignmentConfiguration misalignmentConfiguration = new MisalignmentConfiguration(oneElement);</span>
+<span class="nc" id="L1287">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1288">                    .setDeltaY(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.DX));</span>
+<span class="nc" id="L1289">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1290">                    .setDeltaX(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.DY));</span>
+<span class="nc" id="L1291">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1292">                    .setDeltaS(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.DS));</span>
+<span class="nc" id="L1293">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1294">                    .setDeltaPhi(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.DPHI));</span>
+<span class="nc" id="L1295">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1296">                    .setDeltaPsi(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.DPSI));</span>
+<span class="nc" id="L1297">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1298">                    .setDeltaTheta(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.DTHETA));</span>
+<span class="nc" id="L1299">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1300">                    .setMonitorReadErrorX(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.MREX));</span>
+<span class="nc" id="L1301">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1302">                    .setMonitorReadErrorY(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.MREY));</span>
+<span class="nc" id="L1303">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1304">                    .setApertureErrorX(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.AREX));</span>
+<span class="nc" id="L1305">            misalignmentConfiguration.getMisalignment()</span>
+<span class="nc" id="L1306">                    .setApertureErrorY(getVariableValue(misalignmentsRaw, elementIndex, EalignVariables.AREY));</span>
+<span class="nc" id="L1307">            toReturn.add(misalignmentConfiguration);</span>
+<span class="nc" id="L1308">        }</span>
+
+<span class="nc" id="L1310">        return toReturn;</span>
+    }
+
+    /**
+     * @param misalignmentsRaw
+     * @param elementIndex
+     * @param variable
+     * @return
+     */
+    protected Double getVariableValue(TfsResult misalignmentsRaw, Integer elementIndex, EalignVariables variable) {
+<span class="nc" id="L1320">        return misalignmentsRaw.getDoubleData(variable).get(elementIndex);</span>
+    }
+
+    public void setStrengthVarManager(StrengthVarManager strengthVarManager) {
+<span class="fc" id="L1324">        this.strengthVarManager = strengthVarManager;</span>
+<span class="fc" id="L1325">    }</span>
+
+    @Override
+    public StrengthVarManager getStrengthVarManager() {
+<span class="fc" id="L1329">        return this.strengthVarManager;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MatchConstraintGlobal.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.domain.result.match.input</a> &gt; <span class="el_source">MatchConstraintGlobal.java</span></div><h1>MatchConstraintGlobal.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/**
+ * 
+ */
+package cern.accsoft.steering.jmad.domain.result.match.input;
+
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.var.enums.MadxGlobalVariable;
+
+/**
+ * @author muellerg
+ */
+<span class="fc" id="L42">public class MatchConstraintGlobal implements MatchConstraint {</span>
+
+<span class="fc" id="L44">    private static final Logger LOGGER = LoggerFactory.getLogger(MatchConstraintGlobal.class);</span>
+
+<span class="fc" id="L46">    private static final List&lt;MadxGlobalVariable&gt; MADX_VARIABLES = Arrays.asList(new MadxGlobalVariable[] { //</span>
+            MadxGlobalVariable.Q1, MadxGlobalVariable.Q2, //
+                    MadxGlobalVariable.DQ1, MadxGlobalVariable.DQ2, //
+            /* MadxGlobalVariable.Q1, MadxGlobalVariable.Q2, */});
+
+    /** the values for the variables */
+<span class="fc" id="L52">    private final Map&lt;MadxGlobalVariable, Double&gt; variableValues = new EnumMap&lt;MadxGlobalVariable, Double&gt;(</span>
+            MadxGlobalVariable.class);
+
+    public Double getValue(MadxGlobalVariable variable) {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (!this.getMadxVariables().contains(variable)) {</span>
+<span class="nc" id="L57">            LOGGER.warn(&quot;It is not foreseen, that this bean handles the global madx-variable '&quot; + variable.toString()</span>
+                    + &quot;'. Therefore there may be no getters and setters for this!&quot;);
+        }
+<span class="nc" id="L60">        return this.variableValues.get(variable);</span>
+    }
+
+    private void setValue(MadxGlobalVariable variable, Double value) {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (!this.getMadxVariables().contains(variable)) {</span>
+<span class="nc" id="L65">            LOGGER.warn(&quot;It is not foreseen, that this bean handles the global madx-variable '&quot; + variable.toString()</span>
+                    + &quot;'. Therefore there may be no getters and setters for this!&quot;);
+        }
+<span class="fc" id="L68">        this.variableValues.put(variable, value);</span>
+<span class="fc" id="L69">    }</span>
+
+    public List&lt;MadxGlobalVariable&gt; getMadxVariables() {
+<span class="fc" id="L72">        return MatchConstraintGlobal.MADX_VARIABLES;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getReadoutNames() {
+
+<span class="nc" id="L78">        return Arrays.asList(this.variableValues.keySet().toArray(new String[this.variableValues.size()]));</span>
+    }
+
+    public Double getQ1() {
+<span class="nc" id="L82">        return this.getValue(MadxGlobalVariable.Q1);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setQ1(Double q1) { // NOPMD by kaifox on 6/25/10 5:55 PM
+<span class="fc" id="L87">        this.setValue(MadxGlobalVariable.Q1, q1);</span>
+<span class="fc" id="L88">    }</span>
+
+    public Double getQ2() {
+<span class="nc" id="L91">        return this.getValue(MadxGlobalVariable.Q2);</span>
+    }
+
+    /* short name to use the same as madx */
+    public void setQ2(Double q2) { // NOPMD by kaifox on 6/25/10 5:56 PM
+<span class="nc" id="L96">        this.setValue(MadxGlobalVariable.Q2, q2);</span>
+<span class="nc" id="L97">    }</span>
+
+    public Double getDq1() {
+<span class="nc" id="L100">        return this.getValue(MadxGlobalVariable.DQ1);</span>
+    }
+
+    public void setDq1(Double dq1) {
+<span class="nc" id="L104">        this.setValue(MadxGlobalVariable.DQ1, dq1);</span>
+<span class="nc" id="L105">    }</span>
+
+    public Double getDq2() {
+<span class="nc" id="L108">        return this.getValue(MadxGlobalVariable.DQ2);</span>
+    }
+
+    public void setDq2(Double dq2) {
+<span class="nc" id="L112">        this.setValue(MadxGlobalVariable.DQ2, dq2);</span>
+<span class="nc" id="L113">    }</span>
+
+    // public Double getDdq1() {
+    // return this.getValue(MadxGlobalVariable.DDQ1);
+    // }
+    // public void setDdq1(Double ddq1) {
+    // this.setValue(MadxGlobalVariable.DDQ1, ddq1);
+    // }
+
+    // public void setDdq2(Double ddq2) {
+    // this.setValue(MadxGlobalVariable.DDQ2, ddq2);
+    // }
+    // public Double getDdq2() {
+    // return this.getValue(MadxGlobalVariable.DDQ2);
+    // }
+
+    @Override
+    public boolean isGlobal() {
+<span class="fc" id="L131">        return true;</span>
+    }
+
+    @Override
+    public Map&lt;String, Double&gt; getParameterSettings() {
+
+<span class="fc" id="L137">        HashMap&lt;String, Double&gt; paraSettings = new HashMap&lt;String, Double&gt;(this.variableValues.size());</span>
+
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (MadxGlobalVariable par : this.variableValues.keySet()) {</span>
+<span class="fc" id="L140">            paraSettings.put(par.getMadxName(), this.variableValues.get(par));</span>
+<span class="fc" id="L141">        }</span>
+
+<span class="fc" id="L143">        return paraSettings;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMadModelManagerImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.model.manage</a> &gt; <span class="el_source">JMadModelManagerImpl.java</span></div><h1>JMadModelManagerImpl.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+/*
+ * $Id: DefaultModelManager.java,v 1.2 2008-08-15 18:05:25 kfuchsbe Exp $
+ * 
+ * $Date: 2008-08-15 18:05:25 $ $Revision: 1.2 $ $Author: kfuchsbe $
+ * 
+ * Copyright CERN, All Rights Reserved.
+ */
+package cern.accsoft.steering.jmad.model.manage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.accsoft.steering.jmad.domain.elem.Element;
+import cern.accsoft.steering.jmad.domain.ex.JMadModelException;
+import cern.accsoft.steering.jmad.model.JMadModel;
+import cern.accsoft.steering.jmad.service.JMadModelComparator;
+import cern.accsoft.steering.jmad.service.SequenceElementFilter;
+
+/**
+ * simplest possible implementation of a {@link JMadModelManager}.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+<span class="fc" id="L49">public class JMadModelManagerImpl implements JMadModelManager {</span>
+
+    /** The logger for the class */
+<span class="fc" id="L52">    private final static Logger LOGGER = LoggerFactory.getLogger(JMadModelManagerImpl.class);</span>
+
+    /** the active model */
+<span class="fc" id="L55">    private JMadModel activeModel = null;</span>
+
+    /** all the listeners */
+<span class="fc" id="L58">    private final List&lt;JMadModelManagerListener&gt; listeners = new ArrayList&lt;JMadModelManagerListener&gt;();</span>
+
+    /** all the available models */
+<span class="fc" id="L61">    private final List&lt;JMadModel&gt; models = new ArrayList&lt;JMadModel&gt;();</span>
+
+    private JMadModelComparator jMadModelComparator;
+
+    //
+    // methods for interface ModelManager
+    //
+
+    @Override
+    public final JMadModel getActiveModel() {
+<span class="nc" id="L71">        return activeModel;</span>
+    }
+
+    @Override
+    public final void setActiveModel(JMadModel model) {
+<span class="fc" id="L76">        this.activeModel = model;</span>
+<span class="fc" id="L77">        fireChangedActiveModel();</span>
+<span class="fc" id="L78">    }</span>
+
+    @Override
+    public final void addListener(JMadModelManagerListener listener) {
+<span class="nc" id="L82">        this.listeners.add(listener);</span>
+<span class="nc" id="L83">    }</span>
+
+    @Override
+    public final void removeListener(JMadModelManagerListener listener) {
+<span class="nc" id="L87">        this.listeners.remove(listener);</span>
+<span class="nc" id="L88">    }</span>
+
+    /**
+     * informs all listeners that the active model has changed.
+     */
+    protected final void fireChangedActiveModel() {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        for (JMadModelManagerListener listener : listeners) {</span>
+<span class="nc" id="L95">            listener.changedActiveModel(this.activeModel);</span>
+<span class="nc" id="L96">        }</span>
+<span class="fc" id="L97">    }</span>
+
+    /**
+     * notifies all listeners that a model has been added
+     * 
+     * @param model the newly added model
+     */
+    private void fireAddedModel(JMadModel model) {
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        for (JMadModelManagerListener listener : this.listeners) {</span>
+<span class="nc" id="L106">            listener.addedModel(model);</span>
+<span class="nc" id="L107">        }</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * notify all listeners that a model was removed
+     * 
+     * @param model the model which was removed
+     */
+    private void fireRemovedModel(JMadModel model) {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (JMadModelManagerListener listener : this.listeners) {</span>
+<span class="nc" id="L117">            listener.removedModel(model);</span>
+<span class="nc" id="L118">        }</span>
+<span class="nc" id="L119">    }</span>
+
+    @Override
+    public void addModel(JMadModel model) {
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        if (!this.models.contains(model)) {</span>
+<span class="fc" id="L124">            this.models.add(model);</span>
+<span class="fc" id="L125">            fireAddedModel(model);</span>
+        }
+<span class="fc" id="L127">    }</span>
+
+    @Override
+    public List&lt;JMadModel&gt; getModels() {
+<span class="nc" id="L131">        return this.models;</span>
+    }
+
+    @Override
+    public void removeModel(JMadModel model) {
+<span class="nc bnc" id="L136" title="All 4 branches missed.">        if ((this.activeModel != null) &amp;&amp; (this.activeModel.equals(model))) {</span>
+<span class="nc" id="L137">            setActiveModel(null);</span>
+        }
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (this.models.contains(model)) {</span>
+<span class="nc" id="L140">            this.models.remove(model);</span>
+<span class="nc" id="L141">            fireRemovedModel(model);</span>
+        }
+<span class="nc" id="L143">    }</span>
+
+    @Override
+    public void cleanup() {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (JMadModel model : getModels()) {</span>
+            try {
+<span class="nc" id="L149">                model.cleanup();</span>
+<span class="nc" id="L150">            } catch (JMadModelException e) {</span>
+<span class="nc" id="L151">                LOGGER.error(&quot;Error while cleaning up model.&quot;, e);</span>
+<span class="nc" id="L152">            }</span>
+<span class="nc" id="L153">        }</span>
+<span class="nc" id="L154">    }</span>
+
+    public void setjMadModelComparator(JMadModelComparator jMadModelComparator) {
+<span class="fc" id="L157">        this.jMadModelComparator = jMadModelComparator;</span>
+<span class="fc" id="L158">    }</span>
+
+    @Override
+    public List&lt;Element&gt; getCommonSequenceElements(JMadModel model1, JMadModel model2, SequenceElementFilter filter) {
+<span class="nc" id="L162">        return jMadModelComparator.getCommonSequenceElements(model1, model2, filter);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnusedLocalFileDetector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.cleaning</a> &gt; <span class="el_source">UnusedLocalFileDetector.java</span></div><h1>UnusedLocalFileDetector.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.cleaning;
+
+import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil.getRequiredModelFiles;
+import static cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil.nonIgnoredFilesBelow;
+import static com.google.common.collect.Sets.difference;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets.SetView;
+
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinition;
+import cern.accsoft.steering.jmad.modeldefs.io.JMadModelDefinitionImporter;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinder;
+import cern.accsoft.steering.jmad.modeldefs.io.ModelFileFinderManager;
+import cern.accsoft.steering.jmad.modeldefs.io.impl.ModelDefinitionUtil;
+
+public class UnusedLocalFileDetector {
+
+<span class="nc" id="L34">    private static final Logger LOGGER = LoggerFactory.getLogger(UnusedLocalFileDetector.class);</span>
+
+    private final JMadModelDefinitionImporter modelDefinitionImporter;
+    private final ModelFileFinderManager fileFinderManager;
+
+    public UnusedLocalFileDetector(JMadModelDefinitionImporter modelDefinitionImporter,
+<span class="nc" id="L40">            ModelFileFinderManager fileFinderManager) {</span>
+<span class="nc" id="L41">        this.modelDefinitionImporter = requireNonNull(modelDefinitionImporter,</span>
+                &quot;modelDefinitionImporter must not be null&quot;);
+<span class="nc" id="L43">        this.fileFinderManager = requireNonNull(fileFinderManager, &quot;fileFinderManager must not be null&quot;);</span>
+<span class="nc" id="L44">    }</span>
+
+    public Set&lt;File&gt; detectUnusedFiles(Path rootPath) {
+<span class="nc" id="L47">        Set&lt;File&gt; modelDefinitionFiles = ModelDefinitionUtil.modelDefinitionFilesBelow(rootPath);</span>
+<span class="nc" id="L48">        LOGGER.info(&quot;Found model definition files below {} :\n{}&quot;, rootPath, modelDefinitionFiles);</span>
+<span class="nc" id="L49">        Set&lt;JMadModelDefinition&gt; modelDefs = modelDefinitionFiles.stream()</span>
+<span class="nc" id="L50">                .flatMap(f -&gt; modelDefinitionImporter.importModelDefinitions(f).stream()).collect(toSet());</span>
+
+<span class="nc" id="L52">        Set&lt;File&gt; requiredLocalFiles = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L53">        requiredLocalFiles</span>
+<span class="nc" id="L54">                .addAll(modelDefinitionFiles.stream().map(UnusedLocalFileDetector::canonicalFile).collect(toSet()));</span>
+
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (JMadModelDefinition md : modelDefs) {</span>
+<span class="nc" id="L57">            ModelFileFinder finder = fileFinderManager.getModelFileFinder(md);</span>
+<span class="nc" id="L58">            Set&lt;Optional&lt;File&gt;&gt; localFiles = getRequiredModelFiles(md).stream().map(finder::getLocalSourceFile)</span>
+<span class="nc" id="L59">                    .collect(toSet());</span>
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (!localFiles.stream().allMatch(Optional::isPresent)) {</span>
+<span class="nc" id="L62">                throw new IllegalStateException(</span>
+                        &quot;Not all Files of model definition '&quot; + md + &quot;' are local files! Cannot proceed.&quot;);
+            }
+
+<span class="nc" id="L66">            Set&lt;File&gt; absoluteFiles = localFiles.stream().map(Optional::get).map(UnusedLocalFileDetector::canonicalFile)</span>
+<span class="nc" id="L67">                    .collect(toSet());</span>
+<span class="nc" id="L68">            LOGGER.info(&quot;Model definition {} uses the following files: {}&quot;, md, absoluteFiles);</span>
+
+<span class="nc" id="L70">            requiredLocalFiles.addAll(absoluteFiles);</span>
+<span class="nc" id="L71">        }</span>
+
+<span class="nc" id="L73">        Set&lt;File&gt; allFiles = nonIgnoredFilesBelow(rootPath).stream().map(UnusedLocalFileDetector::canonicalFile)</span>
+<span class="nc" id="L74">                .collect(toSet());</span>
+
+<span class="nc" id="L76">        SetView&lt;File&gt; difference = difference(allFiles, requiredLocalFiles);</span>
+<span class="nc" id="L77">        return ImmutableSet.copyOf(difference);</span>
+    }
+
+    private static File canonicalFile(File file) {
+        try {
+<span class="nc" id="L82">            return file.getCanonicalFile();</span>
+<span class="nc" id="L83">        } catch (IOException e) {</span>
+<span class="nc" id="L84">            throw new IllegalArgumentException(&quot;Canonical file of file '&quot; + file + &quot;' cannot be determined.&quot;);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

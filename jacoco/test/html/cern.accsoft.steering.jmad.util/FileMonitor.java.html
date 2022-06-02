@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileMonitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.util</a> &gt; <span class="el_source">FileMonitor.java</span></div><h1>FileMonitor.java</h1><pre class="source lang-java linenums">// @formatter:off
+ /*******************************************************************************
+ *
+ * This file is part of JMad.
+ * 
+ * Copyright (c) 2008-2011, CERN. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************/
+// @formatter:on
+
+package cern.accsoft.steering.jmad.util;
+
+import java.io.File;
+
+import cern.accsoft.steering.jmad.JMadException;
+
+/**
+ * polls a file and terminates as soon as it exists.
+ * 
+ * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+ */
+public class FileMonitor {
+    /** the sleeping interval between the polls. in milliseconds. */
+    private static final int POLL_INTERVAL = 10;
+
+    /** The file to wait for */
+<span class="fc" id="L39">    private File file = null;</span>
+
+    /** The process to monitor. If this is interrupted, then the waiting throws an exception */
+<span class="fc" id="L42">    private Process process = null;</span>
+
+    /**
+     * waits forever, until the file exists.
+     * 
+     * @return true, if it exists finally, false, if the monitored process was interrupted
+     * @throws WaitingFailedException if something goes wrong during waiting
+     */
+    public boolean waitForFile() throws JMadException {
+<span class="nc" id="L51">        return waitForFile(null);</span>
+    }
+
+    /**
+     * waits until a file exists.
+     * 
+     * @param timeout the maximum millisecs to wait (if null, then we wait forever ...)
+     * @return true, if the file finally exists, false, if the monitored process was interrupted or we timed out.
+     * @throws WaitingFailedException if something goes wrong during the waiting
+     */
+    public synchronized boolean waitForFile(Long timeout) throws JMadException {
+<span class="fc" id="L62">        long startTime = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        while (!file.exists()) {</span>
+            /* interrupt if the process has stopped meanwhile. */
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">            if ((process != null) &amp;&amp; (!ProcTools.isRunning(process))) {</span>
+<span class="nc" id="L66">                throw new ProcessTerminatedUnexpectedlyException(&quot;process '&quot; + process.toString()</span>
+<span class="nc" id="L67">                        + &quot;' terminated while waiting for file '&quot; + file.getAbsolutePath()</span>
+                        + &quot;' - maybe there was some error!&quot;);
+            }
+
+            /* interrupt if the timeout is reached */
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            if (timeout != null) {</span>
+<span class="fc" id="L73">                long delay = timeout - (System.currentTimeMillis() - startTime);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                if (delay &lt;= 0) {</span>
+<span class="fc" id="L75">                    return false;</span>
+                }
+            }
+
+            /*
+             * If everything is ok so far, we wait a little bit before continuing.
+             */
+            try {
+<span class="fc" id="L83">                this.wait(POLL_INTERVAL);</span>
+<span class="nc" id="L84">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L85">                throw new WaitingFailedException(&quot;waiting for file '&quot; + file.getAbsolutePath() + &quot;' was interrupted&quot;, e);</span>
+<span class="fc" id="L86">            }</span>
+        }
+
+        /* the file finally exists */
+<span class="fc" id="L90">        return true;</span>
+    }
+
+    public FileMonitor(File file) {
+<span class="fc" id="L94">        this(file, null);</span>
+<span class="fc" id="L95">    }</span>
+
+<span class="fc" id="L97">    public FileMonitor(File file, Process process) {</span>
+<span class="fc" id="L98">        this.file = file;</span>
+<span class="fc" id="L99">        this.process = process;</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Will be thrown, if the waiting fails for some reason.
+     * 
+     * @author Kajetan Fuchsberger (kajetan.fuchsberger at cern.ch)
+     */
+    public static class WaitingFailedException extends JMadException {
+        private static final long serialVersionUID = 1L;
+
+        public WaitingFailedException(String message) {
+<span class="nc" id="L111">            super(message);</span>
+<span class="nc" id="L112">        }</span>
+
+        public WaitingFailedException(String message, Throwable cause) {
+<span class="nc" id="L115">            super(message, cause);</span>
+<span class="nc" id="L116">        }</span>
+
+    }
+
+    public static class ProcessTerminatedUnexpectedlyException extends JMadException {
+        private static final long serialVersionUID = 1L;
+
+        public ProcessTerminatedUnexpectedlyException(String message) {
+<span class="nc" id="L124">            super(message);</span>
+<span class="nc" id="L125">        }</span>
+
+        public ProcessTerminatedUnexpectedlyException(String message, Throwable cause) {
+<span class="nc" id="L128">            super(message, cause);</span>
+<span class="nc" id="L129">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

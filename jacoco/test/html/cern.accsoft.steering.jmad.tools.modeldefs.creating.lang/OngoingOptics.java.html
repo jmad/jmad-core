@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OngoingOptics.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmad-core</a> &gt; <a href="index.source.html" class="el_package">cern.accsoft.steering.jmad.tools.modeldefs.creating.lang</a> &gt; <span class="el_source">OngoingOptics.java</span></div><h1>OngoingOptics.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package cern.accsoft.steering.jmad.tools.modeldefs.creating.lang;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+import cern.accsoft.steering.jmad.domain.file.ModelFile;
+import cern.accsoft.steering.jmad.modeldefs.domain.JMadModelDefinitionImpl;
+import cern.accsoft.steering.jmad.modeldefs.domain.OpticsDefinitionImpl;
+
+public class OngoingOptics {
+
+    private final JMadModelDefinitionImpl modelDefinition;
+    private final String name;
+<span class="nc" id="L22">    private boolean isDefault = false;</span>
+<span class="nc" id="L23">    private Boolean overlay = null;</span>
+
+<span class="nc" id="L25">    public OngoingOptics(String name, JMadModelDefinitionImpl modelDefinition) {</span>
+<span class="nc" id="L26">        this.name = requireNonNull(name, &quot;name must not be null&quot;);</span>
+<span class="nc" id="L27">        this.modelDefinition = requireNonNull(modelDefinition, &quot;modelDefinition must not be null&quot;);</span>
+<span class="nc" id="L28">    }</span>
+
+    public OngoingOptics isDefault() {
+<span class="nc" id="L31">        this.isDefault = true;</span>
+<span class="nc" id="L32">        return this;</span>
+    }
+
+    public OngoingOptics isOverlay() {
+<span class="nc" id="L36">        this.overlay = true;</span>
+<span class="nc" id="L37">        return this;</span>
+    }
+
+    public void isDefinedAs(Consumer&lt;FileBlock&gt; fileBlock) {
+<span class="nc" id="L41">        List&lt;ModelFileBuilder&gt; builders = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L42">        fileBlock.accept(new FileBlock(builders));</span>
+
+<span class="nc" id="L44">        List&lt;ModelFile&gt; modelFiles = builders.stream().map(ModelFileBuilder::build).collect(toList());</span>
+<span class="nc" id="L45">        OpticsDefinitionImpl opticsDefinition = opticsDefinition(modelFiles);</span>
+<span class="nc" id="L46">        modelDefinition.addOpticsDefinition(opticsDefinition);</span>
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (isDefault) {</span>
+<span class="nc" id="L49">            AssertUtil.requireNull(modelDefinition.getDefaultOpticsDefinition(),</span>
+                    &quot;Default optics definition is already set. Cannot set twice!&quot;);
+<span class="nc" id="L51">            modelDefinition.setDefaultOpticsDefinition(opticsDefinition);</span>
+        }
+<span class="nc" id="L53">    }</span>
+
+    private OpticsDefinitionImpl opticsDefinition(List&lt;ModelFile&gt; modelFiles) {
+<span class="nc" id="L56">        ModelFile[] fileArray = modelFiles.toArray(new ModelFile[modelFiles.size()]);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (overlay == null) {</span>
+<span class="nc" id="L58">            return new OpticsDefinitionImpl(name, fileArray);</span>
+        } else {
+<span class="nc" id="L60">            return new OpticsDefinitionImpl(name, overlay, fileArray);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

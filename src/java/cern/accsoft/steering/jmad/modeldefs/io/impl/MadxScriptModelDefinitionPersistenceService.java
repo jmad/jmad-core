@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
 
@@ -112,7 +111,6 @@ public class MadxScriptModelDefinitionPersistenceService implements ModelDefinit
             MadxScriptCreationContext script = new MadxScriptCreationContext(modelFilePathResolver, model,
                     openOpticFile(directory, opticsDefinition));
             script.comment("JMad export of model " + model.getName() + " optic " + opticsDefinition.getName());
-            script.comment("Generated: " + Instant.now().toString());
             script.space();
             opticsDefinition.getInitFiles().forEach(script::call);
             script.close();

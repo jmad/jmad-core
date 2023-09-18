@@ -2,7 +2,6 @@
 [![Build Status](https://travis-ci.com/jmad/jmad-core.svg?branch=master)](https://travis-ci.com/jmad/jmad-core)
 ![License](https://img.shields.io/github/license/jmad/jmad-core.svg)
 [![codecov](https://codecov.io/gh/jmad/jmad-core/branch/master/graph/badge.svg)](https://codecov.io/gh/jmad/jmad-core)
-[![Codacy code quality](https://api.codacy.com/project/badge/Grade/b830f8eafc0441199d126967bd87d08c)](https://www.codacy.com/app/jmad/jmad-core?utm_source=github.com&utm_medium=referral&utm_content=jmad/jmad-core&utm_campaign=Badge_Grade)
 
 # JMad
 

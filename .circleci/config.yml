@@ -5,43 +5,78 @@ version: 2
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  build:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#docker-machine-macos-windows-executor
+  build-and-deploy:
     docker:
-      # specify the version you desire here
       - image: cimg/openjdk:11.0
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/circleci-images/
-      # - image: circleci/postgres:9.4
-
     working_directory: ~/repo
-
     environment:
-      # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       TERM: dumb
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-            
       - run: chmod +x ./gradlew
       - run: ./gradlew dependencies
-
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
+      - run: ./gradlew check --stacktrace
+      - run: ./gradlew jacocoTestReport
 
-      # run tests!
-      - run: ./gradlew test
+      - run: [[ -n ${SIGNING_KEY_SECRING_BASE64} ]]
+      - run: echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
+      - run: export SIGNING_KEY_PATH=./signing.key.secring
+      - run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -DDEPLOYMENT=true
+
+      - run: mkdir -p projectpage
+      - run: cp -rv build/reports/* projectpage
+      - run: cp -rv build/docs/* projectpage
+      - run: cp -rv docs/* projectpage
+      # force push to the repo gh-pages branch
+
+  build:
+    docker:
+      - image: cimg/openjdk:11.0
+    working_directory: ~/repo
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: chmod +x ./gradlew
+      - run: ./gradlew dependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+      - run: ./gradlew check --stacktrace
+
+workflows:
+  build-and-deploy-workflow:
+    jobs:
+      - build-and-deploy:
+          filters:
+            tags:
+              # any tag
+              only: /.*/
+            branches:
+              # no branches
+              ignore: /.*/
+
+  build-workflow:
+    jobs:
+      - build:
+          filters:
+            tags:
+              # not tag
+              ignore: /.*/

@@ -29,9 +29,9 @@ jobs:
       - run: ./gradlew jacocoTestReport
 
       - run: "[[ -n ${SIGNING_KEY_SECRING_BASE64} ]]"
-      - run: echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
-      - run: export SIGNING_KEY_PATH=./signing.key.secring
-      - run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -DDEPLOYMENT=true
+      #- run: echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
+      #- run: export SIGNING_KEY_PATH=./signing.key.secring
+      #- run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -DDEPLOYMENT=true
 
       - run: mkdir -p projectpage
       - run: cp -rv build/reports/* projectpage

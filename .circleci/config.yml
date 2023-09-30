@@ -71,7 +71,7 @@ workflows:
               only: /.*/
             branches:
               # no branches
-              ignore: /.*/
+              #ignore: /.*/
 
   build-workflow:
     jobs:

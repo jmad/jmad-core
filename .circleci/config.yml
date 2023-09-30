@@ -69,7 +69,7 @@ workflows:
             tags:
               # any tag
               only: /.*/
-            branches:
+            #branches: To be put back for release !
               # no branches
               #ignore: /.*/
 

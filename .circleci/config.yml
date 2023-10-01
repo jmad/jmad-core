@@ -1,9 +1,5 @@
-# Java Gradle CircleCI 2.0 configuration file
-# See: https://circleci.com/docs/language-java/
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
   build-and-deploy:
     docker:
@@ -29,9 +25,9 @@ jobs:
       - run: ./gradlew jacocoTestReport
 
       - run: "[[ -n ${SIGNING_KEY_SECRING_BASE64} ]]"
-      #- run: echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
-      #- run: export SIGNING_KEY_PATH=./signing.key.secring
-      #- run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -DDEPLOYMENT=true
+      - run: echo $SIGNING_KEY_SECRING_BASE64 | base64 --decode > ./signing.key.secring
+      - run: export SIGNING_KEY_PATH=./signing.key.secring
+      - run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -DDEPLOYMENT=true
 
       - run: mkdir -p projectpage
       - run: cp -rv build/reports/* projectpage
@@ -69,9 +65,9 @@ workflows:
             tags:
               # any tag
               only: /.*/
-            #branches: To be put back for release !
+            branches:
               # no branches
-              #ignore: /.*/
+              ignore: /.*/
 
   build-workflow:
     jobs:

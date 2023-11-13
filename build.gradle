@@ -4,9 +4,9 @@ buildscript {
 
     repositories {
         if (project['CERN_VM']) {
-            maven { url 'http://artifactory.cern.ch/ds-jcenter' }
-            maven { url 'http://artifactory.cern.ch/development' }
-            maven { url 'http://artifactory.cern.ch/gradle-plugins' }
+            maven { url 'https://artifactory.cern.ch/ds-jcenter' }
+            maven { url 'https://artifactory.cern.ch/development' }
+            maven { url 'https://artifactory.cern.ch/gradle-plugins' }
         } else {
             gradlePluginPortal()
         }
@@ -29,8 +29,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     if (project['CERN_VM']) {
-        maven { url 'http://artifactory.cern.ch/ds-jcenter' }
-        maven { url 'http://artifactory.cern.ch/development' }
+        maven { url 'https://artifactory.cern.ch/ds-jcenter' }
+        maven { url 'https://artifactory.cern.ch/development' }
     } else {
         mavenCentral()
     }
